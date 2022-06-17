@@ -120,6 +120,9 @@
     <ClCompile Include="lua\lzio.c">
       <Filter>Исходные файлы\lua</Filter>
     </ClCompile>
+    <ClCompile Include="zoneplacer.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -205,6 +208,9 @@
     </ClInclude>
     <ClInclude Include="lua\lzio.h">
       <Filter>Файлы заголовков\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="zoneplacer.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

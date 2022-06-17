@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -89,7 +89,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)sol2\single\include;$(SolutionDir)lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -189,8 +189,12 @@
     <ClCompile Include="lua\lvm.c" />
     <ClCompile Include="lua\lzio.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mapgenerator.cpp" />
+    <ClCompile Include="maptemplatereader.cpp" />
+    <ClCompile Include="zoneplacer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="enums.h" />
     <ClInclude Include="lua\lapi.h" />
     <ClInclude Include="lua\lauxlib.h" />
     <ClInclude Include="lua\lcode.h" />
@@ -219,6 +223,20 @@
     <ClInclude Include="lua\lundump.h" />
     <ClInclude Include="lua\lvm.h" />
     <ClInclude Include="lua\lzio.h" />
+    <ClInclude Include="map.h" />
+    <ClInclude Include="mapgenerator.h" />
+    <ClInclude Include="maptemplate.h" />
+    <ClInclude Include="maptemplatereader.h" />
+    <ClInclude Include="objectinfo.h" />
+    <ClInclude Include="position.h" />
+    <ClInclude Include="randomgenerator.h" />
+    <ClInclude Include="templatezone.h" />
+    <ClInclude Include="tileinfo.h" />
+    <ClInclude Include="vposition.h" />
+    <ClInclude Include="zoneconnection.h" />
+    <ClInclude Include="zoneid.h" />
+    <ClInclude Include="zoneoptions.h" />
+    <ClInclude Include="zoneplacer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
