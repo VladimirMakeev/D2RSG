@@ -11,43 +11,54 @@ template = {
 	zones = {
 		{
 			-- Empire starting zone
-			name = "Empire start",
+			id = 0,
 			type = Zone.PlayerStart,
 			size = 15,
 			monsters = Monsters.Normal,
 
 			terrains = {Terrain.Neutral, Terrain.Human},
 			grounds = {Ground.Plain, Ground.Forest},
-			mines = {Resource.Gold, Resource.LifeMana},
+			mines = {
+				gold = 1,
+				lifeMana = 1,
+			},
 		},
 		{
 			-- Undead Hordes starting zone
-			name = "Undead start",
+			id = 1,
 			type = Zone.PlayerStart,
 			size = 15,
 			monsters = Monsters.Normal,
 
 			terrains = {Terrain.Neutral, Terrain.Undead},
 			grounds = {Ground.Plain, Ground.Forest},
-			mines = {Resource.Gold, Resource.DeathMana},
+			mines = {
+				gold = 1,
+				deathMana = 1,
+			},
 		},
 		{
 			-- Central zone
-			name = "Junction",
-			type = Zone.PlayerStart,
+			id = 2,
+			type = Zone.Junction,
 			size = 18,
 			monsters = Monsters.Strong,
 
 			terrains = {Terrain.Neutral, Terrain.Undead},
 			grounds = {Ground.Plain, Ground.Forest},
-			mines = {Resource.Gold, Resource.InfernalMana, Resource.RunicMana, Resource.GroveMana},
+			mines = {
+				gold = 1,
+				infernalMana = 1,
+				runicMana = 1,
+				groveMana = 1,
+			},
 		},
 	},
 
 	connections = {
-		-- We should get 'Empire start' <-> 'Junction' <-> 'Undead start'
-		{a = "Empire start", b = "Junction", guard = 1000},
-		{a = "Undead start", b = "Junction", guard = 1000},
+		-- We should get 'Empire start' <-> 'Central' <-> 'Undead start'
+		{a = 0, b = 2, guard = 1000},
+		{a = 1, b = 2, guard = 1000},
 	},
 }
 
