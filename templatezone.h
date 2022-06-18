@@ -19,6 +19,27 @@ struct TemplateZone : public ZoneOptions
         ZoneOptions::operator=(options);
     }
 
+    void addTile(const Position& position)
+    {
+        tileInfo.insert(position);
+    }
+
+    void removeTile(const Position& position)
+    {
+        tileInfo.erase(position);
+        possibleTiles.erase(position);
+    }
+
+    void clearTiles()
+    {
+        tileInfo.clear();
+    }
+
+    const std::set<Position>& getTileInfo() const
+    {
+        return tileInfo;
+    }
+
     MapGenerator* mapGenerator{};
 
     // Template info
