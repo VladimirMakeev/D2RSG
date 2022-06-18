@@ -34,7 +34,16 @@ public:
     void generateZones();
     void fillZones();
 
+    void setZoneId(const Position& position, TemplateZoneId zoneId);
+    void checkInOnMap(const Position& position);
+
+    std::size_t posToIndex(const Position& position) const
+    {
+        return position.x + map->size * position.y;
+    }
+
     std::vector<TileInfo> tiles;
+    std::vector<TemplateZoneId> zoneColoring;
     ZonesMap zones;
     MapPtr map;
     RandomGenerator randomGenerator;

@@ -1,5 +1,8 @@
 #include "mapgenerator.h"
 #include "maptemplate.h"
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
 
 MapPtr MapGenerator::generate()
 {
@@ -8,6 +11,7 @@ MapPtr MapGenerator::generate()
     addHeaderInfo();
     initTiles();
     generateZones();
+    // Clear map so that all tiles are unguarded
     // map->calculateGuardingCreaturePositions();
     fillZones();
 
@@ -24,7 +28,10 @@ void MapGenerator::addHeaderInfo()
 void MapGenerator::initTiles()
 {
     map->initTerrain(); // TODO
-    tiles.resize(map->size * map->size);
+
+    const auto total{map->size * map->size};
+    tiles.resize(total);
+    zoneColoring.resize(total);
 }
 
 void MapGenerator::generateZones()
@@ -45,7 +52,26 @@ void MapGenerator::generateZones()
     ZonePlacer placer(this);
     placer.placeZones(&randomGenerator);
     placer.assignZones();
+
+    std::cout << "Zones generated successfully\n";
 }
 
 void MapGenerator::fillZones()
 { }
+
+void MapGenerator::setZoneId(const Position& position, TemplateZoneId zoneId)
+{
+    checkInOnMap(position);
+
+    zoneColoring[posToIndex(position)] = zoneId;
+}
+
+void MapGenerator::checkInOnMap(const Position& position)
+{
+    if (!map->isInTheMap(position)) {
+        std::stringstream stream;
+        stream << "Tile " << position << " is outside the map";
+
+        throw std::runtime_error(stream.str());
+    }
+}
