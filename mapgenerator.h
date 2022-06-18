@@ -25,7 +25,9 @@ public:
     MapGenerator(MapGenOptions& mapGenOptions, time_t randomSeed = std::time(nullptr))
         : mapGenOptions{mapGenOptions}
         , randomSeed{randomSeed}
-    { }
+    {
+        randomGenerator.setSeed(randomSeed);
+    }
 
     MapPtr generate();
 
@@ -39,7 +41,7 @@ public:
 
     std::size_t posToIndex(const Position& position) const
     {
-        return position.x + map->size * position.y;
+        return position.x + mapGenOptions.size * position.y;
     }
 
     std::vector<TileInfo> tiles;
