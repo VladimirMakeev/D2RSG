@@ -25,6 +25,7 @@ public:
 
     void assignZones();
 
+private:
     void prepareZones(ZonesMap& zones, ZoneVector& zonesVector, RandomGenerator* random);
 
     void attractConnectedZones(ZonesMap& zones, ForceVector& forces, DistanceVector& distances);

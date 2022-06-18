@@ -1,6 +1,7 @@
 #include "zoneplacer.h"
 #include "mapgenerator.h"
 #include "randomgenerator.h"
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -116,7 +117,97 @@ void ZonePlacer::placeZones(RandomGenerator* random)
 }
 
 void ZonePlacer::assignZones()
-{ }
+{
+    std::cout << "Starting zone coloring\n";
+
+    auto mapWidth{mapGenerator->mapGenOptions.size};
+    auto mapHeight{mapGenerator->mapGenOptions.size};
+
+    // Scale to medium map to ensure smooth results
+    scaleX = 72.0f / mapWidth;
+    scaleY = 72.0f / mapHeight;
+
+    // Yes, copy them
+    auto zones = mapGenerator->zones;
+
+    using DistPair = std::pair<std::shared_ptr<TemplateZone>, float>;
+    std::vector<DistPair> distances(zones.size());
+
+    auto compareByDistance = [](const DistPair& a, const DistPair& b) -> bool {
+        // Bigger zones have smaller distance
+        return a.second / a.first->size < b.second / b.first->size;
+    };
+
+    auto moveToCenterOfMass = [](std::shared_ptr<TemplateZone>& zone) -> void {
+        Position total{};
+
+        const auto& tiles{zone->getTileInfo()};
+        for (const auto& tile : tiles) {
+            total += tile;
+        }
+
+        const auto size{static_cast<int>(tiles.size())};
+        assert(size != 0);
+
+        zone->pos = Position{total.x / size, total.y / size};
+    };
+
+    // Place zones correctly and assign tiles to each zone
+
+    // 1. Create Voronoi diagram
+    // 2. Find current center of mass for each zone. Move zone to that center to balance zones sizes
+    for (int i = 0; i < mapWidth; ++i) {
+        for (int j = 0; j < mapHeight; ++j) {
+            distances.clear();
+
+            Position pos{i, j};
+            for (auto& zone : zones) {
+                distances.push_back(
+                    {zone.second, static_cast<float>(pos.distanceSquared(zone.second->pos))});
+            }
+
+            auto it{std::min_element(distances.begin(), distances.end(), compareByDistance)};
+            // Closest tile belongs to zone
+            it->first->addTile(pos);
+        }
+    }
+
+    for (auto& zone : zones) {
+        moveToCenterOfMass(zone.second);
+    }
+
+    // Assign actual tiles to each zone using nonlinear norm for fine edges
+
+    // Now populate them again
+    for (auto& zone : zones) {
+        zone.second->clearTiles();
+    }
+
+    for (int i = 0; i < mapWidth; ++i) {
+        for (int j = 0; j < mapHeight; ++j) {
+            distances.clear();
+
+            Position pos{i, j};
+            for (auto& zone : zones) {
+                distances.push_back(
+                    {zone.second, static_cast<float>(pos.distanceSquared(zone.second->pos))});
+            }
+
+            auto it{std::min_element(distances.begin(), distances.end(), compareByDistance)};
+            auto& zone{it->first};
+
+            zone->addTile(pos);
+            mapGenerator->setZoneId(pos, zone->id);
+        }
+    }
+
+    // Set position (town position) to center of mass of irregular zone
+    for (auto& zone : zones) {
+        moveToCenterOfMass(zone.second);
+    }
+
+    std::cout << "Finished zone coloring\n";
+}
 
 void ZonePlacer::prepareZones(ZonesMap& zones, ZoneVector& zonesVector, RandomGenerator* random)
 {
