@@ -138,6 +138,9 @@
     <ClCompile Include="midgardid.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="map.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -225,6 +228,9 @@
       <Filter>Файлы заголовков\lua</Filter>
     </ClInclude>
     <ClInclude Include="zoneplacer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="map.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="scenarioobject.h">
