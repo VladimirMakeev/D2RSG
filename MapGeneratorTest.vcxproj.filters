@@ -230,5 +230,11 @@
     <ClInclude Include="scenarioobject.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
+    <ClInclude Include="midgardid.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="mapelement.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

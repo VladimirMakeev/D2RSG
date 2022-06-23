@@ -225,6 +225,7 @@
     <ClInclude Include="lua\lvm.h" />
     <ClInclude Include="lua\lzio.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="mapelement.h" />
     <ClInclude Include="mapgenerator.h" />
     <ClInclude Include="maptemplate.h" />
     <ClInclude Include="maptemplatereader.h" />
