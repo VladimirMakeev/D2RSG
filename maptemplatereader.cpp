@@ -167,6 +167,16 @@ static MapTemplate* createMapTemplate(sol::state& lua)
         map->zones[options->id] = options;
     }
 
+    const auto startingZones{
+        std::count_if(map->zones.begin(), map->zones.end(), [](const auto& it) {
+            auto& zoneOptions{it.second};
+            return zoneOptions->type == TemplateZoneType::PlayerStart
+                   || zoneOptions->type == TemplateZoneType::AiStart;
+        })};
+
+    // Make sure playable races count matches number of player or ai starting zones
+    assert(races.size() == startingZones);
+
     std::vector<sol::table> connections = tmpl.get<std::vector<sol::table>>("connections");
     for (auto& table : connections) {
         map->connections.push_back(createZoneConnection(table, map->zones));
