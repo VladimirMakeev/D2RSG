@@ -1,9 +1,12 @@
 #pragma once
 
+#include "fortification.h"
 #include "objectinfo.h"
 #include "position.h"
 #include "vposition.h"
 #include "zoneoptions.h"
+#include <memory>
+#include <queue>
 
 class MapGenerator;
 
@@ -13,6 +16,23 @@ struct TemplateZone : public ZoneOptions
     TemplateZone(MapGenerator* mapGenerator)
         : mapGenerator{mapGenerator}
     { }
+
+    const VPosition& getCenter() const
+    {
+        return center;
+    }
+
+    void setCenter(const VPosition& value);
+
+    void setPosition(const Position& position)
+    {
+        pos = position;
+    }
+
+    const Position& getPosition() const
+    {
+        return pos;
+    }
 
     void setOptions(const ZoneOptions& options)
     {
@@ -40,6 +60,57 @@ struct TemplateZone : public ZoneOptions
         return tileInfo;
     }
 
+    const CMidgardID& getOwner() const
+    {
+        return ownerId;
+    }
+
+    void setOwner(const CMidgardID& id)
+    {
+        ownerId = id;
+    }
+
+    void initTowns();
+    void initFreeTiles();
+    void createBorder();
+    void fill();
+    void createObstacles();
+    void connectRoads();
+
+    void placeObject(std::unique_ptr<Fortification>&& fortification,
+                     const Position& position,
+                     bool updateDistance = true);
+
+    void updateDistances(const Position& position);
+
+    void addRoadNode(const Position& position);
+
+    void addFreePath(const Position& position);
+
+    // Connect current tile to any other free tile within zone
+    bool connectWithCenter(const Position& position,
+                           bool onlyStraight,
+                           bool passThroughBlocked = false);
+
+    // Creates stack that guards zone entrances or treasures
+    bool addStack(const Position& position,
+                  int strength,
+                  bool clearSurroundingTiles = true,
+                  bool zoneGuard = false);
+
+private:
+    // A* priority queue
+    using Distance = std::pair<Position, float>;
+    struct NodeComparer
+    {
+        bool operator()(const Distance& a, const Distance& b) const
+        {
+            return b.second < a.second;
+        }
+    };
+
+    using PriorityQueue = std::priority_queue<Distance, std::vector<Distance>, NodeComparer>;
+
     MapGenerator* mapGenerator{};
 
     // Template info
@@ -57,4 +128,5 @@ struct TemplateZone : public ZoneOptions
     std::set<Position> possibleTiles; // For treasure generation
     std::set<Position> freePaths;     // Paths of free tiles that all objects will be linked to
     std::set<Position> roads;         // All tiles with roads
+    CMidgardID ownerId{emptyId};      // Player assigned to zone
 };

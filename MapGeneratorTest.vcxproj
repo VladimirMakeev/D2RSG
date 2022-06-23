@@ -194,6 +194,7 @@
     <ClCompile Include="mapgenerator.cpp" />
     <ClCompile Include="maptemplatereader.cpp" />
     <ClCompile Include="midgardid.cpp" />
+    <ClCompile Include="templatezone.cpp" />
     <ClCompile Include="zoneplacer.cpp" />
   </ItemGroup>
   <ItemGroup>
