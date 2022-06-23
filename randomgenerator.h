@@ -5,6 +5,7 @@
 #include <functional>
 #include <random>
 #include <thread>
+#include <vector>
 
 using RandI64 = std::function<std::int64_t()>;
 using Rand = std::function<double()>;
@@ -62,3 +63,12 @@ public:
 private:
     std::mt19937 rand;
 };
+
+template <typename T>
+static inline void randomShuffle(std::vector<T>& container, Rng& rand)
+{
+    std::size_t i = 0;
+    for (auto it = container.rbegin(); it != container.rend(); ++it, ++i) {
+        std::swap(container.begin()[i], container.begin()[(std::size_t)rand.getInt64Range(0, i)()]);
+    }
+}
