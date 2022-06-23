@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="image.cpp" />
     <ClCompile Include="lua\lapi.c" />
     <ClCompile Include="lua\lauxlib.c" />
     <ClCompile Include="lua\lbaselib.c" />
@@ -196,6 +197,7 @@
     <ClCompile Include="zoneplacer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="image.h" />
     <ClInclude Include="knownspells.h" />
     <ClInclude Include="playerbuildings.h" />
     <ClInclude Include="capital.h" />
@@ -241,6 +243,7 @@
     <ClInclude Include="position.h" />
     <ClInclude Include="randomgenerator.h" />
     <ClInclude Include="scenarioobject.h" />
+    <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="templatezone.h" />
     <ClInclude Include="tileinfo.h" />
     <ClInclude Include="vposition.h" />
