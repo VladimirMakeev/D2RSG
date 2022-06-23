@@ -236,5 +236,11 @@
     <ClInclude Include="mapelement.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
+    <ClInclude Include="fortification.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="capital.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
