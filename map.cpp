@@ -63,3 +63,22 @@ const Tile& Map::getTile(const Position& position) const
 
     return tiles[posToIndex(position)];
 }
+
+Tile& Map::getTile(const Position& position)
+{
+    assert(isInTheMap(position));
+
+    return tiles[posToIndex(position)];
+}
+
+void Map::paintTerrain(const Position& position, TerrainType terrain, GroundType ground)
+{
+    getTile(position).setTerrainGround(terrain, ground);
+}
+
+void Map::paintTerrain(const std::vector<Position>& tiles, TerrainType terrain, GroundType ground)
+{
+    for (const auto& tile : tiles) {
+        paintTerrain(tile, terrain, ground);
+    }
+}

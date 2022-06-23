@@ -128,7 +128,16 @@ void TemplateZone::createBorder()
 }
 
 void TemplateZone::fill()
-{ }
+{
+    initTerrain();
+
+    addAllPossibleObjects();
+
+    // Zone center should be always clear to allow other tiles to connect
+    initFreeTiles();
+
+    connectLater();
+}
 
 void TemplateZone::createObstacles()
 { }
@@ -299,4 +308,44 @@ bool TemplateZone::addStack(const Position& position,
                             bool zoneGuard)
 {
     return false;
+}
+
+void TemplateZone::initTerrain()
+{
+    if (type == TemplateZoneType::Water) {
+        paintZoneTerrain(TerrainType::Neutral, GroundType::Water);
+        return;
+    }
+
+    // TODO: create random patches of race-specific terrains,
+    // excluding playable races in scenario
+    paintZoneTerrain(TerrainType::Neutral, GroundType::Plain);
+}
+
+void TemplateZone::addAllPossibleObjects()
+{ }
+
+void TemplateZone::connectLater()
+{ }
+
+void TemplateZone::fractalize()
+{ }
+
+bool TemplateZone::placeMines()
+{
+    return false;
+}
+
+bool TemplateZone::createRequiredObjects()
+{
+    return false;
+}
+
+void TemplateZone::createTreasures()
+{ }
+
+void TemplateZone::paintZoneTerrain(TerrainType terrain, GroundType ground)
+{
+    std::vector<Position> tiles(tileInfo.begin(), tileInfo.end());
+    mapGenerator->paintTerrain(tiles, terrain, ground);
 }

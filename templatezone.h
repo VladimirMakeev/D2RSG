@@ -98,6 +98,16 @@ struct TemplateZone : public ZoneOptions
                   bool clearSurroundingTiles = true,
                   bool zoneGuard = false);
 
+    void initTerrain();
+    void addAllPossibleObjects();
+    void connectLater();
+    void fractalize();
+    bool placeMines();
+    bool createRequiredObjects();
+    void createTreasures();
+
+    void paintZoneTerrain(TerrainType terrain, GroundType ground);
+
 private:
     // A* priority queue
     using Distance = std::pair<Position, float>;

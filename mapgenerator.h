@@ -40,6 +40,11 @@ public:
         return map->insertObject(std::move(object));
     }
 
+    void paintTerrain(const std::vector<Position>& tiles, TerrainType terrain, GroundType ground)
+    {
+        map->paintTerrain(tiles, terrain, ground);
+    }
+
     CMidgardID createPlayer(RaceType race);
 
     MapPtr generate();

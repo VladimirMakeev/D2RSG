@@ -14,6 +14,17 @@ using ScenarioObjectPtr = std::unique_ptr<ScenarioObject>;
 
 struct Tile
 {
+    void setTerrainGround(TerrainType terrainType, GroundType groundType)
+    {
+        // Mountains and water tiles always belong to neutral race
+        if (groundType == GroundType::Water || groundType == GroundType::Mountain) {
+            terrainType = TerrainType::Neutral;
+        }
+
+        terrain = terrainType;
+        ground = groundType;
+    }
+
     TerrainType terrain{TerrainType::Neutral};
     GroundType ground{GroundType::Plain};
     std::uint8_t treeImage{};
@@ -66,6 +77,11 @@ public:
     }
 
     const Tile& getTile(const Position& position) const;
+    Tile& getTile(const Position& position);
+
+    void paintTerrain(const Position& position, TerrainType terrain, GroundType ground);
+    // Changes terrain and ground of specified tiles
+    void paintTerrain(const std::vector<Position>& tiles, TerrainType terrain, GroundType ground);
 
 private:
     std::size_t posToIndex(const Position& position) const
