@@ -195,8 +195,11 @@
     <ClCompile Include="zoneplacer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="knownspells.h" />
+    <ClInclude Include="playerbuildings.h" />
     <ClInclude Include="capital.h" />
     <ClInclude Include="enums.h" />
+    <ClInclude Include="fog.h" />
     <ClInclude Include="fortification.h" />
     <ClInclude Include="lua\lapi.h" />
     <ClInclude Include="lua\lauxlib.h" />
@@ -233,6 +236,7 @@
     <ClInclude Include="maptemplatereader.h" />
     <ClInclude Include="midgardid.h" />
     <ClInclude Include="objectinfo.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="randomgenerator.h" />
     <ClInclude Include="scenarioobject.h" />
