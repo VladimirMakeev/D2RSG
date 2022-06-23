@@ -58,10 +58,10 @@ enum class MapFormat
 // Internal generator use only
 enum class TileType
 {
-    Free,
-    Possible,
-    Blocked,
-    Used,
+    Free,     // Tile is free
+    Possible, // Tile is possibly blocked or free
+    Blocked,  // Tile is blocked
+    Used,     // Tile is in use
 };
 
 // Internal generator use only
