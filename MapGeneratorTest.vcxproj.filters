@@ -19,6 +19,18 @@
     <Filter Include="Исходные файлы\lua">
       <UniqueIdentifier>{1e1bf1c2-f58d-4612-baa0-8ea230c2132b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы заголовков\scenario">
+      <UniqueIdentifier>{a5800e54-35f2-4b68-96b3-30fa059cc348}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\scenario">
+      <UniqueIdentifier>{afcc9681-b1ee-46bc-8513-f53f6aed83fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\utils">
+      <UniqueIdentifier>{bfb43075-8d97-4996-9f78-91ba1795d293}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\utils">
+      <UniqueIdentifier>{af1c2d86-7200-4ee6-bed5-5c1e55955299}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -123,6 +135,9 @@
     <ClCompile Include="zoneplacer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="midgardid.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -211,6 +226,9 @@
     </ClInclude>
     <ClInclude Include="zoneplacer.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="scenarioobject.h">
+      <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

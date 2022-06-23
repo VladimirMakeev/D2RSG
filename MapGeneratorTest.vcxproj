@@ -232,6 +232,7 @@
     <ClInclude Include="objectinfo.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="randomgenerator.h" />
+    <ClInclude Include="scenarioobject.h" />
     <ClInclude Include="templatezone.h" />
     <ClInclude Include="tileinfo.h" />
     <ClInclude Include="vposition.h" />
