@@ -8,6 +8,8 @@
 
 void ZonePlacer::placeZones(RandomGenerator* random)
 {
+    std::cout << "Starting zone placement\n";
+
     width = mapGenerator->mapGenOptions.size;
     height = mapGenerator->mapGenOptions.size;
 
@@ -46,16 +48,16 @@ void ZonePlacer::placeZones(RandomGenerator* random)
         attractConnectedZones(zones, forces, distances);
 
         for (auto& zone : forces) {
-            zone.first->center = zone.first->center + zone.second;
+            zone.first->setCenter(zone.first->getCenter() + zone.second);
             // Override
             totalForces[zone.first] = zone.second;
         }
 
         // Separate overlapping zones
-        separateOverlappingZones(zones, forces, distances);
+        separateOverlappingZones(zones, forces, overlaps);
 
         for (auto& zone : forces) {
-            zone.first->center = zone.first->center + zone.second;
+            zone.first->setCenter(zone.first->getCenter() + zone.second);
             // Accumulate
             totalForces[zone.first] += zone.second;
         }
@@ -68,8 +70,8 @@ void ZonePlacer::placeZones(RandomGenerator* random)
         separateOverlappingZones(zones, forces, overlaps);
 
         // Find most misplaced zone
-        float totalDistance{};
-        float totalOverlap{};
+        float totalDistance{0.f};
+        float totalOverlap{0.f};
 
         for (auto& zone : distances) {
             totalDistance += zone.second;
@@ -96,14 +98,14 @@ void ZonePlacer::placeZones(RandomGenerator* random)
             bestTotalOverlap = totalOverlap;
 
             for (auto& zone : zones) {
-                bestSolution[zone.second] = zone.second->center;
+                bestSolution[zone.second] = zone.second->getCenter();
             }
         }
     }
 
     // Finalize zone positions
     for (auto& zone : zones) {
-        zone.second->pos = coords(bestSolution[zone.second]);
+        zone.second->setPosition(coords(bestSolution[zone.second]));
     }
 }
 
@@ -140,7 +142,7 @@ void ZonePlacer::assignZones()
         const auto size{static_cast<int>(tiles.size())};
         assert(size != 0);
 
-        zone->pos = Position{total.x / size, total.y / size};
+        zone->setPosition(Position{total.x / size, total.y / size});
     };
 
     // Place zones correctly and assign tiles to each zone
@@ -153,8 +155,8 @@ void ZonePlacer::assignZones()
 
             Position pos{i, j};
             for (auto& zone : zones) {
-                distances.push_back(
-                    {zone.second, static_cast<float>(pos.distanceSquared(zone.second->pos))});
+                distances.push_back({zone.second, static_cast<float>(pos.distanceSquared(
+                                                      zone.second->getPosition()))});
             }
 
             auto it{std::min_element(distances.begin(), distances.end(), compareByDistance)};
@@ -180,8 +182,8 @@ void ZonePlacer::assignZones()
 
             Position pos{i, j};
             for (auto& zone : zones) {
-                distances.push_back(
-                    {zone.second, static_cast<float>(pos.distanceSquared(zone.second->pos))});
+                distances.push_back({zone.second, static_cast<float>(pos.distanceSquared(
+                                                      zone.second->getPosition()))});
             }
 
             auto it{std::min_element(distances.begin(), distances.end(), compareByDistance)};
@@ -213,8 +215,8 @@ void ZonePlacer::prepareZones(ZonesMap& zones, ZoneVector& zonesVector, RandomGe
 
         const float angle{static_cast<float>(random->nextDouble(0, pi2))};
         // Place zones around circle
-        zone.second->center = VPosition{0.5f + std::sinf(angle) * radius,
-                                        0.5f + std::cosf(angle) * radius};
+        zone.second->setCenter(
+            VPosition{0.5f + std::sinf(angle) * radius, 0.5f + std::cosf(angle) * radius});
     }
 
     // Prescale zones
@@ -234,13 +236,13 @@ void ZonePlacer::attractConnectedZones(ZonesMap& zones,
                                        DistanceVector& distances)
 {
     for (auto& zone : zones) {
-        const auto& pos{zone.second->center};
+        const auto& pos{zone.second->getCenter()};
         VPosition forceVector{};
         float totalDistance{};
 
         for (auto& connection : zone.second->connections) {
             auto otherZone{zones[connection]};
-            auto otherZoneCenter{otherZone->center};
+            auto otherZoneCenter{otherZone->getCenter()};
 
             const float distance{static_cast<float>(pos.distance(otherZoneCenter))};
             // Scale down to (0, 1) coordinates
@@ -266,7 +268,7 @@ void ZonePlacer::separateOverlappingZones(ZonesMap& zones,
                                           DistanceVector& overlaps)
 {
     for (auto& zone : zones) {
-        const auto& pos{zone.second->center};
+        const auto& pos{zone.second->getCenter()};
         VPosition forceVector{};
         float overlap{};
 
@@ -276,7 +278,7 @@ void ZonePlacer::separateOverlappingZones(ZonesMap& zones,
                 continue;
             }
 
-            const auto& otherZoneCenter{otherZone.second->center};
+            const auto& otherZoneCenter{otherZone.second->getCenter()};
             const float distance{static_cast<float>(pos.distance(otherZoneCenter))};
             const float minDistance{(zone.second->size + otherZone.second->size) / mapSize};
 
@@ -360,14 +362,14 @@ void ZonePlacer::moveOneZone(ZonesMap& zones,
     }
 
     std::shared_ptr<TemplateZone> targetZone;
-    const auto& ourCenter{misplacedZone->center};
+    const auto& ourCenter{misplacedZone->getCenter()};
 
     if (totalDistance > totalOverlap) {
         // Find most distant zone that should be attracted and move inside it
         float maxDistance = 0;
         for (auto& connection : misplacedZone->connections) {
             auto otherZone = zones[connection];
-            const float distance{static_cast<float>(otherZone->center.distSquared(ourCenter))};
+            const float distance{static_cast<float>(otherZone->getCenter().distSquared(ourCenter))};
             if (distance > maxDistance) {
                 maxDistance = distance;
                 targetZone = otherZone;
@@ -375,19 +377,20 @@ void ZonePlacer::moveOneZone(ZonesMap& zones,
         }
 
         if (targetZone) {
-            const auto vec{targetZone->center - ourCenter};
+            const auto vec{targetZone->getCenter() - ourCenter};
             const float newDistanceBetweenZones{std::max(misplacedZone->size, targetZone->size)
                                                 / mapSize};
 
             std::cout << "Trying to move zone " << misplacedZone->id << ' ' << ourCenter
-                      << " towards " << targetZone->id << ' ' << targetZone->center
+                      << " towards " << targetZone->id << ' ' << targetZone->getCenter()
                       << ". Old distance " << maxDistance << "\nDirection is " << vec << '\n';
 
             // Zones should now overlap by half size
-            misplacedZone->center -= vec.unitVector() * newDistanceBetweenZones;
+            misplacedZone->setCenter(misplacedZone->getCenter()
+                                     - vec.unitVector() * newDistanceBetweenZones);
 
-            std::cout << "New distance " << targetZone->center.distance(misplacedZone->center)
-                      << '\n';
+            std::cout << "New distance "
+                      << targetZone->getCenter().distance(misplacedZone->getCenter()) << '\n';
         }
     } else {
         float maxOverlap{};
@@ -396,7 +399,7 @@ void ZonePlacer::moveOneZone(ZonesMap& zones,
                 continue;
             }
 
-            const auto& otherZoneCenter = otherZone.second->center;
+            const auto& otherZoneCenter = otherZone.second->getCenter();
             const auto distance{static_cast<float>(otherZoneCenter.distSquared(ourCenter))};
             if (distance > maxOverlap) {
                 maxOverlap = distance;
@@ -405,18 +408,19 @@ void ZonePlacer::moveOneZone(ZonesMap& zones,
         }
 
         if (targetZone) {
-            const auto vec{ourCenter - targetZone->center};
+            const auto vec{ourCenter - targetZone->getCenter()};
             const float newDistanceBetweenZones{(misplacedZone->size + targetZone->size) / mapSize};
 
             std::cout << "Trying to move zone " << misplacedZone->id << ' ' << ourCenter
-                      << " away from " << targetZone->id << ' ' << targetZone->center
+                      << " away from " << targetZone->id << ' ' << targetZone->getCenter()
                       << ". Old distance " << maxOverlap << "\nDirection is " << vec << '\n';
 
             // Zones should now be just separated
-            misplacedZone->center += vec.unitVector() * newDistanceBetweenZones;
+            misplacedZone->setCenter(misplacedZone->getCenter()
+                                     + vec.unitVector() * newDistanceBetweenZones);
 
-            std::cout << "New distance " << targetZone->center.distance(misplacedZone->center)
-                      << '\n';
+            std::cout << "New distance "
+                      << targetZone->getCenter().distance(misplacedZone->getCenter()) << '\n';
         }
     }
 }
