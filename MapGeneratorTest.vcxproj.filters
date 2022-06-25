@@ -159,6 +159,9 @@
     <ClCompile Include="currency.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="capital.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
     <ClCompile Include="group.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>

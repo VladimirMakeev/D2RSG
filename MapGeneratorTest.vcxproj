@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="capital.cpp" />
     <ClCompile Include="currency.cpp" />
     <ClCompile Include="group.cpp" />
     <ClCompile Include="image.cpp" />

@@ -10,4 +10,11 @@ public:
     { }
 
     ~Capital() override = default;
+
+    const char* rawName() const override
+    {
+        return ".?AVCCapital@@";
+    }
+
+    void serialize(Serializer& serializer, const Map& scenario) const override;
 };
