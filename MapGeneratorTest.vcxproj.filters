@@ -341,5 +341,8 @@
     <ClInclude Include="inventory.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
+    <ClInclude Include="aipriority.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
