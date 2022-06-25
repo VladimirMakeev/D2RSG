@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="currency.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="lua\lapi.c" />
     <ClCompile Include="lua\lauxlib.c" />
@@ -198,6 +199,7 @@
     <ClCompile Include="zoneplacer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="currency.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="knownspells.h" />
     <ClInclude Include="playerbuildings.h" />
