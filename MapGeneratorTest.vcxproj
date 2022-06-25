@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="currency.cpp" />
+    <ClCompile Include="group.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="lua\lapi.c" />
     <ClCompile Include="lua\lauxlib.c" />
@@ -201,6 +202,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="currency.h" />
+    <ClInclude Include="group.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="knownspells.h" />
     <ClInclude Include="playerbuildings.h" />

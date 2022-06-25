@@ -159,6 +159,9 @@
     <ClCompile Include="currency.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="group.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -327,6 +330,9 @@
       <Filter>Файлы заголовков\utils</Filter>
     </ClInclude>
     <ClInclude Include="currency.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="group.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
   </ItemGroup>
