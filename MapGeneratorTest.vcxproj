@@ -159,6 +159,7 @@
     <ClCompile Include="currency.cpp" />
     <ClCompile Include="group.cpp" />
     <ClCompile Include="image.cpp" />
+    <ClCompile Include="inventory.cpp" />
     <ClCompile Include="lua\lapi.c" />
     <ClCompile Include="lua\lauxlib.c" />
     <ClCompile Include="lua\lbaselib.c" />
@@ -204,6 +205,7 @@
     <ClInclude Include="currency.h" />
     <ClInclude Include="group.h" />
     <ClInclude Include="image.h" />
+    <ClInclude Include="inventory.h" />
     <ClInclude Include="knownspells.h" />
     <ClInclude Include="playerbuildings.h" />
     <ClInclude Include="capital.h" />
