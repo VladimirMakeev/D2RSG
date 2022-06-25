@@ -77,11 +77,22 @@ public:
     void setNearestObjectDistance(const Position& position, float value);
 
     // Returns global race id for specified race
-    const CMidgardID& getRaceId(RaceType race) const;
+    const CMidgardID& getRaceId(RaceType race) const
+    {
+        return map->getRaceId(race);
+    }
+
     // Returns global lord id for specified race
-    const CMidgardID& getLordId(RaceType race) const;
+    const CMidgardID& getLordId(RaceType race) const
+    {
+        return map->getLordId(race);
+    }
+
     // Returns race type for specified race id
-    RaceType getRaceType(const CMidgardID& raceId) const;
+    RaceType getRaceType(const CMidgardID& raceId) const
+    {
+        return map->getRaceType(raceId);
+    }
 
     void registerZone(RaceType race);
     std::size_t getZoneCount(RaceType race);

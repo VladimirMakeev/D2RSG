@@ -342,64 +342,6 @@ void MapGenerator::setNearestObjectDistance(const Position& position, float valu
     tiles[posToIndex(position)].setNearestObjectDistance(value);
 }
 
-const CMidgardID& MapGenerator::getRaceId(RaceType race) const
-{
-    // Values from GRace.dbf
-    // clang-format off
-    static const std::array<CMidgardID, (size_t)RaceType::Total> raceIds{{
-        CMidgardID{"g000rr0000"},
-        CMidgardID{"g000rr0003"},
-        CMidgardID{"g000rr0002"},
-        CMidgardID{"g000rr0001"},
-        CMidgardID{"g000rr0004"},
-        CMidgardID{"g000rr0005"}
-    }};
-    // clang-format on
-
-    return raceIds[static_cast<std::size_t>(race)];
-}
-
-const CMidgardID& MapGenerator::getLordId(RaceType race) const
-{
-    // We don't care about actual lord id, since player will choose it at the start of scenario.
-    // These ids are for errorless and convenient map generation
-
-    // clang-format off
-    static const std::array<CMidgardID, (size_t)RaceType::Total> lordIds{{
-        CMidgardID{"g000LR0001"},
-        CMidgardID{"g000LR0010"},
-        CMidgardID{"g000LR0007"},
-        CMidgardID{"g000LR0004"},
-        CMidgardID{"g000LR0013"},
-        CMidgardID{"g000LR0016"}
-    }};
-    // clang-format on
-
-    return lordIds[static_cast<std::size_t>(race)];
-}
-
-RaceType MapGenerator::getRaceType(const CMidgardID& raceId) const
-{
-    assert(raceId.getCategory() == CMidgardID::Category::Global
-           && raceId.getType() == CMidgardID::Type::Race);
-
-    switch (raceId.getTypeIndex()) {
-    case 0:
-        return RaceType::Human;
-    case 1:
-        return RaceType::Dwarf;
-    case 2:
-        return RaceType::Heretic;
-    case 3:
-        return RaceType::Undead;
-    default:
-    case 4:
-        return RaceType::Neutral;
-    case 5:
-        return RaceType::Elf;
-    }
-}
-
 void MapGenerator::registerZone(RaceType race)
 {
     zonesPerRace[race]++;

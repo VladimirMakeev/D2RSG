@@ -76,6 +76,13 @@ public:
         return position.x >= 0 && position.x < size && position.y >= 0 && position.y < size;
     }
 
+    // Returns global race id for specified race
+    const CMidgardID& getRaceId(RaceType race) const;
+    // Returns global lord id for specified race
+    const CMidgardID& getLordId(RaceType race) const;
+    // Returns race type for specified race id
+    RaceType getRaceType(const CMidgardID& raceId) const;
+
     const Tile& getTile(const Position& position) const;
     Tile& getTile(const Position& position);
 
