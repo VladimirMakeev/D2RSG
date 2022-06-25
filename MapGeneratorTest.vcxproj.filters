@@ -153,6 +153,12 @@
     <ClCompile Include="image.cpp">
       <Filter>Исходные файлы\utils</Filter>
     </ClCompile>
+    <ClCompile Include="serializer.cpp">
+      <Filter>Исходные файлы\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="currency.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -316,6 +322,12 @@
     </ClInclude>
     <ClInclude Include="image.h">
       <Filter>Файлы заголовков\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer.h">
+      <Filter>Файлы заголовков\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="currency.h">
+      <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

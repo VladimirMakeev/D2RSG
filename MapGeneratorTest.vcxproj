@@ -195,6 +195,7 @@
     <ClCompile Include="mapgenerator.cpp" />
     <ClCompile Include="maptemplatereader.cpp" />
     <ClCompile Include="midgardid.cpp" />
+    <ClCompile Include="serializer.cpp" />
     <ClCompile Include="templatezone.cpp" />
     <ClCompile Include="zoneplacer.cpp" />
   </ItemGroup>
@@ -246,6 +247,7 @@
     <ClInclude Include="position.h" />
     <ClInclude Include="randomgenerator.h" />
     <ClInclude Include="scenarioobject.h" />
+    <ClInclude Include="serializer.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="templatezone.h" />
     <ClInclude Include="tileinfo.h" />
