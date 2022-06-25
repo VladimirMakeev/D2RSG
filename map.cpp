@@ -1,9 +1,52 @@
 #include "map.h"
+#include "player.h"
+#include "serializer.h"
 #include <cassert>
+#include <sstream>
 
 Map::Map()
-    : scenarioId{"S143SC0000"}
+    : MapHeader()
+    , scenarioId{"S143SC0000"}
 { }
+
+void Map::serialize(const std::filesystem::path& scenarioFilePath)
+{
+    Serializer serializer{scenarioFilePath};
+
+    std::vector<RaceType> races;
+    visit(CMidgardID::Type::Player, [this, &races](const ScenarioObject* object) {
+        auto player{dynamic_cast<const Player*>(object)};
+        assert(player);
+
+        races.push_back(getRaceType(player->getRace()));
+    });
+
+    // Write header
+    serializer.serialize(*this, scenarioId, races);
+
+    // Write object count
+    CMidgardID objectCount(CMidgardID::Category::Scenario, scenarioId.getCategoryIndex(),
+                           CMidgardID::Type::ObjectCount, 0);
+
+    CMidgardID::String idString{};
+    objectCount.toString(idString);
+
+    serializer.enterRecord();
+    serializer.serialize(idString.data(), static_cast<std::uint32_t>(objects.size()));
+    serializer.leaveRecord();
+
+    // Write objects
+    for (const auto& [id, object] : objects) {
+        serializer.enterRecord();
+        serializer.serialize("WHAT", object->rawName());
+        serializer.serialize("OBJ_ID", object->getId());
+        serializer.leaveRecord();
+
+        serializer.beginObject();
+        object->serialize(serializer, *this);
+        serializer.endObject();
+    }
+}
 
 void Map::initTerrain()
 {
@@ -55,6 +98,15 @@ ScenarioObject* Map::find(const CMidgardID& objectId)
     }
 
     return it->second.get();
+}
+
+void Map::visit(CMidgardID::Type objectType, std::function<void(const ScenarioObject*)> f) const
+{
+    for (const auto& [id, object] : objects) {
+        if (id.getType() == objectType) {
+            f(object.get());
+        }
+    }
 }
 
 const Tile& Map::getTile(const Position& position) const

@@ -9,12 +9,16 @@
 int main(int argc, char* argv[])
 {
     MapGenOptions options;
+    options.name = "random map";
+    options.description = "random map description";
     options.mapTemplate = readMapTemplate(argv[1]);
 
     MapGenerator generator{options, std::time_t{1655841138}};
 
     try {
         auto map{generator.generate()};
+
+        map->serialize({argv[2]});
 
         {
             const auto width{generator.mapGenOptions.size};

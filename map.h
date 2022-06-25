@@ -5,6 +5,8 @@
 #include "position.h"
 #include "scenarioobject.h"
 #include <array>
+#include <filesystem>
+#include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -48,6 +50,8 @@ public:
     Map();
     ~Map() = default;
 
+    void serialize(const std::filesystem::path& scenarioFilePath);
+
     void initTerrain();
     void calculateGuardingCreaturePositions();
 
@@ -69,6 +73,8 @@ public:
     {
         return dynamic_cast<T*>(find(objectId));
     }
+
+    void visit(CMidgardID::Type objectType, std::function<void(const ScenarioObject*)> f) const;
 
     // Returns true if tile position is within map bounds
     bool isInTheMap(const Position& position) const
