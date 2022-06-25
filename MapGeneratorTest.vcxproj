@@ -158,6 +158,7 @@
   <ItemGroup>
     <ClCompile Include="capital.cpp" />
     <ClCompile Include="currency.cpp" />
+    <ClCompile Include="fog.cpp" />
     <ClCompile Include="group.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="inventory.cpp" />

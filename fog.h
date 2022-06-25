@@ -10,4 +10,11 @@ public:
     { }
 
     ~Fog() override = default;
+
+    const char* rawName() const override
+    {
+        return ".?AVCMidgardMapFog@@";
+    }
+
+    void serialize(Serializer& serializer, const Map& scenario) const override;
 };
