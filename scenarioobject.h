@@ -2,6 +2,9 @@
 
 #include "midgardid.h"
 
+class Map;
+class Serializer;
+
 // Base class for all objects in scenario map
 class ScenarioObject
 {
@@ -12,6 +15,11 @@ public:
     {
         return objectId;
     }
+
+    // Original raw class name used in scenario file serialization
+    virtual const char* rawName() const = 0;
+
+    virtual void serialize(Serializer& serializer, const Map& scenario) const = 0;
 
 protected:
     ScenarioObject(const CMidgardID& objectId)

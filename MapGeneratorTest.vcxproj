@@ -200,6 +200,7 @@
     <ClCompile Include="mapgenerator.cpp" />
     <ClCompile Include="maptemplatereader.cpp" />
     <ClCompile Include="midgardid.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="playerbuildings.cpp" />
     <ClCompile Include="serializer.cpp" />
     <ClCompile Include="templatezone.cpp" />

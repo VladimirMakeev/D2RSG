@@ -1,5 +1,6 @@
 #pragma once
 
+#include "currency.h"
 #include "enums.h"
 #include "scenarioobject.h"
 
@@ -62,7 +63,15 @@ public:
         lordId = id;
     }
 
+    const char* rawName() const override
+    {
+        return ".?AVCMidPlayer@@";
+    }
+
+    void serialize(Serializer& serializer, const Map& scenario) const override;
+
 private:
+    Currency bank;
     CMidgardID fogId;
     CMidgardID buildingsId;
     CMidgardID knownSpellsId;
