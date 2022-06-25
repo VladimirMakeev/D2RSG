@@ -10,4 +10,11 @@ public:
     { }
 
     ~PlayerBuildings() override = default;
+
+    const char* rawName() const override
+    {
+        return ".?AVCPlayerBuildings@@";
+    }
+
+    void serialize(Serializer& serializer, const Map& scenario) const override;
 };

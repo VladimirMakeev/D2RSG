@@ -162,6 +162,7 @@
     <ClCompile Include="group.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="inventory.cpp" />
+    <ClCompile Include="knownspells.cpp" />
     <ClCompile Include="lua\lapi.c" />
     <ClCompile Include="lua\lauxlib.c" />
     <ClCompile Include="lua\lbaselib.c" />
@@ -199,6 +200,7 @@
     <ClCompile Include="mapgenerator.cpp" />
     <ClCompile Include="maptemplatereader.cpp" />
     <ClCompile Include="midgardid.cpp" />
+    <ClCompile Include="playerbuildings.cpp" />
     <ClCompile Include="serializer.cpp" />
     <ClCompile Include="templatezone.cpp" />
     <ClCompile Include="zoneplacer.cpp" />

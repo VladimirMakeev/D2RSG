@@ -171,6 +171,12 @@
     <ClCompile Include="fog.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="knownspells.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="playerbuildings.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">

@@ -10,4 +10,11 @@ public:
     { }
 
     ~KnownSpells() override = default;
+
+    const char* rawName() const override
+    {
+        return ".?AVCPlayerKnownSpells@@";
+    }
+
+    void serialize(Serializer& serializer, const Map& scenario) const override;
 };
