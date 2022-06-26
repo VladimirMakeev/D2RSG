@@ -12,6 +12,10 @@
 #include <unordered_map>
 #include <vector>
 
+class Plan;
+class MapElement;
+class Diplomacy;
+
 using ScenarioObjectPtr = std::unique_ptr<ScenarioObject>;
 
 struct Tile
@@ -58,6 +62,7 @@ public:
     CMidgardID createId(CMidgardID::Type type);
 
     bool insertObject(ScenarioObjectPtr&& object);
+    void insertMapElement(const MapElement& mapElement, const CMidgardID& mapElementId);
 
     const ScenarioObject* find(const CMidgardID& objectId) const;
     ScenarioObject* find(const CMidgardID& objectId);
@@ -107,6 +112,8 @@ private:
     std::vector<Position> guardingCreaturePositions;
     std::array<int, (size_t)CMidgardID::Type::Invalid> freeIdTypeIndices{};
     CMidgardID scenarioId;
+    Plan* plan{};
+    Diplomacy* diplomacy{};
 };
 
 using MapPtr = std::unique_ptr<Map>;

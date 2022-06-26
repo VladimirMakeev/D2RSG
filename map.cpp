@@ -1,13 +1,50 @@
 #include "map.h"
+#include "diplomacy.h"
+#include "midgardmap.h"
+#include "plan.h"
 #include "player.h"
+#include "questlog.h"
+#include "scenariovariables.h"
 #include "serializer.h"
+#include "spellcast.h"
+#include "spelleffects.h"
+#include "stackdestroyed.h"
+#include "talismancharges.h"
+#include "turnsummary.h"
 #include <cassert>
 #include <sstream>
 
 Map::Map()
     : MapHeader()
     , scenarioId{"S143SC0000"}
-{ }
+{
+    // Create necessary scenario objects
+    // Stack destroyed
+    insertObject(std::make_unique<StackDestroyed>(createId(CMidgardID::Type::StackDestroyed)));
+    // Talisman charges
+    insertObject(std::make_unique<TalismanCharges>(createId(CMidgardID::Type::TalismanCharges)));
+    // Spell effects
+    insertObject(std::make_unique<SpellEffects>(createId(CMidgardID::Type::SpellEffects)));
+    // Spell cast
+    insertObject(std::make_unique<SpellCast>(createId(CMidgardID::Type::SpellCast)));
+    // Scenario variables
+    insertObject(std::make_unique<ScenarioVariables>(createId(CMidgardID::Type::ScenarioVariable)));
+    // Plan
+    auto planObject{std::make_unique<Plan>(createId(CMidgardID::Type::Plan))};
+    plan = planObject.get();
+    insertObject(std::move(planObject));
+    // Map
+    insertObject(std::make_unique<MidgardMap>(createId(CMidgardID::Type::Map)));
+    // Diplomacy
+    auto diplomacyObject{std::make_unique<Diplomacy>(createId(CMidgardID::Type::Diplomacy))};
+    diplomacy = diplomacyObject.get();
+    insertObject(std::move(diplomacyObject));
+    // Scenario info
+    // Turn summary
+    insertObject(std::make_unique<TurnSummary>(createId(CMidgardID::Type::TurnSummary)));
+    // Quest log
+    insertObject(std::make_unique<QuestLog>(createId(CMidgardID::Type::QuestLog)));
+}
 
 void Map::serialize(const std::filesystem::path& scenarioFilePath)
 {
@@ -20,6 +57,13 @@ void Map::serialize(const std::filesystem::path& scenarioFilePath)
 
         races.push_back(getRaceType(player->getRace()));
     });
+
+    // Setup diplomacy relations between races
+    for (std::size_t i = 0; i < races.size(); ++i) {
+        for (std::size_t j = i + 1; j < races.size(); ++j) {
+            diplomacy->add(getRaceId(races[i]), getRaceId(races[j]), 0);
+        }
+    }
 
     // Write header
     serializer.serialize(*this, scenarioId, races);
@@ -80,6 +124,12 @@ bool Map::insertObject(ScenarioObjectPtr&& object)
     return true;
 }
 
+void Map::insertMapElement(const MapElement& mapElement, const CMidgardID& mapElementId)
+{
+    assert(plan != nullptr);
+    plan->add(mapElement, mapElementId);
+}
+
 const ScenarioObject* Map::find(const CMidgardID& objectId) const
 {
     auto it{objects.find(objectId)};
@@ -127,14 +177,14 @@ const CMidgardID& Map::getRaceId(RaceType race) const
 {
     // Values from GRace.dbf
     // clang-format off
-    static const std::array<CMidgardID, (size_t)RaceType::Total> raceIds{ {
+    static const std::array<CMidgardID, (size_t)RaceType::Total> raceIds{{
         CMidgardID{"g000rr0000"},
         CMidgardID{"g000rr0003"},
         CMidgardID{"g000rr0002"},
         CMidgardID{"g000rr0001"},
         CMidgardID{"g000rr0004"},
         CMidgardID{"g000rr0005"}
-    } };
+    }};
     // clang-format on
 
     return raceIds[static_cast<std::size_t>(race)];
@@ -146,14 +196,14 @@ const CMidgardID& Map::getLordId(RaceType race) const
     // These ids are for errorless and convenient map generation
 
     // clang-format off
-    static const std::array<CMidgardID, (size_t)RaceType::Total> lordIds{ {
+    static const std::array<CMidgardID, (size_t)RaceType::Total> lordIds{{
         CMidgardID{"g000LR0001"},
         CMidgardID{"g000LR0010"},
         CMidgardID{"g000LR0007"},
         CMidgardID{"g000LR0004"},
         CMidgardID{"g000LR0013"},
         CMidgardID{"g000LR0016"}
-    } };
+    }};
     // clang-format on
 
     return lordIds[static_cast<std::size_t>(race)];
