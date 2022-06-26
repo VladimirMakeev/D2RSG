@@ -336,3 +336,6 @@ ASALocalRun/
 
 # Debug images
 *.png
+
+# Debug scenario files
+*.sg
