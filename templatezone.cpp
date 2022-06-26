@@ -151,7 +151,7 @@ void TemplateZone::placeObject(std::unique_ptr<Fortification>&& fortification,
 {
     // Check position
     if (!mapGenerator->map->isInTheMap(position)) {
-        CMidgardID::String fortId;
+        CMidgardID::String fortId{};
         fortification->getId().toString(fortId);
 
         std::stringstream stream;
@@ -165,7 +165,7 @@ void TemplateZone::placeObject(std::unique_ptr<Fortification>&& fortification,
     // Check entrance
     // Since position and entrance form rectangle we don't need to check other tiles
     if (!mapGenerator->map->isInTheMap(fortification->getEntrance())) {
-        CMidgardID::String fortId;
+        CMidgardID::String fortId{};
         fortification->getId().toString(fortId);
 
         std::stringstream stream;
@@ -190,6 +190,7 @@ void TemplateZone::placeObject(std::unique_ptr<Fortification>&& fortification,
     // Add road node using entrance point
     addRoadNode(fortification->getEntrance());
 
+    mapGenerator->map->insertMapElement(*fortification.get(), fortification->getId());
     // Store object in scenario map
     mapGenerator->insertObject(std::move(fortification));
 }
