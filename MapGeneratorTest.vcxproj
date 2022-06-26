@@ -200,10 +200,18 @@
     <ClCompile Include="mapgenerator.cpp" />
     <ClCompile Include="maptemplatereader.cpp" />
     <ClCompile Include="midgardid.cpp" />
+    <ClCompile Include="midgardmap.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="playerbuildings.cpp" />
+    <ClCompile Include="questlog.cpp" />
+    <ClCompile Include="scenariovariables.cpp" />
     <ClCompile Include="serializer.cpp" />
+    <ClCompile Include="spellcast.cpp" />
+    <ClCompile Include="spelleffects.cpp" />
+    <ClCompile Include="stackdestroyed.cpp" />
+    <ClCompile Include="talismancharges.cpp" />
     <ClCompile Include="templatezone.cpp" />
+    <ClCompile Include="turnsummary.cpp" />
     <ClCompile Include="zoneplacer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +221,7 @@
     <ClInclude Include="image.h" />
     <ClInclude Include="inventory.h" />
     <ClInclude Include="knownspells.h" />
+    <ClInclude Include="midgardmap.h" />
     <ClInclude Include="playerbuildings.h" />
     <ClInclude Include="capital.h" />
     <ClInclude Include="enums.h" />
@@ -255,12 +264,19 @@
     <ClInclude Include="objectinfo.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="position.h" />
+    <ClInclude Include="questlog.h" />
     <ClInclude Include="randomgenerator.h" />
     <ClInclude Include="scenarioobject.h" />
+    <ClInclude Include="scenariovariables.h" />
     <ClInclude Include="serializer.h" />
+    <ClInclude Include="spellcast.h" />
+    <ClInclude Include="spelleffects.h" />
+    <ClInclude Include="stackdestroyed.h" />
     <ClInclude Include="stb_image_write.h" />
+    <ClInclude Include="talismancharges.h" />
     <ClInclude Include="templatezone.h" />
     <ClInclude Include="tileinfo.h" />
+    <ClInclude Include="turnsummary.h" />
     <ClInclude Include="vposition.h" />
     <ClInclude Include="zoneconnection.h" />
     <ClInclude Include="zoneid.h" />

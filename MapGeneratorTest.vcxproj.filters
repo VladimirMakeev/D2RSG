@@ -180,6 +180,30 @@
     <ClCompile Include="playerbuildings.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="talismancharges.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="stackdestroyed.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="spelleffects.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="spellcast.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="scenariovariables.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="questlog.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="turnsummary.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="midgardmap.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -357,6 +381,30 @@
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
     <ClInclude Include="aipriority.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="talismancharges.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="stackdestroyed.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="spelleffects.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="spellcast.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="scenariovariables.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="questlog.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="turnsummary.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="midgardmap.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
   </ItemGroup>
