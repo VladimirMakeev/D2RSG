@@ -158,6 +158,7 @@
   <ItemGroup>
     <ClCompile Include="capital.cpp" />
     <ClCompile Include="currency.cpp" />
+    <ClCompile Include="diplomacy.cpp" />
     <ClCompile Include="fog.cpp" />
     <ClCompile Include="group.cpp" />
     <ClCompile Include="image.cpp" />
@@ -217,6 +218,7 @@
   <ItemGroup>
     <ClInclude Include="aipriority.h" />
     <ClInclude Include="currency.h" />
+    <ClInclude Include="diplomacy.h" />
     <ClInclude Include="group.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="inventory.h" />
