@@ -204,6 +204,9 @@
     <ClCompile Include="midgardmap.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="plan.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
     <ClCompile Include="diplomacy.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
@@ -408,6 +411,9 @@
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
     <ClInclude Include="midgardmap.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="plan.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
     <ClInclude Include="diplomacy.h">
