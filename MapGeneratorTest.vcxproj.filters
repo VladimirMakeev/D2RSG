@@ -210,6 +210,9 @@
     <ClCompile Include="diplomacy.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="subrace.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
     <ClCompile Include="unit.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
@@ -420,6 +423,9 @@
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
     <ClInclude Include="diplomacy.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="subrace.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
     <ClInclude Include="unit.h">
