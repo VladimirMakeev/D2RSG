@@ -17,7 +17,7 @@ void Player::serialize(Serializer& serializer, const Map&) const
     serializer.serialize("BANK", bank);
     serializer.serialize("IS_HUMAN", false);
     serializer.serialize("SPELL_BANK", Currency());
-    serializer.serialize("ATTITURE", 0);
+    serializer.serialize("ATTITUDE", 1);
     serializer.serialize("RESEAR_T", 0);
     serializer.serialize("CONSTR_T", 0);
     serializer.serialize("SPY_1", emptyId);
@@ -26,10 +26,10 @@ void Player::serialize(Serializer& serializer, const Map&) const
     serializer.serialize("CAPT_BY", emptyId);
     serializer.serialize("ALWAYSAI", false);
     serializer.serialize("EXMAPID1", emptyId);
-    serializer.serialize("EXMAPTURN1", "");
+    serializer.serialize("EXMAPTURN1", 0);
     serializer.serialize("EXMAPID2", emptyId);
-    serializer.serialize("EXMAPTURN2", "");
+    serializer.serialize("EXMAPTURN2", 0);
     serializer.serialize("EXMAPID3", emptyId);
-    serializer.serialize("EXMAPTURN3", "");
+    serializer.serialize("EXMAPTURN3", 0);
     serializer.leaveRecord();
 }
