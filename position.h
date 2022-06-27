@@ -15,6 +15,13 @@ struct Position
         , y{y}
     { }
 
+    Position& operator=(const Position& other)
+    {
+        x = other.x;
+        y = other.y;
+        return *this;
+    }
+
     Position operator+(const Position& other) const
     {
         return Position{x + other.x, y + other.y};
