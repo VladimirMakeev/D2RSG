@@ -15,6 +15,8 @@
 class Plan;
 class MapElement;
 class Diplomacy;
+class ScenarioInfo;
+class Mountains;
 
 using ScenarioObjectPtr = std::unique_ptr<ScenarioObject>;
 
@@ -93,6 +95,14 @@ public:
     const CMidgardID& getLordId(RaceType race) const;
     // Returns race type for specified race id
     RaceType getRaceType(const CMidgardID& raceId) const;
+    // Returns subrace type for specified race
+    SubRaceType getSubRaceType(RaceType race) const;
+    // Returns banner for specified subrace
+    int getSubRaceBanner(SubRaceType subrace) const;
+    // Returns leader implId for specified race
+    const CMidgardID& getStartingLeaderImplId(RaceType race) const;
+    // Returns terrain type for specified race
+    TerrainType getRaceTerrain(RaceType race) const;
 
     const Tile& getTile(const Position& position) const;
     Tile& getTile(const Position& position);
@@ -107,6 +117,9 @@ private:
         return position.x + size * position.y;
     }
 
+    void createMapBlocks();
+    void createNeutralSubraces();
+
     std::unordered_map<CMidgardID, ScenarioObjectPtr, CMidgardIDHash> objects;
     std::vector<Tile> tiles;
     std::vector<Position> guardingCreaturePositions;
@@ -114,6 +127,8 @@ private:
     CMidgardID scenarioId;
     Plan* plan{};
     Diplomacy* diplomacy{};
+    ScenarioInfo* scenarioInfo{};
+    Mountains* mountains{};
 };
 
 using MapPtr = std::unique_ptr<Map>;
