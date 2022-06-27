@@ -222,6 +222,9 @@
     <ClCompile Include="unit.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="stack.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
     <ClCompile Include="mountains.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
@@ -444,6 +447,9 @@
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
     <ClInclude Include="unit.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="stack.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
     <ClInclude Include="mountains.h">

@@ -213,6 +213,7 @@
     <ClCompile Include="serializer.cpp" />
     <ClCompile Include="spellcast.cpp" />
     <ClCompile Include="spelleffects.cpp" />
+    <ClCompile Include="stack.cpp" />
     <ClCompile Include="stackdestroyed.cpp" />
     <ClCompile Include="subrace.cpp" />
     <ClCompile Include="talismancharges.cpp" />
@@ -283,6 +284,7 @@
     <ClInclude Include="serializer.h" />
     <ClInclude Include="spellcast.h" />
     <ClInclude Include="spelleffects.h" />
+    <ClInclude Include="stack.h" />
     <ClInclude Include="stackdestroyed.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="subrace.h" />
