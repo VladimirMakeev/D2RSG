@@ -4,6 +4,7 @@
 #include "maptemplate.h"
 #include "player.h"
 #include "playerbuildings.h"
+#include "subrace.h"
 #include <cassert>
 #include <iostream>
 #include <numeric>
@@ -33,6 +34,17 @@ CMidgardID MapGenerator::createPlayer(RaceType race)
     insertObject(std::make_unique<KnownSpells>(spellsId));
 
     insertObject(std::move(player));
+
+    // Create player subrace
+    auto subraceId{createId(CMidgardID::Type::SubRace)};
+    auto subrace{std::make_unique<SubRace>(subraceId)};
+    subrace->setPlayerId(playerId);
+
+    auto subraceType{map->getSubRaceType(race)};
+    subrace->setType(subraceType);
+    subrace->setBanner(map->getSubRaceBanner(subraceType));
+    insertObject(std::move(subrace));
+
     return playerId;
 }
 
