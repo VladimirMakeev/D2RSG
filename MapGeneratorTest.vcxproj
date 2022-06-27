@@ -198,6 +198,7 @@
     <ClCompile Include="lua\lzio.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
+    <ClCompile Include="mapblock.cpp" />
     <ClCompile Include="mapgenerator.cpp" />
     <ClCompile Include="maptemplatereader.cpp" />
     <ClCompile Include="midgardid.cpp" />
@@ -227,6 +228,7 @@
     <ClInclude Include="image.h" />
     <ClInclude Include="inventory.h" />
     <ClInclude Include="knownspells.h" />
+    <ClInclude Include="mapblock.h" />
     <ClInclude Include="midgardmap.h" />
     <ClInclude Include="plan.h" />
     <ClInclude Include="playerbuildings.h" />

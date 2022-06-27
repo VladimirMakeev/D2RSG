@@ -213,6 +213,9 @@
     <ClCompile Include="scenarioinfo.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="mapblock.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
     <ClCompile Include="subrace.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
@@ -429,6 +432,9 @@
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
     <ClInclude Include="scenarioinfo.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="mapblock.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
     <ClInclude Include="subrace.h">
