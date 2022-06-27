@@ -210,6 +210,9 @@
     <ClCompile Include="diplomacy.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="unit.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -417,6 +420,9 @@
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
     <ClInclude Include="diplomacy.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="unit.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
   </ItemGroup>

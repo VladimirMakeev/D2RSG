@@ -214,6 +214,7 @@
     <ClCompile Include="talismancharges.cpp" />
     <ClCompile Include="templatezone.cpp" />
     <ClCompile Include="turnsummary.cpp" />
+    <ClCompile Include="unit.cpp" />
     <ClCompile Include="zoneplacer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -281,6 +282,7 @@
     <ClInclude Include="templatezone.h" />
     <ClInclude Include="tileinfo.h" />
     <ClInclude Include="turnsummary.h" />
+    <ClInclude Include="unit.h" />
     <ClInclude Include="vposition.h" />
     <ClInclude Include="zoneconnection.h" />
     <ClInclude Include="zoneid.h" />
