@@ -3,6 +3,7 @@
 #include "fortification.h"
 #include "objectinfo.h"
 #include "position.h"
+#include "stack.h"
 #include "vposition.h"
 #include "zoneoptions.h"
 #include <memory>
@@ -78,6 +79,10 @@ struct TemplateZone : public ZoneOptions
     void connectRoads();
 
     void placeObject(std::unique_ptr<Fortification>&& fortification,
+                     const Position& position,
+                     TerrainType terrain = TerrainType::Neutral,
+                     bool updateDistance = true);
+    void placeObject(std::unique_ptr<Stack>&& stack,
                      const Position& position,
                      bool updateDistance = true);
 

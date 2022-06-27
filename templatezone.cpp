@@ -2,6 +2,8 @@
 #include "capital.h"
 #include "mapgenerator.h"
 #include "player.h"
+#include "subrace.h"
+#include "unit.h"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -61,16 +63,54 @@ void TemplateZone::initTowns()
         assert(ownerId != emptyId);
         fort->setOwner(ownerId);
 
+        auto ownerPlayer{mapGenerator->map->find<Player>(ownerId)};
+        assert(ownerPlayer != nullptr);
+
+        auto playerRace{mapGenerator->getRaceType(ownerPlayer->getRace())};
+
+        // Create starting leader unit
+        auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
+        auto leader{std::make_unique<Unit>(leaderId)};
+        leader->setImplId(mapGenerator->map->getStartingLeaderImplId(playerRace));
+        leader->setHp(150);
+        leader->setName("Leader");
+        mapGenerator->insertObject(std::move(leader));
+
+        // Create starting stack
+        auto stackId{mapGenerator->createId(CMidgardID::Type::Stack)};
+        auto stack{std::make_unique<Stack>(stackId)};
+        auto leaderAdded{stack->addLeader(leaderId, 2)};
+        assert(leaderAdded);
+        stack->setInside(capitalId);
+        stack->setMove(20);
+        stack->setOwner(ownerId);
+
+        fort->setStack(stackId);
+
+        auto subraceType{mapGenerator->map->getSubRaceType(playerRace)};
+
+        mapGenerator->map->visit(CMidgardID::Type::SubRace,
+                                 [this, subraceType, fort, &stack](const ScenarioObject* object) {
+                                     auto subrace{dynamic_cast<const SubRace*>(object)};
+
+                                     if (subrace->getType() == subraceType) {
+                                         assert(subrace->getPlayerId() == ownerId);
+
+                                         fort->setSubrace(subrace->getId());
+                                         stack->setSubrace(subrace->getId());
+                                     }
+                                 });
+
         // Place capital at the center of the zone
-        placeObject(std::move(capital), pos - fort->getSize() / 2);
+        placeObject(std::move(capital), pos - fort->getSize() / 2,
+                    mapGenerator->map->getRaceTerrain(playerRace));
         cutPathAroundTown(*fort);
         // All roads lead to capital
         setPosition(fort->getEntrance());
 
-        auto ownerPlayer{mapGenerator->map->find<Player>(ownerId)};
-        assert(ownerPlayer != nullptr);
+        mapGenerator->registerZone(playerRace);
 
-        mapGenerator->registerZone(mapGenerator->getRaceType(ownerPlayer->getRace()));
+        placeObject(std::move(stack), fort->getPosition());
     }
 }
 
@@ -147,6 +187,7 @@ void TemplateZone::connectRoads()
 
 void TemplateZone::placeObject(std::unique_ptr<Fortification>&& fortification,
                                const Position& position,
+                               TerrainType terrain,
                                bool updateDistance)
 {
     // Check position
@@ -180,6 +221,8 @@ void TemplateZone::placeObject(std::unique_ptr<Fortification>&& fortification,
 
     for (auto& tile : blocked) {
         mapGenerator->setOccupied(tile, TileType::Used);
+        // Change terrain under city to race specific
+        mapGenerator->paintTerrain(tile, terrain, GroundType::Plain);
     }
 
     // Update distances
@@ -193,6 +236,41 @@ void TemplateZone::placeObject(std::unique_ptr<Fortification>&& fortification,
     mapGenerator->map->insertMapElement(*fortification.get(), fortification->getId());
     // Store object in scenario map
     mapGenerator->insertObject(std::move(fortification));
+}
+
+void TemplateZone::placeObject(std::unique_ptr<Stack>&& stack,
+                               const Position& position,
+                               bool updateDistance)
+{
+    // Check position
+    if (!mapGenerator->map->isInTheMap(position)) {
+        CMidgardID::String stackId{};
+        stack->getId().toString(stackId);
+
+        std::stringstream stream;
+        stream << "Position of stack " << stackId.data() << " at " << position
+               << " is outside of the map\n";
+        throw std::runtime_error(stream.str());
+    }
+
+    stack->setPosition(position);
+
+    // Mark stack tiles as used
+    auto blocked{stack->getBlockedPositions()};
+    blocked.insert(stack->getEntrance());
+
+    for (auto& tile : blocked) {
+        mapGenerator->setOccupied(tile, TileType::Used);
+    }
+
+    // Update distances
+    if (updateDistance) {
+        updateDistances(position);
+    }
+
+    mapGenerator->map->insertMapElement(*stack.get(), stack->getId());
+    // Store object in scenario map
+    mapGenerator->insertObject(std::move(stack));
 }
 
 void TemplateZone::updateDistances(const Position& position)
@@ -320,7 +398,7 @@ void TemplateZone::initTerrain()
 
     // TODO: create random patches of race-specific terrains,
     // excluding playable races in scenario
-    paintZoneTerrain(TerrainType::Neutral, GroundType::Plain);
+    // paintZoneTerrain(TerrainType::Neutral, GroundType::Plain);
 }
 
 void TemplateZone::addAllPossibleObjects()
