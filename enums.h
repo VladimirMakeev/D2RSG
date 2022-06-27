@@ -17,6 +17,26 @@ enum class RaceType
 
 static constexpr const std::size_t racesTotal{static_cast<std::size_t>(RaceType::Total)};
 
+// Same as LSubRace.dbf
+enum class SubRaceType
+{
+    Custom,
+    Human,
+    Undead,
+    Heretic,
+    Dwarf,
+    Neutral,
+    NeutralHuman,
+    NeutralElf,
+    NeutralGreenSkin,
+    NeutralDragon,
+    NeutralMarsh,
+    NeutralWater,
+    NeutralBarbarian,
+    NeutralWolf,
+    Elf,
+};
+
 // Same as LTerrain.dbf
 enum class TerrainType
 {
