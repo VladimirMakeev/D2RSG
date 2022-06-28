@@ -228,6 +228,9 @@
     <ClCompile Include="mountains.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="road.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
     <ClCompile Include="village.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
@@ -460,6 +463,9 @@
     </ClInclude>
     <ClInclude Include="mountains.h">
       <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="road.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="village.h">
       <Filter>Файлы заголовков\scenario</Filter>

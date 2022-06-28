@@ -209,6 +209,7 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="playerbuildings.cpp" />
     <ClCompile Include="questlog.cpp" />
+    <ClCompile Include="road.cpp" />
     <ClCompile Include="scenarioinfo.cpp" />
     <ClCompile Include="scenariovariables.cpp" />
     <ClCompile Include="serializer.cpp" />
@@ -280,6 +281,7 @@
     <ClInclude Include="position.h" />
     <ClInclude Include="questlog.h" />
     <ClInclude Include="randomgenerator.h" />
+    <ClInclude Include="road.h" />
     <ClInclude Include="scenarioinfo.h" />
     <ClInclude Include="scenarioobject.h" />
     <ClInclude Include="scenariovariables.h" />
