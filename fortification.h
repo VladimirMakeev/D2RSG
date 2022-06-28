@@ -15,6 +15,8 @@ class Fortification
 public:
     ~Fortification() override = default;
 
+    void serialize(Serializer& serializer, const Map& scenario) const override;
+
     const CMidgardID& getOwner() const
     {
         return ownerId;
