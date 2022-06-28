@@ -48,14 +48,14 @@ int main(int argc, char* argv[])
 
                     auto& tile{generator.tiles[generator.posToIndex(pos)]};
 
-                    if (tile.isBlocked()) {
-                        pixels2[index] = RgbColor(255, 0, 0); // red
-                    } else if (tile.isRoad()) {
+                    if (tile.isRoad()) {
                         pixels2[index] = RgbColor(175, 175, 175); // grey
-                    } else if (tile.isFree()) {
-                        pixels2[index] = RgbColor(255, 255, 255); // white
                     } else if (tile.isUsed()) {
                         pixels2[index] = RgbColor(255, 255, 100); // yellow
+                    } else if (tile.isBlocked()) {
+                        pixels2[index] = RgbColor(255, 0, 0); // red
+                    } else if (tile.isFree()) {
+                        pixels2[index] = RgbColor(255, 255, 255); // white
                     } else if (tile.isPossible()) {
                         pixels2[index] = RgbColor(255, 179, 185); // pink
                     } else {
