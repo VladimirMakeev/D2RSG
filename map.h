@@ -33,9 +33,14 @@ struct Tile
         ground = groundType;
     }
 
+    std::vector<CMidgardID> blockingObjects;
+    std::vector<CMidgardID> visitableObjects;
+
     TerrainType terrain{TerrainType::Neutral};
     GroundType ground{GroundType::Plain};
     std::uint8_t treeImage{};
+    bool visitable{};
+    bool blocked{};
 };
 
 struct MapHeader
@@ -65,6 +70,7 @@ public:
 
     bool insertObject(ScenarioObjectPtr&& object);
     void insertMapElement(const MapElement& mapElement, const CMidgardID& mapElementId);
+    void addBlockVisTiles(const MapElement& mapElement, const CMidgardID& mapElementId);
 
     const ScenarioObject* find(const CMidgardID& objectId) const;
     ScenarioObject* find(const CMidgardID& objectId);
@@ -106,6 +112,11 @@ public:
 
     const Tile& getTile(const Position& position) const;
     Tile& getTile(const Position& position);
+
+    bool canMoveBetween(const Position& source, const Position& destination) const;
+    bool checkForVisitableDir(const Position& source,
+                              const Tile& tile,
+                              const Position& destination) const;
 
     void paintTerrain(const Position& position, TerrainType terrain, GroundType ground);
     // Changes terrain and ground of specified tiles

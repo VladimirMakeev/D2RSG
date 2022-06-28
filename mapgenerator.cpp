@@ -4,6 +4,7 @@
 #include "maptemplate.h"
 #include "player.h"
 #include "playerbuildings.h"
+#include "road.h"
 #include "subrace.h"
 #include <cassert>
 #include <iostream>
@@ -11,7 +12,7 @@
 #include <sstream>
 #include <stdexcept>
 
-CMidgardID MapGenerator::createPlayer(RaceType race)
+std::pair<CMidgardID, CMidgardID> MapGenerator::createPlayer(RaceType race)
 {
     auto playerId{createId(CMidgardID::Type::Player)};
 
@@ -45,7 +46,7 @@ CMidgardID MapGenerator::createPlayer(RaceType race)
     subrace->setBanner(map->getSubRaceBanner(subraceType));
     insertObject(std::move(subrace));
 
-    return playerId;
+    return {playerId, subraceId};
 }
 
 MapPtr MapGenerator::generate()
@@ -56,7 +57,9 @@ MapPtr MapGenerator::generate()
     initTiles();
 
     // Create neutral player first
-    neutralPlayerId = createPlayer(RaceType::Neutral);
+    auto playerSubraceIds{createPlayer(RaceType::Neutral)};
+    neutralPlayerId = playerSubraceIds.first;
+    neutralSubraceId = playerSubraceIds.second;
 
     generateZones();
     // Clear map so that all tiles are unguarded
@@ -119,8 +122,8 @@ void MapGenerator::fillZones()
             auto race{getNextRace(raceIndex)};
             assert(race != RaceType::Neutral);
 
-            auto playerId{createPlayer(race)};
-            zone->setOwner(playerId);
+            auto playerSubraceIds{createPlayer(race)};
+            zone->setOwner(playerSubraceIds.first);
         }
     }
 
@@ -153,6 +156,13 @@ void MapGenerator::fillZones()
     for (auto& it : zones) {
         it.second->connectRoads();
     }
+
+    std::set<Position> roads;
+    for (auto& it : zones) {
+        roads.merge(it.second->getRoads());
+    }
+
+    createRoads(roads);
 }
 
 void MapGenerator::createDirectConnections()
@@ -322,12 +332,35 @@ void MapGenerator::foreachNeighbor(const Position& position, std::function<void(
 
 void MapGenerator::foreachDirectNeighbor(const Position& position, std::function<void(Position&)> f)
 {
+    // Directions are set clockwise, starting from north
+    // This is important for road incides!
     // clang-format off
     static const std::array<Position, 4> directions{{
         Position{ 0, -1},
+        Position{ 1,  0},
         Position{ 0,  1},
-        Position{-1, 0},
-        Position{ 1, 0}
+        Position{-1,  0}
+    }};
+    // clang-format on
+
+    for (const auto& direction : directions) {
+        Position p{position + direction};
+
+        if (map->isInTheMap(p)) {
+            f(p);
+        }
+    }
+}
+
+void MapGenerator::foreachDiagonalNeighbor(const Position& position,
+                                           std::function<void(Position&)> f)
+{
+    // clang-format off
+    static const std::array<Position, 4> directions{{
+        Position{-1, -1},
+        Position{ 1, -1},
+        Position{-1, 1},
+        Position{ 1, 1}
     }};
     // clang-format on
 
@@ -352,6 +385,79 @@ void MapGenerator::setNearestObjectDistance(const Position& position, float valu
     checkIsOnMap(position);
 
     tiles[posToIndex(position)].setNearestObjectDistance(value);
+}
+
+void MapGenerator::createRoads(const std::set<Position>& roads)
+{
+    for (const auto& tile : roads) {
+        std::uint8_t index{};
+        int i{};
+
+        // clang-format off
+        static const std::array<Position, 4> directions{{
+            Position{ 0, -1},
+            Position{ 1,  0},
+            Position{ 0,  1},
+            Position{-1,  0}
+        }};
+        // clang-format on
+
+        for (const auto& direction : directions) {
+            Position p{tile + direction};
+
+            if (map->isInTheMap(p) && isRoad(p)) {
+                index |= 1 << i;
+            }
+
+            ++i;
+        }
+
+        // clang-format off
+        static const std::array<std::uint8_t, 16> indices{{
+            0, // no neigbor roads
+            13,
+            12,
+            8,
+            14,
+            3,
+            9,
+            7,
+            15,
+            11,
+            2,
+            5,
+            10,
+            4,
+            6,
+            1 // all neighbors are roads
+        }};
+        // clang-format on
+
+        auto roadId{createId(CMidgardID::Type::Road)};
+        auto road{std::make_unique<Road>(roadId)};
+
+        assert(index < indices.size());
+        road->setIndex(indices[index]);
+
+        // Check position
+        if (!map->isInTheMap(tile)) {
+            CMidgardID::String roadId{};
+            road->getId().toString(roadId);
+
+            std::stringstream stream;
+            stream << "Position of road " << roadId.data() << " at " << tile
+                   << " is outside of the map\n";
+            throw std::runtime_error(stream.str());
+        }
+
+        road->setPosition(tile);
+        // Mark road tile as used
+        setOccupied(tile, TileType::Used);
+
+        map->insertMapElement(*road.get(), road->getId());
+        // Store object in scenario map
+        insertObject(std::move(road));
+    }
 }
 
 void MapGenerator::registerZone(RaceType race)

@@ -50,7 +50,7 @@ public:
         map->paintTerrain(tiles, terrain, ground);
     }
 
-    CMidgardID createPlayer(RaceType race);
+    std::pair<CMidgardID /* player id */, CMidgardID /* subrace id */> createPlayer(RaceType race);
 
     MapPtr generate();
 
@@ -77,9 +77,12 @@ public:
 
     void foreachNeighbor(const Position& position, std::function<void(Position&)> f);
     void foreachDirectNeighbor(const Position& position, std::function<void(Position&)> f);
+    void foreachDiagonalNeighbor(const Position& position, std::function<void(Position&)> f);
 
     float getNearestObjectDistance(const Position& position) const;
     void setNearestObjectDistance(const Position& position, float value);
+
+    void createRoads(const std::set<Position>& roads);
 
     // Returns global race id for specified race
     const CMidgardID& getRaceId(RaceType race) const
@@ -97,6 +100,16 @@ public:
     RaceType getRaceType(const CMidgardID& raceId) const
     {
         return map->getRaceType(raceId);
+    }
+
+    const CMidgardID& getNeutralPlayerId() const
+    {
+        return neutralPlayerId;
+    }
+
+    const CMidgardID& getNeutralSubraceId() const
+    {
+        return neutralSubraceId;
     }
 
     void registerZone(RaceType race);
@@ -119,6 +132,7 @@ public:
     RandomGenerator randomGenerator;
     MapGenOptions& mapGenOptions;
     time_t randomSeed;
-    CMidgardID neutralPlayerId{emptyId};
+    CMidgardID neutralPlayerId;
+    CMidgardID neutralSubraceId;
     std::size_t zonesTotal{}; // Zones with capital town only
 };

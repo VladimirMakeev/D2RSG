@@ -1,6 +1,7 @@
 #include "map.h"
 #include "diplomacy.h"
 #include "mapblock.h"
+#include "mapelement.h"
 #include "midgardmap.h"
 #include "mountains.h"
 #include "plan.h"
@@ -144,6 +145,33 @@ void Map::insertMapElement(const MapElement& mapElement, const CMidgardID& mapEl
 {
     assert(plan != nullptr);
     plan->add(mapElement, mapElementId);
+    addBlockVisTiles(mapElement, mapElementId);
+}
+
+void Map::addBlockVisTiles(const MapElement& mapElement, const CMidgardID& mapElementId)
+{
+    auto blocking{mapElement.getBlockedPositions()};
+    auto entrance{mapElement.getEntrance()};
+
+    blocking.insert(entrance);
+
+    for (const auto& position : blocking) {
+        auto& tile{getTile(position)};
+        tile.blocked = true;
+        tile.blockingObjects.push_back(mapElementId);
+    }
+
+    switch (mapElementId.getType()) {
+    case CMidgardID::Type::Fortification:
+    case CMidgardID::Type::Ruin:
+    case CMidgardID::Type::Site:
+    case CMidgardID::Type::Stack: {
+        auto& tile{getTile(entrance)};
+        tile.visitable = true;
+        tile.visitableObjects.push_back(mapElementId);
+        break;
+    }
+    }
 }
 
 const ScenarioObject* Map::find(const CMidgardID& objectId) const
@@ -187,6 +215,29 @@ Tile& Map::getTile(const Position& position)
     assert(isInTheMap(position));
 
     return tiles[posToIndex(position)];
+}
+
+bool Map::canMoveBetween(const Position& source, const Position& destination) const
+{
+    const auto& srcTile{getTile(source)};
+    const auto& dstTile{getTile(destination)};
+
+    return checkForVisitableDir(source, dstTile, destination)
+           && checkForVisitableDir(destination, srcTile, source);
+}
+
+bool Map::checkForVisitableDir(const Position& source,
+                               const Tile& tile,
+                               const Position& destination) const
+{
+    if (tile.ground == GroundType::Mountain) {
+        return false;
+    }
+
+    // TODO: check objects at source & destination tiles and their entrances
+    // Check if they are visitable or not
+
+    return true;
 }
 
 const CMidgardID& Map::getRaceId(RaceType race) const

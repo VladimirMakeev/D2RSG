@@ -113,6 +113,8 @@ struct TemplateZone : public ZoneOptions
 
     void paintZoneTerrain(TerrainType terrain, GroundType ground);
 
+    std::set<Position> getRoads() const;
+
 private:
     // A* priority queue
     using Distance = std::pair<Position, float>;
@@ -125,6 +127,8 @@ private:
     };
 
     using PriorityQueue = std::priority_queue<Distance, std::vector<Distance>, NodeComparer>;
+
+    bool createRoad(const Position& source, const Position& destination);
 
     MapGenerator* mapGenerator{};
 
@@ -142,6 +146,7 @@ private:
     std::set<Position> tileInfo;      // Area assigned to zone
     std::set<Position> possibleTiles; // For treasure generation
     std::set<Position> freePaths;     // Paths of free tiles that all objects will be linked to
+    std::set<Position> roadNodes;     // Tiles to be connected with roads
     std::set<Position> roads;         // All tiles with roads
     CMidgardID ownerId{emptyId};      // Player assigned to zone
 };

@@ -4,6 +4,7 @@
 #include "player.h"
 #include "subrace.h"
 #include "unit.h"
+#include "village.h"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -106,11 +107,25 @@ void TemplateZone::initTowns()
                     mapGenerator->map->getRaceTerrain(playerRace));
         cutPathAroundTown(*fort);
         // All roads lead to capital
-        setPosition(fort->getEntrance());
+        setPosition(fort->getEntrance() + Position(1, 1));
 
         mapGenerator->registerZone(playerRace);
 
         placeObject(std::move(stack), fort->getPosition());
+    } else if (type != TemplateZoneType::Water) {
+        auto villageId{mapGenerator->createId(CMidgardID::Type::Fortification)};
+        auto village{std::make_unique<Village>(villageId)};
+        // These two can be set as empty ?
+        village->setOwner(mapGenerator->getNeutralPlayerId());
+        village->setSubrace(mapGenerator->getNeutralSubraceId());
+
+        auto villagePtr{village.get()};
+        placeObject(std::move(village), pos - villagePtr->getSize() / 2);
+        cutPathAroundTown(*villagePtr);
+        // All roads lead to central village
+        setPosition(villagePtr->getEntrance() + Position(1, 1));
+
+        mapGenerator->registerZone(RaceType::Neutral);
     }
 }
 
@@ -183,7 +198,49 @@ void TemplateZone::createObstacles()
 { }
 
 void TemplateZone::connectRoads()
-{ }
+{
+    std::cout << "Started building roads\n";
+
+    std::set<Position> roadNodesCopy{roadNodes};
+    std::set<Position> processed;
+
+    while (!roadNodesCopy.empty()) {
+        auto node{*roadNodesCopy.begin()};
+        roadNodesCopy.erase(node);
+
+        Position cross{-1, -1};
+
+        auto comparator = [&node](const Position& a, const Position& b) {
+            return node.distanceSquared(a) < node.distanceSquared(b);
+        };
+
+        if (!processed.empty()) {
+            // Connect with existing network
+            cross = *std::min_element(processed.begin(), processed.end(), comparator);
+        } else if (!roadNodesCopy.empty()) {
+            // Connect with any other unconnected node
+            cross = *std::min_element(roadNodesCopy.begin(), roadNodesCopy.end(), comparator);
+        } else {
+            // No other nodes left, for example single road node in this zone
+            break;
+        }
+
+        std::cout << "Building road from " << node << " to " << cross << '\n';
+        if (createRoad(node, cross)) {
+            // Don't draw road starting at end point which is already connected
+            processed.insert(cross);
+
+            auto it{std::find(roadNodesCopy.begin(), roadNodesCopy.end(), cross)};
+            if (it != roadNodesCopy.end()) {
+                roadNodesCopy.erase(it);
+            }
+        }
+
+        processed.insert(node);
+    }
+
+    std::cout << "Finished building roads\n";
+}
 
 void TemplateZone::placeObject(std::unique_ptr<Fortification>&& fortification,
                                const Position& position,
@@ -285,7 +342,7 @@ void TemplateZone::updateDistances(const Position& position)
 
 void TemplateZone::addRoadNode(const Position& position)
 {
-    roads.insert(position);
+    roadNodes.insert(position);
 }
 
 void TemplateZone::addFreePath(const Position& position)
@@ -386,7 +443,35 @@ bool TemplateZone::addStack(const Position& position,
                             bool clearSurroundingTiles,
                             bool zoneGuard)
 {
-    return false;
+    auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
+    auto leader{std::make_unique<Unit>(leaderId)};
+    // Use Ork leader for testing
+    leader->setImplId(CMidgardID("g000uu5113"));
+    leader->setHp(200);
+    leader->setName("Ork");
+    mapGenerator->insertObject(std::move(leader));
+
+    auto stackId{mapGenerator->createId(CMidgardID::Type::Stack)};
+    auto stack{std::make_unique<Stack>(stackId)};
+    auto leaderAdded{stack->addLeader(leaderId, 2)};
+    assert(leaderAdded);
+
+    stack->setMove(20);
+    stack->setOwner(mapGenerator->getNeutralPlayerId());
+    stack->setSubrace(mapGenerator->getNeutralSubraceId());
+
+    placeObject(std::move(stack), position);
+
+    if (clearSurroundingTiles) {
+        // Do not spawn anything near stack
+        mapGenerator->foreachNeighbor(position, [this](Position& tile) {
+            if (mapGenerator->isPossible(tile)) {
+                mapGenerator->setOccupied(tile, TileType::Free);
+            }
+        });
+    }
+
+    return true;
 }
 
 void TemplateZone::initTerrain()
@@ -427,4 +512,126 @@ void TemplateZone::paintZoneTerrain(TerrainType terrain, GroundType ground)
 {
     std::vector<Position> tiles(tileInfo.begin(), tileInfo.end());
     mapGenerator->paintTerrain(tiles, terrain, ground);
+}
+
+std::set<Position> TemplateZone::getRoads() const
+{
+    std::set<Position> tiles;
+    for (const auto& tile : roads) {
+        if (mapGenerator->map->isInTheMap(tile)) {
+            tiles.insert(tile);
+        }
+    }
+
+    for (const auto& tile : roadNodes) {
+        // Mark roads for our nodes, but not for zone guards in other zones
+        if (mapGenerator->getZoneId(tile) == id) {
+            tiles.insert(tile);
+        }
+    }
+
+    return tiles;
+}
+
+bool TemplateZone::createRoad(const Position& source, const Position& destination)
+{
+    // A* algorithm
+
+    // The set of nodes already evaluated
+    std::set<Position> closed;
+    // The set of tentative nodes to be evaluated, initially containing the start node
+    PriorityQueue queue;
+    // The map of navigated nodes
+    std::map<Position, Position> cameFrom;
+    std::map<Position, float> distances;
+
+    if (source == Position(19, 25) || destination == Position(19, 25)) {
+        // std::cout << '\n';
+    }
+
+    // Just in case zone guard already has road under it
+    // Road under nodes will be added at very end
+    mapGenerator->setRoad(source, false);
+
+    // First node points to finish condition
+    cameFrom[source] = Position{-1, -1};
+    queue.push({source, 0.f});
+    distances[source] = 0.f;
+    // Cost from start along best known path
+
+    while (!queue.empty()) {
+        auto node{queue.top()};
+        queue.pop();
+
+        auto& currentNode{node.first};
+        closed.insert(currentNode);
+
+        if (currentNode == destination || mapGenerator->isRoad(currentNode)) {
+            // The goal node was reached.
+            // Trace the path using the saved parent information and return path
+            Position backtracking{currentNode};
+            while (cameFrom[backtracking].isValid()) {
+                // Add node to path
+                roads.insert(backtracking);
+                mapGenerator->setRoad(backtracking, true);
+                backtracking = cameFrom[backtracking];
+            }
+
+            return true;
+        }
+
+        const auto& currentTile{mapGenerator->map->getTile(currentNode)};
+        bool directNeighbourFound{false};
+        float movementCost{1.f};
+
+        auto functor = [this, &queue, &distances, &closed, &cameFrom, &currentNode, &currentTile,
+                        &node, &destination, &directNeighbourFound, &movementCost](Position& p) {
+            if (std::find(closed.begin(), closed.end(), p) != closed.end()) {
+                // We already visited that node
+                return;
+            }
+
+            float distance{node.second + movementCost};
+            float bestDistanceSoFar{std::numeric_limits<float>::max()};
+
+            auto it{distances.find(p)};
+            if (it != distances.end()) {
+                bestDistanceSoFar = it->second;
+            }
+
+            if (distance >= bestDistanceSoFar) {
+                return;
+            }
+
+            auto& tile{mapGenerator->map->getTile(p)};
+            const auto canMoveBetween{mapGenerator->map->canMoveBetween(currentNode, p)};
+
+            const auto emptyPath{mapGenerator->isFree(p) && mapGenerator->isFree(currentNode)};
+            // Moving from or to visitable object
+            const auto visitable{(tile.visitable || currentTile.visitable) && canMoveBetween};
+            // Already completed the path
+            const auto completed{p == destination};
+
+            if (emptyPath || visitable || completed) {
+                // Otherwise guard position may appear already connected to other zone.
+                if (mapGenerator->getZoneId(p) == id || completed) {
+                    cameFrom[p] = currentNode;
+                    distances[p] = distance;
+                    queue.push({p, distance});
+                    directNeighbourFound = true;
+                }
+            }
+        };
+
+        // Roads cannot be placed diagonally
+        mapGenerator->foreachDirectNeighbor(currentNode, functor);
+        if (!directNeighbourFound) {
+            // Moving diagonally is penalized over moving two tiles straight
+            movementCost = 2.1f;
+            mapGenerator->foreachDiagonalNeighbor(currentNode, functor);
+        }
+    }
+
+    std::cout << "Failed create road from " << source << " to " << destination << '\n';
+    return false;
 }
