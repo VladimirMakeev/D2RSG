@@ -51,10 +51,10 @@ enum class TerrainType
 // Same as LGround.dbf
 enum class GroundType
 {
-    Plain,
-    Forest,
-    Water,
-    Mountain,
+    Plain = 0,
+    Forest = 1,
+    Water = 3,
+    Mountain = 4,
 };
 
 // Same as LRes.dbf, but human-readable
