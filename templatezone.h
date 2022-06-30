@@ -1,5 +1,6 @@
 #pragma once
 
+#include "crystal.h"
 #include "fortification.h"
 #include "objectinfo.h"
 #include "position.h"
@@ -10,6 +11,13 @@
 #include <queue>
 
 class MapGenerator;
+
+enum class ObjectPlacingResult
+{
+    Success,
+    CannotFit,
+    SealedOff,
+};
 
 // Describes zone in a template
 struct TemplateZone : public ZoneOptions
@@ -78,6 +86,13 @@ struct TemplateZone : public ZoneOptions
     void createObstacles();
     void connectRoads();
 
+    ObjectPlacingResult tryToPlaceObjectAndConnectToPath(MapElement& mapElement,
+                                                         const Position& position);
+    void addRequiredObject(ScenarioObjectPtr&& object, int guardStrength = 0);
+    void addCloseObject(ScenarioObjectPtr&& object, int guardStrength = 0);
+
+    void placeScenarioObject(ScenarioObjectPtr&& object, const Position& position);
+
     void placeObject(std::unique_ptr<Fortification>&& fortification,
                      const Position& position,
                      TerrainType terrain = TerrainType::Neutral,
@@ -85,6 +100,10 @@ struct TemplateZone : public ZoneOptions
     void placeObject(std::unique_ptr<Stack>&& stack,
                      const Position& position,
                      bool updateDistance = true);
+    void placeObject(std::unique_ptr<Crystal>&& crystal,
+                     const Position& position,
+                     bool updateDistance = true);
+    void placeMountain(const Position& position, const Position& size, int image);
 
     void updateDistances(const Position& position);
 
@@ -96,6 +115,15 @@ struct TemplateZone : public ZoneOptions
     bool connectWithCenter(const Position& position,
                            bool onlyStraight,
                            bool passThroughBlocked = false);
+
+    // Make shortest path with free tiles, reaching destination or closest already free tile.
+    // Avoid blocks. Do not leave zone border
+    bool crunchPath(const Position& source,
+                    const Position& destination,
+                    bool onlyStraight,
+                    std::set<Position>* clearedTiles = nullptr);
+
+    bool connectPath(const Position& source, bool onlyStraight);
 
     // Creates stack that guards zone entrances or treasures
     bool addStack(const Position& position,
@@ -110,6 +138,14 @@ struct TemplateZone : public ZoneOptions
     bool placeMines();
     bool createRequiredObjects();
     void createTreasures();
+
+    bool findPlaceForObject(const MapElement& mapElement, int minDistance, Position& position);
+    bool isAccessibleFromSomewhere(const MapElement& mapElement, const Position& position) const;
+    Position getAccessibleOffset(const MapElement& mapElement, const Position& position) const;
+    bool areAllTilesAvailable(const MapElement& mapElement,
+                              const Position& position,
+                              const std::set<Position>& blockedOffsets) const;
+    bool canObstacleBePlacedHere(const MapElement& mapElement, const Position& position) const;
 
     void paintZoneTerrain(TerrainType terrain, GroundType ground);
 
@@ -134,7 +170,11 @@ private:
 
     // Template info
     TerrainType terrainType{TerrainType::Neutral};
+    std::vector<std::pair<ScenarioObjectPtr, int>> requiredObjects;
+    std::vector<std::pair<ScenarioObjectPtr, int>> closeObjects;
     std::vector<ObjectInfo> possibleObjects;
+
+    std::map<ScenarioObject*, Position> requestedPositions;
     int minGuardedValue{0};
 
     // Content info

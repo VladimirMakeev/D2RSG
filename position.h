@@ -132,3 +132,24 @@ struct Position
     int x{};
     int y{};
 };
+
+template <typename Container>
+static inline Position findClosestTile(const Container& container, const Position& destination)
+{
+    static_assert(std::is_same<typename Container::value_type, Position>::value,
+                  "findClosestTile requires container with positions");
+
+    Position result{-1, -1};
+    auto distance{std::numeric_limits<std::uint32_t>::max()};
+
+    for (const auto& tile : container) {
+        const auto currentDistance{static_cast<std::uint32_t>(destination.distanceSquared(tile))};
+
+        if (currentDistance < distance) {
+            result = tile;
+            distance = currentDistance;
+        }
+    }
+
+    return result;
+}

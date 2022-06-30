@@ -240,6 +240,36 @@ bool Map::checkForVisitableDir(const Position& source,
     return true;
 }
 
+int Map::addMountain(const Position& position, const Position& size, int image)
+{
+    assert(mountains != nullptr);
+
+    for (int x = 0; x < size.x; ++x) {
+        for (int y = 0; y < size.y; ++y) {
+            const auto pos{position + Position{x, y}};
+
+            getTile(pos).setTerrainGround(TerrainType::Neutral, GroundType::Mountain);
+        }
+    }
+
+    return mountains->add(position, size, image);
+}
+
+bool Map::isAtTheBorder(const MapElement& mapElement, const Position& position) const
+{
+    const auto& elementSize{mapElement.getSize()};
+
+    if (position.x >= size - (elementSize.x + 1)) {
+        return true;
+    }
+
+    if (position.y >= size - (elementSize.y + 1)) {
+        return true;
+    }
+
+    return false;
+}
+
 const CMidgardID& Map::getRaceId(RaceType race) const
 {
     // Values from GRace.dbf

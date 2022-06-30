@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <cstdint>
 #include <ctime>
 #include <functional>
@@ -71,4 +72,12 @@ static inline void randomShuffle(std::vector<T>& container, Rng& rand)
     for (auto it = container.rbegin(); it != container.rend(); ++it, ++i) {
         std::swap(container.begin()[i], container.begin()[(std::size_t)rand.getInt64Range(0, i)()]);
     }
+}
+
+template <typename Container>
+static inline auto nextItem(Container& container, Rng& rand) -> decltype(container.begin())
+{
+    assert(!container.empty());
+    return std::next(container.begin(),
+                     (int)rand.getInt64Range(0, (std::int64_t)container.size() - 1)());
 }

@@ -93,6 +93,16 @@ public:
         return position.x >= 0 && position.x < size && position.y >= 0 && position.y < size;
     }
 
+    // Returns true if tile position is at the map border
+    bool isAtTheBorder(const Position& position) const
+    {
+        return position.x == 0 || position.x == size - 1 || position.y == 0
+               || position.y == size - 1;
+    }
+
+    // Returns true if mapElement will be at the border of the map, if placed at position
+    bool isAtTheBorder(const MapElement& mapElement, const Position& position) const;
+
     // Returns global race id for specified race
     const CMidgardID& getRaceId(RaceType race) const;
     // Returns global lord id for specified race
@@ -117,6 +127,8 @@ public:
     bool checkForVisitableDir(const Position& source,
                               const Tile& tile,
                               const Position& destination) const;
+
+    int addMountain(const Position& position, const Position& size, int image);
 
     void paintTerrain(const Position& position, TerrainType terrain, GroundType ground);
     // Changes terrain and ground of specified tiles

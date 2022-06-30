@@ -8,12 +8,18 @@
 
 int main(int argc, char* argv[])
 {
+    auto mapSeed{/*std::time(nullptr)*/ std::time_t(1656538751)};
+    const auto seedString{std::to_string(mapSeed)};
+
     MapGenOptions options;
-    options.name = "random map";
-    options.description = "random map description";
     options.mapTemplate = readMapTemplate(argv[1]);
 
-    MapGenerator generator{options, std::time_t{1655841138}};
+    options.name = std::string{"random map "} + seedString;
+    options.description = std::string{"Random map based on template '"} + options.mapTemplate->name
+                          + std::string{"'. Seed: "} + seedString;
+    options.size = 72;
+
+    MapGenerator generator{options, mapSeed};
 
     try {
         auto map{generator.generate()};
@@ -33,11 +39,18 @@ int main(int argc, char* argv[])
 
                     // clang-format off
                     static const RgbColor colors[] = {
-                        RgbColor{255, 0, 0},
-                        RgbColor{0, 255, 0},
-                        RgbColor{0, 0, 255},
-                        RgbColor{255, 255, 255},
-                        RgbColor{0, 0, 0}
+                        RgbColor{255, 0, 0}, // red
+                        RgbColor{0, 255, 0}, // green
+                        RgbColor{0, 0, 255}, // blue
+                        RgbColor{255, 255, 255}, // white
+                        RgbColor{0, 0, 0}, // black
+                        RgbColor{127, 127, 127}, // gray
+                        RgbColor{255, 255, 0}, // yellow
+                        RgbColor{0, 255, 255}, // cyan
+                        RgbColor{255, 0, 255}, // magenta
+                        RgbColor{255, 153, 0}, // orange
+                        RgbColor{0, 158, 10}, // dark green
+                        RgbColor{0, 57, 158}, // dark blue
                     };
                     // clang-format on
 
