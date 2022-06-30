@@ -107,6 +107,8 @@ public:
     const CMidgardID& getStartingLeaderImplId(RaceType race) const;
     // Returns terrain type for specified race
     TerrainType getRaceTerrain(RaceType race) const;
+    // Returns native (preferred) resource type for specified race
+    ResourceType getNativeResource(RaceType race) const;
 
     const Tile& getTile(const Position& position) const;
     Tile& getTile(const Position& position);

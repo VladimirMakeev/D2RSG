@@ -389,6 +389,25 @@ TerrainType Map::getRaceTerrain(RaceType race) const
     }
 }
 
+ResourceType Map::getNativeResource(RaceType race) const
+{
+    switch (race) {
+    case RaceType::Human:
+        return ResourceType::LifeMana;
+    case RaceType::Undead:
+        return ResourceType::DeathMana;
+    case RaceType::Heretic:
+        return ResourceType::InfernalMana;
+    case RaceType::Dwarf:
+        return ResourceType::RunicMana;
+    default:
+    case RaceType::Neutral:
+        return ResourceType::Gold;
+    case RaceType::Elf:
+        return ResourceType::GroveMana;
+    }
+}
+
 void Map::paintTerrain(const Position& position, TerrainType terrain, GroundType ground)
 {
     getTile(position).setTerrainGround(terrain, ground);
