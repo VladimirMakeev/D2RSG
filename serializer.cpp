@@ -3,13 +3,16 @@
 #include "map.h"
 #include "midgardid.h"
 #include "position.h"
+#include <cassert>
 #include <fstream>
 #include <iomanip>
 #include <stdexcept>
 
 Serializer::Serializer(const std::filesystem::path& scenarioFilePath)
     : stream{scenarioFilePath, std::ios_base::binary}
-{ }
+{
+    assert(stream.is_open());
+}
 
 void Serializer::enterRecord()
 {
