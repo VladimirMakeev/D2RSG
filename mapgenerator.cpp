@@ -490,3 +490,17 @@ RaceType MapGenerator::getNextRace(std::size_t& raceIndex) const
 
     return RaceType::Neutral;
 }
+
+const TileInfo& MapGenerator::getTile(const Position& position) const
+{
+    checkIsOnMap(position);
+
+    return tiles[posToIndex(position)];
+}
+
+TileInfo& MapGenerator::getTile(const Position& position)
+{
+    checkIsOnMap(position);
+
+    return tiles[posToIndex(position)];
+}

@@ -119,6 +119,9 @@ public:
     // Returns next playable race
     RaceType getNextRace(std::size_t& raceIndex) const;
 
+    const TileInfo& getTile(const Position& position) const;
+    TileInfo& getTile(const Position& position);
+
     std::size_t posToIndex(const Position& position) const
     {
         return position.x + mapGenOptions.size * position.y;
