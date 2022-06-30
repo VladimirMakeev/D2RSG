@@ -5,6 +5,8 @@
 #include <lua.hpp>
 #include <sol/sol.hpp>
 
+using OptionalTable = sol::optional<sol::table>;
+
 static std::string readFile(const std::filesystem::path& file)
 {
     std::ifstream stream(file);
@@ -86,6 +88,49 @@ static std::string readString(const sol::table& table, const char* name, const s
     return table.get_or(name, def);
 }
 
+static void readMines(ZoneOptions& options, const sol::table& mines)
+{
+    auto gold = readValue(mines, "gold", 0, 0);
+    if (gold) {
+        options.mines[ResourceType::Gold] = gold;
+    }
+
+    auto lifeMana = readValue(mines, "lifeMana", 0, 0);
+    if (lifeMana) {
+        options.mines[ResourceType::LifeMana] = lifeMana;
+    }
+
+    auto deathMana = readValue(mines, "deathMana", 0, 0);
+    if (deathMana) {
+        options.mines[ResourceType::DeathMana] = deathMana;
+    }
+
+    auto infernalMana = readValue(mines, "infernalMana", 0, 0);
+    if (infernalMana) {
+        options.mines[ResourceType::InfernalMana] = infernalMana;
+    }
+
+    auto runicMana = readValue(mines, "runicMana", 0, 0);
+    if (runicMana) {
+        options.mines[ResourceType::RunicMana] = runicMana;
+    }
+
+    auto groveMana = readValue(mines, "groveMana", 0, 0);
+    if (groveMana) {
+        options.mines[ResourceType::GroveMana] = groveMana;
+    }
+}
+
+static void readTowns(CityInfo& cityInfo, const sol::table& cities)
+{
+    for (std::size_t tier = 0; tier < cityInfo.cities.size(); ++tier) {
+        char tierName[10] = {0};
+        std::snprintf(tierName, sizeof(tierName) - 1, "tier%d", tier + 1);
+
+        cityInfo.cities[tier] = readValue(cities, tierName, 0, 0);
+    }
+}
+
 static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
 {
     auto options = std::make_shared<ZoneOptions>();
@@ -97,36 +142,19 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     options->terrainTypes = zone.get<decltype(options->terrainTypes)>("terrains");
     options->groundTypes = zone.get<decltype(options->groundTypes)>("grounds");
 
-    const sol::table& mines = zone["mines"];
-
-    auto gold = readValue(mines, "gold", 0, 0);
-    if (gold) {
-        options->mines[ResourceType::Gold] = gold;
+    auto mines = zone.get<OptionalTable>("mines");
+    if (mines.has_value()) {
+        readMines(*options, mines.value());
     }
 
-    auto lifeMana = readValue(mines, "lifeMana", 0, 0);
-    if (lifeMana) {
-        options->mines[ResourceType::LifeMana] = lifeMana;
+    auto playerTowns = zone.get<OptionalTable>("playerTowns");
+    if (playerTowns.has_value()) {
+        readTowns(options->playerCities, playerTowns.value());
     }
 
-    auto deathMana = readValue(mines, "deathMana", 0, 0);
-    if (deathMana) {
-        options->mines[ResourceType::DeathMana] = deathMana;
-    }
-
-    auto infernalMana = readValue(mines, "infernalMana", 0, 0);
-    if (infernalMana) {
-        options->mines[ResourceType::InfernalMana] = infernalMana;
-    }
-
-    auto runicMana = readValue(mines, "runicMana", 0, 0);
-    if (runicMana) {
-        options->mines[ResourceType::RunicMana] = runicMana;
-    }
-
-    auto groveMana = readValue(mines, "groveMana", 0, 0);
-    if (groveMana) {
-        options->mines[ResourceType::GroveMana] = groveMana;
+    auto neutralTowns = zone.get<OptionalTable>("neutralTowns");
+    if (neutralTowns.has_value()) {
+        readTowns(options->neutralCities, neutralTowns.value());
     }
 
     return options;
