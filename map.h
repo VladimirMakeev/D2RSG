@@ -18,8 +18,6 @@ class Diplomacy;
 class ScenarioInfo;
 class Mountains;
 
-using ScenarioObjectPtr = std::unique_ptr<ScenarioObject>;
-
 struct Tile
 {
     void setTerrainGround(TerrainType terrainType, GroundType groundType)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "midgardid.h"
+#include <memory>
 
 class Map;
 class Serializer;
@@ -28,3 +29,5 @@ protected:
 
     const CMidgardID objectId;
 };
+
+using ScenarioObjectPtr = std::unique_ptr<ScenarioObject>;
