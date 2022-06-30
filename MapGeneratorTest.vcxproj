@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="capital.cpp" />
+    <ClCompile Include="crystal.cpp" />
     <ClCompile Include="currency.cpp" />
     <ClCompile Include="diplomacy.cpp" />
     <ClCompile Include="fog.cpp" />
@@ -227,6 +228,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aipriority.h" />
+    <ClInclude Include="crystal.h" />
     <ClInclude Include="currency.h" />
     <ClInclude Include="diplomacy.h" />
     <ClInclude Include="group.h" />
