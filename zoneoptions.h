@@ -1,6 +1,7 @@
 #pragma once
 
 #include "enums.h"
+#include "midgardid.h"
 #include "zoneid.h"
 #include <array>
 #include <cstdint>
@@ -20,6 +21,20 @@ struct CityInfo
     std::array<std::uint8_t, 5> cities{}; // City count for each tier
 };
 
+template <typename T>
+struct RandomValue
+{
+    T min{};
+    T max{};
+};
+
+struct RuinInfo
+{
+    RandomValue<std::uint16_t> cash{};
+    RandomValue<std::uint16_t> item{};
+    CMidgardID itemId;
+};
+
 // Template zone settings
 struct ZoneOptions
 {
@@ -30,6 +45,7 @@ struct ZoneOptions
     std::vector<TemplateZoneId> connections;    // Adjacent zones
     CityInfo playerCities;                      // Cities assigned to player
     CityInfo neutralCities;                     // Neutral cities
+    std::vector<RuinInfo> ruins;
     TemplateZoneId id{0};
     TemplateZoneType type{TemplateZoneType::PlayerStart};
     MonsterStrength monsterStrength{MonsterStrength::ZoneNormal};

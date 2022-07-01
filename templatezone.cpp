@@ -215,6 +215,7 @@ void TemplateZone::fill()
     initFreeTiles();
     connectLater();
     fractalize();
+    placeRuins();
     placeMines();
     createRequiredObjects();
     createTreasures();
@@ -419,6 +420,12 @@ void TemplateZone::placeScenarioObject(ScenarioObjectPtr&& object, const Positio
         placeObject(std::move(crystal), position);
         break;
     }
+
+    case CMidgardID::Type::Ruin: {
+        auto ruin{dynamic_unique_cast<Ruin>(std::move(object))};
+        placeObject(std::move(ruin), position);
+        break;
+    }
     }
 }
 
@@ -543,6 +550,56 @@ void TemplateZone::placeObject(std::unique_ptr<Crystal>&& crystal,
     mapGenerator->map->insertMapElement(*crystal.get(), crystal->getId());
     // Store object in scenario map
     mapGenerator->insertObject(std::move(crystal));
+}
+
+void TemplateZone::placeObject(std::unique_ptr<Ruin>&& ruin,
+                               const Position& position,
+                               bool updateDistance)
+{
+    // Check position
+    if (!mapGenerator->map->isInTheMap(position)) {
+        CMidgardID::String ruinId{};
+        ruin->getId().toString(ruinId);
+
+        std::stringstream stream;
+        stream << "Position of ruin " << ruinId.data() << " at " << position
+               << " is outside of the map\n";
+        throw std::runtime_error(stream.str());
+    }
+
+    ruin->setPosition(position);
+
+    // Check entrance
+    // Since position and entrance form rectangle we don't need to check other tiles
+    if (!mapGenerator->map->isInTheMap(ruin->getEntrance())) {
+        CMidgardID::String ruinId{};
+        ruin->getId().toString(ruinId);
+
+        std::stringstream stream;
+        stream << "Entrance " << ruin->getEntrance() << " of ruin " << ruinId.data() << " at "
+               << position << " is outside of the map\n";
+        throw std::runtime_error(stream.str());
+    }
+
+    // Mark ruin tiles and entrance as used
+    auto blocked{ruin->getBlockedPositions()};
+    blocked.insert(ruin->getEntrance());
+
+    for (auto& tile : blocked) {
+        mapGenerator->setOccupied(tile, TileType::Used);
+    }
+
+    // Update distances
+    if (updateDistance) {
+        updateDistances(position);
+    }
+
+    // Add road node using entrance point
+    addRoadNode(ruin->getEntrance());
+
+    mapGenerator->map->insertMapElement(*ruin.get(), ruin->getId());
+    // Store object in scenario map
+    mapGenerator->insertObject(std::move(ruin));
 }
 
 void TemplateZone::placeMountain(const Position& position, const Position& size, int image)
@@ -1097,6 +1154,55 @@ void TemplateZone::fractalize()
         std::snprintf(name, sizeof(name) - 1, "zone %d fractalize.png", id);
 
         mapGenerator->debugTiles(name);
+    }
+}
+
+void TemplateZone::placeRuins()
+{
+    /*
+    Vanilla ruin images:
+    0 - ambar
+    1 - small castle ruins
+    2 - farm ruins
+    3 - squared with colonnade
+    4 - tower
+    5 - squared with red roof
+    6 - tower in mountains
+    7 - circular panteon
+    8 - mountain clans style
+    9 - water temple
+    10 - elven cottage
+    */
+    static const int ruinImages[] = {0, 1, 2, 3, 4, 5, 6, 7};
+
+    auto& rand{mapGenerator->randomGenerator};
+
+    for (const auto& ruinInfo : ruins) {
+        auto ruinId{mapGenerator->createId(CMidgardID::Type::Ruin)};
+        auto ruin{std::make_unique<Ruin>(ruinId)};
+
+        const auto cashGold{rand.getInt64Range(ruinInfo.cash.min, ruinInfo.cash.max)()};
+        Currency cash;
+        cash.set(Currency::Type::Gold, static_cast<std::uint16_t>(cashGold));
+
+        // TODO: create specific item if itemId is not empty
+        // create reward item if itemId is empty and item value is set
+        ruin->setCash(cash);
+        ruin->setTitle("Ruin");
+        int ruinImage = (int)rand.getInt64Range(0, std::size(ruinImages) - 1)();
+        ruin->setImage(ruinImage);
+
+        const auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
+        auto unitAdded{ruin->addUnit(unitId, 2)};
+        assert(unitAdded);
+
+        auto unit{std::make_unique<Unit>(unitId)};
+        // Use non-leader Ork for testing
+        unit->setImplId(CMidgardID("g000uu5013"));
+        unit->setHp(200);
+        mapGenerator->insertObject(std::move(unit));
+
+        addRequiredObject(std::move(ruin));
     }
 }
 

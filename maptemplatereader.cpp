@@ -131,6 +131,47 @@ static void readTowns(CityInfo& cityInfo, const sol::table& cities)
     }
 }
 
+template <typename T>
+static void readRandomValue(RandomValue<T>& value,
+                            const sol::table& table,
+                            T def,
+                            T min = std::numeric_limits<T>::min(),
+                            T max = std::numeric_limits<T>::max())
+{
+    value.min = readValue(table, "min", def, min, max);
+    value.max = readValue(table, "max", def, min, max);
+
+    if (value.min > value.max) {
+        std::swap(value.min, value.max);
+    }
+}
+
+static void readRuins(ZoneOptions& options, const std::vector<sol::table>& ruins)
+{
+    for (auto& ruin : ruins) {
+        RuinInfo info{};
+
+        auto cash = ruin.get<OptionalTable>("cash");
+        if (cash.has_value()) {
+            readRandomValue<std::uint16_t>(info.cash, cash.value(), 0, 0, 9999);
+        }
+
+        auto item = ruin.get<OptionalTable>("item");
+        if (item.has_value()) {
+            readRandomValue<std::uint16_t>(info.item, item.value(), 0, 0, 9999);
+        }
+
+        auto idString{readString(ruin, "itemId", "g000000000")};
+        CMidgardID itemId(idString.c_str());
+
+        if (itemId != invalidId) {
+            info.itemId = itemId;
+        }
+
+        options.ruins.push_back(info);
+    }
+}
+
 static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
 {
     auto options = std::make_shared<ZoneOptions>();
@@ -155,6 +196,11 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     auto neutralTowns = zone.get<OptionalTable>("neutralTowns");
     if (neutralTowns.has_value()) {
         readTowns(options->neutralCities, neutralTowns.value());
+    }
+
+    auto ruins = zone.get<sol::optional<std::vector<sol::table>>>("ruins");
+    if (ruins.has_value()) {
+        readRuins(*options, ruins.value());
     }
 
     return options;
