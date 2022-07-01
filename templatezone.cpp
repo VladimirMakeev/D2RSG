@@ -1,12 +1,12 @@
 #include "templatezone.h"
 #include "capital.h"
+#include "containers.h"
 #include "crystal.h"
 #include "mapgenerator.h"
 #include "player.h"
 #include "subrace.h"
 #include "unit.h"
 #include "village.h"
-#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <iterator>
@@ -277,22 +277,14 @@ void TemplateZone::createObstacles()
     auto tryPlaceMountainHere = [this, &possibleObstacles](const Position& tile, int index) {
         auto it{nextItem(possibleObstacles[index].second, mapGenerator->randomGenerator)};
 
-        /*if (tile == Position{18, 4}) {
-            std::cout << '\n';
-        }*/
-
         const MapElement mountainElement({it->size, it->size});
-        // const Position obstaclePos{tile + mountainElement.getSize()};
-        if (canObstacleBePlacedHere(mountainElement, /*obstaclePos*/ tile)) {
+        if (canObstacleBePlacedHere(mountainElement, tile)) {
             placeMountain(tile, mountainElement.getSize(), it->image);
             return true;
         }
 
         return false;
     };
-
-    // for (auto it = tileInfo.rbegin(); it != tileInfo.rend(); ++it) {
-    // const auto& tile{*it};
 
     for (const auto& tile : tileInfo) {
         // Fill tiles that should be blocked with obstacles
@@ -348,10 +340,7 @@ void TemplateZone::connectRoads()
             // Don't draw road starting at end point which is already connected
             processed.insert(cross);
 
-            auto it{std::find(roadNodesCopy.begin(), roadNodesCopy.end(), cross)};
-            if (it != roadNodesCopy.end()) {
-                roadNodesCopy.erase(it);
-            }
+            eraseIfPresent(roadNodesCopy, cross);
         }
 
         processed.insert(node);
@@ -637,7 +626,7 @@ bool TemplateZone::connectWithCenter(const Position& position,
         } else {
             auto functor = [this, &queue, &closed, &cameFrom, &currentNode, &distances,
                             passThroughBlocked](Position& p) {
-                if (std::find(closed.begin(), closed.end(), p) != closed.end()) {
+                if (contains(closed, p)) {
                     return;
                 }
 
@@ -814,7 +803,7 @@ bool TemplateZone::connectPath(const Position& source, bool onlyStraight)
     std::map<Position, Position> cameFrom;
     std::map<Position, float> distances;
 
-    // first node points to finish condition
+    // First node points to finish condition
     cameFrom[source] = Position{-1, -1};
     distances[source] = 0.f;
     open.push({source, 0.f});
@@ -842,7 +831,7 @@ bool TemplateZone::connectPath(const Position& source, bool onlyStraight)
         }
 
         auto functor = [this, &open, &closed, &cameFrom, &currentNode, &distances](Position& pos) {
-            if (std::find(closed.begin(), closed.end(), pos) != closed.end()) {
+            if (contains(closed, pos)) {
                 return;
             }
 
@@ -879,10 +868,7 @@ bool TemplateZone::connectPath(const Position& source, bool onlyStraight)
             mapGenerator->setOccupied(tile, TileType::Blocked);
         }
 
-        auto it{std::find(possibleTiles.begin(), possibleTiles.end(), tile)};
-        if (it != possibleTiles.end()) {
-            possibleTiles.erase(it);
-        }
+        eraseIfPresent(possibleTiles, tile);
     }
 
     return false;
@@ -1032,10 +1018,7 @@ void TemplateZone::fractalize()
 
             // These tiles are already connected, ignore them
             for (const auto& tileToClear : tilesToIgnore) {
-                auto it{std::find(possibleTiles.begin(), possibleTiles.end(), tileToClear)};
-                if (it != possibleTiles.end()) {
-                    possibleTiles.erase(it);
-                }
+                eraseIfPresent(possibleTiles, tileToClear);
             }
 
             // Nothing else can be done (?)
@@ -1353,7 +1336,7 @@ Position TemplateZone::getAccessibleOffset(const MapElement& mapElement,
 
             const Position offset{Position{x, y} + mapElement.getEntranceOffset()};
 
-            if (std::find(blocked.begin(), blocked.end(), offset) != blocked.end()) {
+            if (contains(blocked, offset)) {
                 continue;
             }
 
@@ -1495,7 +1478,7 @@ bool TemplateZone::createRoad(const Position& source, const Position& destinatio
 
         auto functor = [this, &queue, &distances, &closed, &cameFrom, &currentNode, &currentTile,
                         &node, &destination, &directNeighbourFound, &movementCost](Position& p) {
-            if (std::find(closed.begin(), closed.end(), p) != closed.end()) {
+            if (contains(closed, p)) {
                 // We already visited that node
                 return;
             }

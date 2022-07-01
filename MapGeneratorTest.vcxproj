@@ -228,6 +228,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aipriority.h" />
+    <ClInclude Include="containers.h" />
     <ClInclude Include="crystal.h" />
     <ClInclude Include="currency.h" />
     <ClInclude Include="diplomacy.h" />

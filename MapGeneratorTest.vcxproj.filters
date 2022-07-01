@@ -476,5 +476,8 @@
     <ClInclude Include="crystal.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
+    <ClInclude Include="containers.h">
+      <Filter>Файлы заголовков\utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
