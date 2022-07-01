@@ -23,7 +23,7 @@ std::int16_t Currency::get(Type type) const
 
 void Currency::set(Type type, std::uint16_t value)
 {
-    value = std::clamp<std::uint16_t>(value, 0, 0xffff);
+    value = std::clamp<std::uint16_t>(value, 0, 9999);
 
     switch (type) {
     case Type::Infernal:
