@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
                     if (tile.isRoad()) {
                         pixels2[index] = RgbColor(175, 175, 175); // grey
                     } else if (tile.isUsed()) {
-                        pixels2[index] = RgbColor(255, 255, 100); // yellow
+                        pixels2[index] = RgbColor(237, 177, 100); // yellow
                     } else if (tile.isBlocked()) {
                         pixels2[index] = RgbColor(255, 0, 0); // red
                     } else if (tile.isFree()) {

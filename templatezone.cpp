@@ -11,8 +11,6 @@
 #include <iostream>
 #include <iterator>
 #include <sstream>
-// for debug
-#include "image.h"
 
 void TemplateZone::setCenter(const VPosition& value)
 {
@@ -1112,35 +1110,10 @@ void TemplateZone::fractalize()
     constexpr bool debugFractalize{false};
 
     if constexpr (debugFractalize) {
-        const auto mapSize{mapGenerator->map->size};
-        std::vector<RgbColor> pixels(mapSize * mapSize);
-
-        for (int i = 0; i < mapSize; ++i) {
-            for (int j = 0; j < mapSize; ++j) {
-                const std::size_t index = i + mapSize * j;
-                const auto& tile{mapGenerator->getTile({i, j})};
-
-                if (tile.isRoad()) {
-                    pixels[index] = RgbColor(175, 175, 175); // grey
-                } else if (tile.isUsed()) {
-                    pixels[index] = RgbColor(255, 255, 100); // yellow
-                } else if (tile.isBlocked()) {
-                    pixels[index] = RgbColor(255, 0, 0); // red
-                } else if (tile.isFree()) {
-                    pixels[index] = RgbColor(255, 255, 255); // white
-                } else if (tile.isPossible()) {
-                    pixels[index] = RgbColor(255, 179, 185); // pink
-                } else {
-                    pixels[index] = RgbColor(0, 0, 0); // black for all other
-                }
-            }
-        }
-
         char name[100] = {0};
         std::snprintf(name, sizeof(name) - 1, "zone %d fractalize.png", id);
 
-        Image zonesImage(mapSize, mapSize, pixels);
-        zonesImage.write(name);
+        mapGenerator->debugTiles(name);
     }
 }
 

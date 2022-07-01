@@ -122,6 +122,9 @@ public:
     const TileInfo& getTile(const Position& position) const;
     TileInfo& getTile(const Position& position);
 
+    // Creates png image with specified filename where each pixel represents TileInfo
+    void debugTiles(const char* fileName) const;
+
     std::size_t posToIndex(const Position& position) const
     {
         return position.x + mapGenOptions.size * position.y;

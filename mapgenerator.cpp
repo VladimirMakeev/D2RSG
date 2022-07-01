@@ -149,68 +149,14 @@ void MapGenerator::fillZones()
 
     constexpr bool debugObstacles{false};
 
-    {
-        if constexpr (debugObstacles) {
-            const auto mapSize{map->size};
-            std::vector<RgbColor> pixels(mapSize * mapSize);
-
-            for (int i = 0; i < mapSize; ++i) {
-                for (int j = 0; j < mapSize; ++j) {
-                    const std::size_t index = i + mapSize * j;
-                    const auto& tile{getTile({i, j})};
-
-                    if (tile.isRoad()) {
-                        pixels[index] = RgbColor(175, 175, 175); // grey
-                    } else if (tile.isUsed()) {
-                        pixels[index] = RgbColor(255, 255, 100); // yellow
-                    } else if (tile.isBlocked()) {
-                        pixels[index] = RgbColor(255, 0, 0); // red
-                    } else if (tile.isFree()) {
-                        pixels[index] = RgbColor(255, 255, 255); // white
-                    } else if (tile.isPossible()) {
-                        pixels[index] = RgbColor(255, 179, 185); // pink
-                    } else {
-                        pixels[index] = RgbColor(0, 0, 0); // black for all other
-                    }
-                }
-            }
-
-            Image zonesImage(mapSize, mapSize, pixels);
-            zonesImage.write("before createObstacles.png");
-        }
+    if constexpr (debugObstacles) {
+        debugTiles("before createObstacles.png");
     }
 
     createObstacles();
 
-    {
-        if constexpr (debugObstacles) {
-            const auto mapSize{map->size};
-            std::vector<RgbColor> pixels(mapSize * mapSize);
-
-            for (int i = 0; i < mapSize; ++i) {
-                for (int j = 0; j < mapSize; ++j) {
-                    const std::size_t index = i + mapSize * j;
-                    const auto& tile{getTile({i, j})};
-
-                    if (tile.isRoad()) {
-                        pixels[index] = RgbColor(175, 175, 175); // grey
-                    } else if (tile.isUsed()) {
-                        pixels[index] = RgbColor(255, 255, 100); // yellow
-                    } else if (tile.isBlocked()) {
-                        pixels[index] = RgbColor(255, 0, 0); // red
-                    } else if (tile.isFree()) {
-                        pixels[index] = RgbColor(255, 255, 255); // white
-                    } else if (tile.isPossible()) {
-                        pixels[index] = RgbColor(255, 179, 185); // pink
-                    } else {
-                        pixels[index] = RgbColor(0, 0, 0); // black for all other
-                    }
-                }
-            }
-
-            Image zonesImage(mapSize, mapSize, pixels);
-            zonesImage.write("after createObstacles.png");
-        }
+    if constexpr (debugObstacles) {
+        debugTiles("after createObstacles.png");
     }
 
     // Place actual obstacles matching zone terrain
@@ -218,35 +164,8 @@ void MapGenerator::fillZones()
         it.second->createObstacles();
     }
 
-    {
-        if constexpr (debugObstacles) {
-            const auto mapSize{map->size};
-            std::vector<RgbColor> pixels(mapSize * mapSize);
-
-            for (int i = 0; i < mapSize; ++i) {
-                for (int j = 0; j < mapSize; ++j) {
-                    const std::size_t index = i + mapSize * j;
-                    const auto& tile{getTile({i, j})};
-
-                    if (tile.isRoad()) {
-                        pixels[index] = RgbColor(175, 175, 175); // grey
-                    } else if (tile.isUsed()) {
-                        pixels[index] = RgbColor(255, 255, 100); // yellow
-                    } else if (tile.isBlocked()) {
-                        pixels[index] = RgbColor(255, 0, 0); // red
-                    } else if (tile.isFree()) {
-                        pixels[index] = RgbColor(255, 255, 255); // white
-                    } else if (tile.isPossible()) {
-                        pixels[index] = RgbColor(255, 179, 185); // pink
-                    } else {
-                        pixels[index] = RgbColor(0, 0, 0); // black for all other
-                    }
-                }
-            }
-
-            Image zonesImage(mapSize, mapSize, pixels);
-            zonesImage.write("after createObstacles in zones.png");
-        }
+    if constexpr (debugObstacles) {
+        debugTiles("after createObstacles in zones.png");
     }
 
     for (auto& it : zones) {
@@ -639,4 +558,34 @@ TileInfo& MapGenerator::getTile(const Position& position)
     checkIsOnMap(position);
 
     return tiles[posToIndex(position)];
+}
+
+void MapGenerator::debugTiles(const char* fileName) const
+{
+    const auto mapSize{mapGenOptions.size};
+    std::vector<RgbColor> pixels(mapSize * mapSize);
+
+    for (int i = 0; i < mapSize; ++i) {
+        for (int j = 0; j < mapSize; ++j) {
+            const std::size_t index = i + mapSize * j;
+            const auto& tile{getTile({i, j})};
+
+            if (tile.isRoad()) {
+                pixels[index] = RgbColor(175, 175, 175); // grey
+            } else if (tile.isUsed()) {
+                pixels[index] = RgbColor(237, 177, 100); // yellow
+            } else if (tile.isBlocked()) {
+                pixels[index] = RgbColor(255, 0, 0); // red
+            } else if (tile.isFree()) {
+                pixels[index] = RgbColor(255, 255, 255); // white
+            } else if (tile.isPossible()) {
+                pixels[index] = RgbColor(255, 179, 185); // pink
+            } else {
+                pixels[index] = RgbColor(0, 0, 0); // black for all other
+            }
+        }
+    }
+
+    Image zonesImage(mapSize, mapSize, pixels);
+    zonesImage.write(fileName);
 }
