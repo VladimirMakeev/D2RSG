@@ -147,6 +147,7 @@ struct TemplateZone : public ZoneOptions
 
     bool findPlaceForObject(const MapElement& mapElement, int minDistance, Position& position);
     bool isAccessibleFromSomewhere(const MapElement& mapElement, const Position& position) const;
+    bool isEntranceAccessible(const MapElement& mapElement, const Position& position) const;
     Position getAccessibleOffset(const MapElement& mapElement, const Position& position) const;
     bool areAllTilesAvailable(const MapElement& mapElement,
                               const Position& position,

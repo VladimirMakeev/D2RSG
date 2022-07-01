@@ -594,9 +594,6 @@ void TemplateZone::placeObject(std::unique_ptr<Ruin>&& ruin,
         updateDistances(position);
     }
 
-    // Add road node using entrance point
-    addRoadNode(ruin->getEntrance());
-
     mapGenerator->map->insertMapElement(*ruin.get(), ruin->getId());
     // Store object in scenario map
     mapGenerator->insertObject(std::move(ruin));
@@ -1020,7 +1017,9 @@ void TemplateZone::fractalize()
     }
 
     // TODO: move this setting into template for better zone free space control
-    const float minDistance{5 * 10};
+    // TODO: adjust this setting based on template value
+    // and number of objects (and their average size?)
+    const float minDistance{7.5 * 10};
 
     for (const auto& tile : tileInfo) {
         if (mapGenerator->isPossible(tile)) {
@@ -1257,7 +1256,7 @@ bool TemplateZone::createRequiredObjects()
             const auto elementSize{mapElement->getSize().x};
             const auto sizeSquared{elementSize * elementSize};
             // TODO: move this setting into template for better object placement ?
-            const auto minDistance{sizeSquared * 10};
+            const auto minDistance{elementSize * 2};
 
             if (!findPlaceForObject(*mapElement, minDistance, position)) {
                 std::cerr << "Failed to fill zone " << id << " due to lack of space\n";
@@ -1396,6 +1395,10 @@ bool TemplateZone::findPlaceForObject(const MapElement& mapElement,
             continue;
         }
 
+        if (!isEntranceAccessible(mapElement, tile)) {
+            continue;
+        }
+
         const auto& t = mapGenerator->getTile(tile);
         const auto distance{t.getNearestObjectDistance()};
 
@@ -1425,6 +1428,28 @@ bool TemplateZone::isAccessibleFromSomewhere(const MapElement& mapElement,
                                              const Position& position) const
 {
     return getAccessibleOffset(mapElement, position).isValid();
+}
+
+bool TemplateZone::isEntranceAccessible(const MapElement& mapElement,
+                                        const Position& position) const
+{
+    const auto entrance{position + mapElement.getEntranceOffset()};
+
+    // If at least one tile nearby entrance is inaccessible
+    // assume whole map element is also inaccessible
+    for (const auto& offset : mapElement.getEntranceOffsets()) {
+        const auto entranceTile{entrance + offset};
+
+        if (!mapGenerator->map->isInTheMap(entranceTile)) {
+            return false;
+        }
+
+        if (mapGenerator->isBlocked(entranceTile)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 Position TemplateZone::getAccessibleOffset(const MapElement& mapElement,

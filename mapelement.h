@@ -1,8 +1,6 @@
 #pragma once
 
 #include "position.h"
-#include <algorithm>
-#include <array>
 #include <set>
 
 // Base class for scenario map objects that can be interacted with
@@ -78,10 +76,11 @@ public:
         return Position{size.x - 1, size.y - 1};
     }
 
-    bool isVisitableFrom(const Position& direction) const
+    // Returns offsets to tiles near entrance
+    const std::set<Position>& getEntranceOffsets() const
     {
         // clang-format off
-        static const std::array<Position, 5> offsets{{
+        static const std::set<Position> offsets{{
             Position{ 1, -1},
             Position{ 1,  0},
             Position{ 1,  1},
@@ -90,7 +89,14 @@ public:
         }};
         // clang-format on
 
-        return std::find(offsets.begin(), offsets.end(), direction) != offsets.end();
+        return offsets;
+    }
+
+    bool isVisitableFrom(const Position& direction) const
+    {
+        const auto& offsets{getEntranceOffsets()};
+
+        return offsets.find(direction) != offsets.end();
     }
 
 protected:
