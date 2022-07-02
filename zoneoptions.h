@@ -30,9 +30,25 @@ struct RandomValue
 
 struct RuinInfo
 {
-    RandomValue<std::uint16_t> cash{};
-    RandomValue<std::uint16_t> item{};
+    RandomValue<std::uint16_t> cash{}; // Reward in gold
+    RandomValue<std::uint16_t> item{}; // Item value, when itemId is empty
+    CMidgardID itemId;                 // Item that must be generated as a reward
+};
+
+struct ItemInfo
+{
     CMidgardID itemId;
+    RandomValue<std::uint8_t> amount;
+};
+
+struct MerchantInfo
+{
+    // Types of items merchant is allowed to sell
+    std::set<ItemType> itemTypes;
+    // Items that merchant must sell, regardless of itemTypes and cash
+    std::vector<ItemInfo> requiredItems;
+    // Total value of merchant tradable items, excluding requiredItems
+    RandomValue<std::uint32_t> cash;
 };
 
 // Template zone settings
@@ -45,7 +61,8 @@ struct ZoneOptions
     std::vector<TemplateZoneId> connections;    // Adjacent zones
     CityInfo playerCities;                      // Cities assigned to player
     CityInfo neutralCities;                     // Neutral cities
-    std::vector<RuinInfo> ruins;
+    std::vector<RuinInfo> ruins;                // Ruins in the zone
+    std::vector<MerchantInfo> merchants;        // Merchants
     TemplateZoneId id{0};
     TemplateZoneType type{TemplateZoneType::PlayerStart};
     MonsterStrength monsterStrength{MonsterStrength::ZoneNormal};

@@ -6,6 +6,7 @@
 #include <sol/sol.hpp>
 
 using OptionalTable = sol::optional<sol::table>;
+using OptionalTableArray = sol::optional<std::vector<sol::table>>;
 
 static std::string readFile(const std::filesystem::path& file)
 {
@@ -70,6 +71,24 @@ static void bindLuaApi(sol::state& lua)
         "Junction", TemplateZoneType::Junction,
         "Water", TemplateZoneType::Water
     );
+
+    lua.new_enum("Item",
+        "Armor", ItemType::Armor,
+        "Jewel", ItemType::Jewel,
+        "Weapon", ItemType::Weapon,
+        "Banner", ItemType::Banner,
+        "PotionBoost", ItemType::PotionBoost,
+        "PotionHeal", ItemType::PotionHeal,
+        "PotionRevive", ItemType::PotionRevive,
+        "PotionPermanent", ItemType::PotionPermanent,
+        "Scroll", ItemType::Scroll,
+        "Wand", ItemType::Wand,
+        "Valuable", ItemType::Valuable,
+        "Orb", ItemType::Orb,
+        "Talisman", ItemType::Talisman,
+        "TravelItem", ItemType::TravelItem,
+        "Special", ItemType::Special
+    );
     // clang-format on
 }
 
@@ -86,6 +105,31 @@ static T readValue(const sol::table& table,
 static std::string readString(const sol::table& table, const char* name, const std::string& def)
 {
     return table.get_or(name, def);
+}
+
+static void readId(CMidgardID& id, const sol::table& table, const char* name)
+{
+    auto idString{readString(table, name, "g000000000")};
+    CMidgardID tmpId(idString.c_str());
+
+    if (tmpId != invalidId) {
+        id = tmpId;
+    }
+}
+
+template <typename T>
+static void readRandomValue(RandomValue<T>& value,
+                            const sol::table& table,
+                            T def,
+                            T min = std::numeric_limits<T>::min(),
+                            T max = std::numeric_limits<T>::max())
+{
+    value.min = readValue(table, "min", def, min, max);
+    value.max = readValue(table, "max", def, min, max);
+
+    if (value.min > value.max) {
+        std::swap(value.min, value.max);
+    }
 }
 
 static void readMines(ZoneOptions& options, const sol::table& mines)
@@ -131,21 +175,6 @@ static void readTowns(CityInfo& cityInfo, const sol::table& cities)
     }
 }
 
-template <typename T>
-static void readRandomValue(RandomValue<T>& value,
-                            const sol::table& table,
-                            T def,
-                            T min = std::numeric_limits<T>::min(),
-                            T max = std::numeric_limits<T>::max())
-{
-    value.min = readValue(table, "min", def, min, max);
-    value.max = readValue(table, "max", def, min, max);
-
-    if (value.min > value.max) {
-        std::swap(value.min, value.max);
-    }
-}
-
 static void readRuins(ZoneOptions& options, const std::vector<sol::table>& ruins)
 {
     for (auto& ruin : ruins) {
@@ -161,14 +190,46 @@ static void readRuins(ZoneOptions& options, const std::vector<sol::table>& ruins
             readRandomValue<std::uint16_t>(info.item, item.value(), 0, 0, 9999);
         }
 
-        auto idString{readString(ruin, "itemId", "g000000000")};
-        CMidgardID itemId(idString.c_str());
-
-        if (itemId != invalidId) {
-            info.itemId = itemId;
-        }
+        readId(info.itemId, ruin, "itemId");
 
         options.ruins.push_back(info);
+    }
+}
+
+static void readMerchantItems(std::vector<ItemInfo>& merchantItems,
+                              const std::vector<sol::table>& items)
+{
+    for (const auto& item : items) {
+        ItemInfo info{};
+
+        readId(info.itemId, item, "id");
+        readRandomValue<std::uint8_t>(info.amount, item, 1, 1);
+
+        merchantItems.push_back(info);
+    }
+}
+
+static void readMerchants(ZoneOptions& options, const std::vector<sol::table>& merchants)
+{
+    for (const auto& merchant : merchants) {
+        MerchantInfo info{};
+
+        auto itemTypes = merchant.get<sol::optional<decltype(info.itemTypes)>>("itemTypes");
+        if (itemTypes.has_value()) {
+            info.itemTypes = itemTypes.value();
+        }
+
+        auto cash = merchant.get<OptionalTable>("cash");
+        if (cash.has_value()) {
+            readRandomValue<std::uint32_t>(info.cash, cash.value(), 0, 0);
+        }
+
+        auto items = merchant.get<OptionalTableArray>("items");
+        if (items.has_value()) {
+            readMerchantItems(info.requiredItems, items.value());
+        }
+
+        options.merchants.push_back(info);
     }
 }
 
@@ -198,9 +259,14 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
         readTowns(options->neutralCities, neutralTowns.value());
     }
 
-    auto ruins = zone.get<sol::optional<std::vector<sol::table>>>("ruins");
+    auto ruins = zone.get<OptionalTableArray>("ruins");
     if (ruins.has_value()) {
         readRuins(*options, ruins.value());
+    }
+
+    auto merchants = zone.get<OptionalTableArray>("merchants");
+    if (merchants.has_value()) {
+        readMerchants(*options, merchants.value());
     }
 
     return options;

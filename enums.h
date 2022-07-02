@@ -68,6 +68,26 @@ enum class ResourceType
     GroveMana,    // L_BLUE
 };
 
+// Same as LmagItm.dbf
+enum class ItemType
+{
+    Armor,
+    Jewel,
+    Weapon,
+    Banner,
+    PotionBoost,
+    PotionHeal,
+    PotionRevive,
+    PotionPermanent,
+    Scroll,
+    Wand,
+    Valuable,
+    Orb,
+    Talisman,
+    TravelItem,
+    Special
+};
+
 // Internal generator use only
 enum class MapFormat
 {
