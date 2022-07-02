@@ -89,6 +89,21 @@ static void bindLuaApi(sol::state& lua)
         "TravelItem", ItemType::TravelItem,
         "Special", ItemType::Special
     );
+
+    lua.new_enum("Spell",
+        "Attack", SpellType::Attack,
+        "Lower", SpellType::Lower,
+        "Heal", SpellType::Heal,
+        "Boost", SpellType::Boost,
+        "Summon", SpellType::Summon,
+        "Fog", SpellType::Fog,
+        "Unfog", SpellType::Unfog,
+        "RestoreMove", SpellType::RestoreMove,
+        "Invisibility", SpellType::Invisibility,
+        "RemoveRod", SpellType::RemoveRod,
+        "ChangeTerrain", SpellType::ChangeTerrain,
+        "GiveWards", SpellType::GiveWards
+    );
     // clang-format on
 }
 
@@ -233,6 +248,38 @@ static void readMerchants(ZoneOptions& options, const std::vector<sol::table>& m
     }
 }
 
+static void readMages(ZoneOptions& options, const std::vector<sol::table>& mages)
+{
+    for (const auto& mage : mages) {
+        MageInfo info{};
+
+        auto spellTypes = mage.get<sol::optional<decltype(info.spellTypes)>>("spellTypes");
+        if (spellTypes.has_value()) {
+            info.spellTypes = spellTypes.value();
+        }
+
+        auto cash = mage.get<OptionalTable>("cash");
+        if (cash.has_value()) {
+            readRandomValue<std::uint32_t>(info.cash, cash.value(), 0, 0);
+        }
+
+        auto spells = mage.get<sol::optional<std::set<std::string>>>("spells");
+        if (spells.has_value()) {
+            for (const auto& spell : spells.value()) {
+                CMidgardID spellId(spell.c_str());
+
+                if (spellId == invalidId || spellId == emptyId) {
+                    continue;
+                }
+
+                info.requiredSpells.insert(spellId);
+            }
+        }
+
+        options.mages.push_back(info);
+    }
+}
+
 static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
 {
     auto options = std::make_shared<ZoneOptions>();
@@ -267,6 +314,11 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     auto merchants = zone.get<OptionalTableArray>("merchants");
     if (merchants.has_value()) {
         readMerchants(*options, merchants.value());
+    }
+
+    auto mages = zone.get<OptionalTableArray>("mages");
+    if (mages.has_value()) {
+        readMages(*options, mages.value());
     }
 
     return options;

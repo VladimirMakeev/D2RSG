@@ -88,6 +88,23 @@ enum class ItemType
     Special
 };
 
+// Same as Lspell.dbf
+enum class SpellType
+{
+    Attack,
+    Lower,
+    Heal,
+    Boost,
+    Summon,
+    Fog = 6,
+    Unfog,
+    RestoreMove,
+    Invisibility,
+    RemoveRod,
+    ChangeTerrain,
+    GiveWards,
+};
+
 // Internal generator use only
 enum class MapFormat
 {

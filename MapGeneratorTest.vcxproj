@@ -198,6 +198,7 @@
     <ClCompile Include="lua\lutf8lib.c" />
     <ClCompile Include="lua\lvm.c" />
     <ClCompile Include="lua\lzio.c" />
+    <ClCompile Include="mage.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="mapblock.cpp" />
@@ -239,6 +240,7 @@
     <ClInclude Include="image.h" />
     <ClInclude Include="inventory.h" />
     <ClInclude Include="knownspells.h" />
+    <ClInclude Include="mage.h" />
     <ClInclude Include="mapblock.h" />
     <ClInclude Include="merchant.h" />
     <ClInclude Include="midgardmap.h" />

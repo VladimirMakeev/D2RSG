@@ -2,6 +2,7 @@
 #include "capital.h"
 #include "containers.h"
 #include "crystal.h"
+#include "mage.h"
 #include "mapgenerator.h"
 #include "merchant.h"
 #include "player.h"
@@ -217,6 +218,7 @@ void TemplateZone::fill()
     connectLater();
     fractalize();
     placeMerchants();
+    placeMages();
     placeRuins();
     placeMines();
     createRequiredObjects();
@@ -1252,6 +1254,38 @@ void TemplateZone::placeMerchants()
         }
 
         addRequiredObject(std::move(merchant));
+    }
+}
+
+void TemplateZone::placeMages()
+{
+    /*
+    Vanilla mage tower images:
+    0
+    1
+    2
+    3
+    */
+    static const int mageImages[] = {0, 1, 2, 3};
+
+    auto& rand{mapGenerator->randomGenerator};
+
+    for (const auto& mageInfo : mages) {
+        auto mageId{mapGenerator->createId(CMidgardID::Type::Site)};
+        auto mage{std::make_unique<Mage>(mageId)};
+        mage->setTitle("Mage tower");
+        mage->setDescription("Mage tower description");
+
+        int image{(int)rand.getInt64Range(0, std::size(mageImages) - 1)()};
+        mage->setImgIso(image);
+
+        // TODO: generate spells of specified spellTypes
+
+        for (const auto& spell : mageInfo.requiredSpells) {
+            mage->addSpell(spell);
+        }
+
+        addRequiredObject(std::move(mage));
     }
 }
 

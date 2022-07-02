@@ -51,6 +51,16 @@ struct MerchantInfo
     RandomValue<std::uint32_t> cash;
 };
 
+struct MageInfo
+{
+    // Types of spells merchant is allowed to sell
+    std::set<SpellType> spellTypes;
+    // Spells that merchant must sell, regardless of spellTypes and cash
+    std::set<CMidgardID> requiredSpells;
+    // Total value of merchant tradable spells, excluding requiredSpells
+    RandomValue<std::uint32_t> cash;
+};
+
 // Template zone settings
 struct ZoneOptions
 {
@@ -63,6 +73,7 @@ struct ZoneOptions
     CityInfo neutralCities;                     // Neutral cities
     std::vector<RuinInfo> ruins;                // Ruins in the zone
     std::vector<MerchantInfo> merchants;        // Merchants
+    std::vector<MageInfo> mages;                // Mage towers
     TemplateZoneId id{0};
     TemplateZoneType type{TemplateZoneType::PlayerStart};
     MonsterStrength monsterStrength{MonsterStrength::ZoneNormal};

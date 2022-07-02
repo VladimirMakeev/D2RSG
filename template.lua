@@ -117,7 +117,7 @@ template = {
 					-- Types of items allowed for this merchant, optional
 					itemTypes = {Item.PotionHeal, Item.PotionBoost},
 					-- Total value of merchant items, excluding items that must be generated, optional 
-					cash = { min = 200, max = 1000},
+					cash = { min = 200, max = 1000 },
 					-- Items that must be generated, optional
 					items = {
 						{
@@ -130,6 +130,17 @@ template = {
 			},
 
 			-- Mages
+			mages = {
+				{
+					-- Types of spells allowed for this mage, optional
+					spellTypes = {Spell.Heal, Spell.RestoreMove},
+					-- Total value of mage spells, excluding spells that must be generated, optional
+					cash = { min = 200, max = 1000 },
+					-- Spells that must be generated, optional
+					spells = { 'g000ss0002', 'g000ss0004' },
+				},
+			},
+
 			-- Mercenaries
 			-- Trainers
 
