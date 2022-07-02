@@ -3,6 +3,7 @@
 #include "containers.h"
 #include "crystal.h"
 #include "mapgenerator.h"
+#include "merchant.h"
 #include "player.h"
 #include "subrace.h"
 #include "unit.h"
@@ -215,6 +216,7 @@ void TemplateZone::fill()
     initFreeTiles();
     connectLater();
     fractalize();
+    placeMerchants();
     placeRuins();
     placeMines();
     createRequiredObjects();
@@ -426,6 +428,12 @@ void TemplateZone::placeScenarioObject(ScenarioObjectPtr&& object, const Positio
         placeObject(std::move(ruin), position);
         break;
     }
+
+    case CMidgardID::Type::Site: {
+        auto site{dynamic_unique_cast<Site>(std::move(object))};
+        placeObject(std::move(site), position);
+        break;
+    }
     }
 }
 
@@ -597,6 +605,56 @@ void TemplateZone::placeObject(std::unique_ptr<Ruin>&& ruin,
     mapGenerator->map->insertMapElement(*ruin.get(), ruin->getId());
     // Store object in scenario map
     mapGenerator->insertObject(std::move(ruin));
+}
+
+void TemplateZone::placeObject(std::unique_ptr<Site>&& site,
+                               const Position& position,
+                               bool updateDistance)
+{
+    // Check position
+    if (!mapGenerator->map->isInTheMap(position)) {
+        CMidgardID::String siteId{};
+        site->getId().toString(siteId);
+
+        std::stringstream stream;
+        stream << "Position of site " << siteId.data() << " at " << position
+               << " is outside of the map\n";
+        throw std::runtime_error(stream.str());
+    }
+
+    site->setPosition(position);
+
+    // Check entrance
+    // Since position and entrance form rectangle we don't need to check other tiles
+    if (!mapGenerator->map->isInTheMap(site->getEntrance())) {
+        CMidgardID::String siteId{};
+        site->getId().toString(siteId);
+
+        std::stringstream stream;
+        stream << "Entrance " << site->getEntrance() << " of site " << siteId.data() << " at "
+               << position << " is outside of the map\n";
+        throw std::runtime_error(stream.str());
+    }
+
+    // Mark site tiles and entrance as used
+    auto blocked{site->getBlockedPositions()};
+    blocked.insert(site->getEntrance());
+
+    for (auto& tile : blocked) {
+        mapGenerator->setOccupied(tile, TileType::Used);
+    }
+
+    // Update distances
+    if (updateDistance) {
+        updateDistances(position);
+    }
+
+    // Add road node using entrance point
+    addRoadNode(site->getEntrance());
+
+    mapGenerator->map->insertMapElement(*site.get(), site->getId());
+    // Store object in scenario map
+    mapGenerator->insertObject(std::move(site));
 }
 
 void TemplateZone::placeMountain(const Position& position, const Position& size, int image)
@@ -1156,6 +1214,47 @@ void TemplateZone::fractalize()
     }
 }
 
+void TemplateZone::placeMerchants()
+{
+    /*
+    Vanilla merchant images:
+    0 - windmill
+    7 - inn
+    1 - tower
+    2 - house dark wood
+    3 - house bright wood
+    4 - tower on the left and big tent-house
+    5 - tower on the right and L-shaped house on the left
+    6 - tents and ruined building on the left
+    */
+    static const int merchantImages[] = {0, 1, 2, 3, 4, 5, 6, 7};
+
+    auto& rand{mapGenerator->randomGenerator};
+
+    for (const auto& merchantInfo : merchants) {
+        auto merchantId{mapGenerator->createId(CMidgardID::Type::Site)};
+        auto merchant{std::make_unique<Merchant>(merchantId)};
+        merchant->setTitle("Merchant");
+        merchant->setDescription("Merchant description");
+
+        int image{(int)rand.getInt64Range(0, std::size(merchantImages) - 1)()};
+        merchant->setImgIso(image);
+
+        // TODO: generate items of specified itemTypes
+
+        for (const auto& item : merchantInfo.requiredItems) {
+            if (item.itemId == emptyId) {
+                continue;
+            }
+
+            auto amount{rand.getInt64Range(item.amount.min, item.amount.max)()};
+            merchant->addItem(item.itemId, static_cast<std::uint32_t>(amount));
+        }
+
+        addRequiredObject(std::move(merchant));
+    }
+}
+
 void TemplateZone::placeRuins()
 {
     /*
@@ -1227,6 +1326,8 @@ bool TemplateZone::placeMines()
             crystal->setResourceType(resourceType);
 
             // Only first gold mine and mana crystal are placed close
+            // TODO: not just place them close, but change terrain under them
+            // if this is a starting zone
             if (i == 0 && (resourceType == nativeResource || resourceType == ResourceType::Gold)) {
                 addCloseObject(std::move(crystal));
             } else {

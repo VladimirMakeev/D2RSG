@@ -22,6 +22,31 @@ template = {
 				gold = 1,
 				lifeMana = 1,
 			},
+
+			neutralTowns = {
+				tier1 = 0
+			},
+
+			merchants = {
+				{
+					-- Types of items allowed for this merchant, optional
+					itemTypes = {Item.PotionHeal, Item.PotionBoost},
+					-- Total value of merchant items, excluding items that must be generated, optional 
+					cash = { min = 200, max = 1000},
+					-- Items that must be generated, optional
+					items = {
+						{
+							id = 'g000ig0006',
+							min = 1,
+							max = 5
+						},
+					},
+				},
+			},
+
+			ruins = {
+				{ cash = {min = 50, max = 500}},
+			},
 		},
 		{
 			-- Undead Hordes starting zone
@@ -35,6 +60,28 @@ template = {
 			mines = {
 				gold = 1,
 				deathMana = 1,
+			},
+
+			neutralTowns = { tier1 = 0 },
+			ruins = {
+				{ cash = {min = 50, max = 500}},
+			},
+
+			merchants = {
+				{
+					-- Types of items allowed for this merchant, optional
+					itemTypes = {Item.PotionHeal, Item.PotionBoost},
+					-- Total value of merchant items, excluding items that must be generated, optional 
+					cash = { min = 200, max = 1000},
+					-- Items that must be generated, optional
+					items = {
+						{
+							id = 'g000ig0006',
+							min = 1,
+							max = 5
+						},
+					},
+				},
 			},
 		},
 		{
@@ -58,6 +105,32 @@ template = {
 				tier4 = 1
 			},
 
+			-- Merchants
+			-- Merchant content (tradable items) depends on cash and itemTypes.
+			-- Cash is spread equally between all types specified.
+			-- You can also explicitly set items that will be awailable,
+			-- regardless of cash and itemTypes 
+			merchants = {
+				{
+					-- Types of items allowed for this merchant, optional
+					itemTypes = {Item.PotionHeal, Item.PotionBoost},
+					-- Total value of merchant items, excluding items that must be generated, optional 
+					cash = { min = 200, max = 1000},
+					-- Items that must be generated, optional
+					items = {
+						{
+							id = 'g000ig0004',
+							min = 10,
+							max = 50
+						},
+					},
+				},
+			},
+
+			-- Mages
+			-- Mercenaries
+			-- Trainers
+
 			-- List of ruins in the zone
 			ruins = {
 				{
@@ -65,27 +138,25 @@ template = {
 					cash = { min = 200, max = 1000},
 					-- Reward item value, optional
 					item = { min = 100, max = 500},
-					-- You can specity item id that must be generated
-					-- In this case 'item' field is ignored
-					-- Optional
+					-- You can specity item id that must be generated, optional
+					-- In this case, 'item' field is ignored
 					--itemId = 'item id',
 				},
 				{
-					-- Reward in gold, optional
-					cash = { min = 10, max = 20},
+					cash = { min = 10, max = 100},
 				},
 				{
-					-- Reward in gold, optional
 					cash = { min = 100, max = 2000},
-				},				{
-					-- Reward in gold, optional
-					cash = { min = 100, max = 2000},
-				},				{
-					-- Reward in gold, optional
-					cash = { min = 100, max = 2000},
-				},				{
-					-- Reward in gold, optional
-					cash = { min = 50, max = 2000},
+				},
+				{
+					cash = { min = 500, max = 1000},
+				},
+				{
+					cash = { min = 100, max = 300},
+				},
+				{
+					-- Test retarded cases
+					cash = { min = 500, max = 200},
 				},
 			},
 		},

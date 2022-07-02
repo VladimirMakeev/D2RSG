@@ -203,6 +203,7 @@
     <ClCompile Include="mapblock.cpp" />
     <ClCompile Include="mapgenerator.cpp" />
     <ClCompile Include="maptemplatereader.cpp" />
+    <ClCompile Include="merchant.cpp" />
     <ClCompile Include="midgardid.cpp" />
     <ClCompile Include="midgardmap.cpp" />
     <ClCompile Include="mountains.cpp" />
@@ -215,6 +216,7 @@
     <ClCompile Include="scenarioinfo.cpp" />
     <ClCompile Include="scenariovariables.cpp" />
     <ClCompile Include="serializer.cpp" />
+    <ClCompile Include="site.cpp" />
     <ClCompile Include="spellcast.cpp" />
     <ClCompile Include="spelleffects.cpp" />
     <ClCompile Include="stack.cpp" />
@@ -238,6 +240,7 @@
     <ClInclude Include="inventory.h" />
     <ClInclude Include="knownspells.h" />
     <ClInclude Include="mapblock.h" />
+    <ClInclude Include="merchant.h" />
     <ClInclude Include="midgardmap.h" />
     <ClInclude Include="mountains.h" />
     <ClInclude Include="plan.h" />
@@ -291,6 +294,7 @@
     <ClInclude Include="scenarioobject.h" />
     <ClInclude Include="scenariovariables.h" />
     <ClInclude Include="serializer.h" />
+    <ClInclude Include="site.h" />
     <ClInclude Include="spellcast.h" />
     <ClInclude Include="spelleffects.h" />
     <ClInclude Include="stack.h" />

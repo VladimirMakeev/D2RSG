@@ -243,6 +243,12 @@
     <ClCompile Include="ruin.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="site.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="merchant.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -483,6 +489,12 @@
       <Filter>Файлы заголовков\utils</Filter>
     </ClInclude>
     <ClInclude Include="ruin.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="site.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="merchant.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
   </ItemGroup>

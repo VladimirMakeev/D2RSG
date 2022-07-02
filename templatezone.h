@@ -5,6 +5,7 @@
 #include "objectinfo.h"
 #include "position.h"
 #include "ruin.h"
+#include "site.h"
 #include "stack.h"
 #include "vposition.h"
 #include "zoneoptions.h"
@@ -107,6 +108,9 @@ struct TemplateZone : public ZoneOptions
     void placeObject(std::unique_ptr<Ruin>&& ruin,
                      const Position& position,
                      bool updateDistance = true);
+    void placeObject(std::unique_ptr<Site>&& site,
+                     const Position& position,
+                     bool updateDistance = true);
 
     void placeMountain(const Position& position, const Position& size, int image);
 
@@ -140,6 +144,7 @@ struct TemplateZone : public ZoneOptions
     void addAllPossibleObjects();
     void connectLater();
     void fractalize();
+    void placeMerchants();
     void placeRuins();
     bool placeMines();
     bool createRequiredObjects();
