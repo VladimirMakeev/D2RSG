@@ -40,6 +40,7 @@ template = {
 							min = 1,
 							max = 5
 						},
+						{id = 'g000ig0001', min = 3, max = 3},
 					},
 				},
 			},
@@ -80,6 +81,7 @@ template = {
 							min = 1,
 							max = 5
 						},
+						{id = 'g000ig0001', min = 3, max = 3},
 					},
 				},
 			},
@@ -140,7 +142,7 @@ template = {
 					item = { min = 100, max = 500},
 					-- You can specity item id that must be generated, optional
 					-- In this case, 'item' field is ignored
-					--itemId = 'item id',
+					itemId = 'g000ig9119', -- talisman of life
 				},
 				{
 					cash = { min = 10, max = 100},

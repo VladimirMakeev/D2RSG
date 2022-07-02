@@ -1283,12 +1283,15 @@ void TemplateZone::placeRuins()
         Currency cash;
         cash.set(Currency::Type::Gold, static_cast<std::uint16_t>(cashGold));
 
-        // TODO: create specific item if itemId is not empty
-        // create reward item if itemId is empty and item value is set
         ruin->setCash(cash);
         ruin->setTitle("Ruin");
         int ruinImage = (int)rand.getInt64Range(0, std::size(ruinImages) - 1)();
         ruin->setImage(ruinImage);
+
+        // TODO: create reward item if itemId is empty and item value is set
+        if (ruinInfo.itemId != emptyId) {
+            ruin->setItem(ruinInfo.itemId);
+        }
 
         const auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
         auto unitAdded{ruin->addUnit(unitId, 2)};
