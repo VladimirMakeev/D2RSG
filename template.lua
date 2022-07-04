@@ -142,6 +142,21 @@ template = {
 			},
 
 			-- Mercenaries
+			mercenaries = {
+				{
+					-- Subraces of units allowed for hire, optional
+					subraceTypes = {Subrace.Human, Subrace.NeutralHuman},
+					-- Total value of units, excluding units that must be generated, optional
+					cash = { min = 200, max = 1000 },
+					-- Units that must be generated, optional
+					units = {
+						{ id = 'g000uu0007', level = 2, unique = false },
+						{ id = 'g000uu0088', level = 20, unique = true },
+					},
+					
+				},
+			},
+
 			-- Trainers
 
 			-- List of ruins in the zone

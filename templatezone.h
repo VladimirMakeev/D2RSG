@@ -146,6 +146,7 @@ struct TemplateZone : public ZoneOptions
     void fractalize();
     void placeMerchants();
     void placeMages();
+    void placeMercenaries();
     void placeRuins();
     bool placeMines();
     bool createRequiredObjects();

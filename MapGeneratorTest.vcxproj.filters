@@ -252,6 +252,9 @@
     <ClCompile Include="mage.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="mercenary.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -501,6 +504,9 @@
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
     <ClInclude Include="mage.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="mercenary.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
   </ItemGroup>

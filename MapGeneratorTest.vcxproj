@@ -204,6 +204,7 @@
     <ClCompile Include="mapblock.cpp" />
     <ClCompile Include="mapgenerator.cpp" />
     <ClCompile Include="maptemplatereader.cpp" />
+    <ClCompile Include="mercenary.cpp" />
     <ClCompile Include="merchant.cpp" />
     <ClCompile Include="midgardid.cpp" />
     <ClCompile Include="midgardmap.cpp" />
@@ -242,6 +243,7 @@
     <ClInclude Include="knownspells.h" />
     <ClInclude Include="mage.h" />
     <ClInclude Include="mapblock.h" />
+    <ClInclude Include="mercenary.h" />
     <ClInclude Include="merchant.h" />
     <ClInclude Include="midgardmap.h" />
     <ClInclude Include="mountains.h" />

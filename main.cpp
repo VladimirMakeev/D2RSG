@@ -13,6 +13,9 @@ int main(int argc, char* argv[])
 
     MapGenOptions options;
     options.mapTemplate = readMapTemplate(argv[1]);
+    if (!options.mapTemplate) {
+        return 1;
+    }
 
     options.name = std::string{"random map "} + seedString;
     options.description = std::string{"Random map based on template '"} + options.mapTemplate->name

@@ -4,6 +4,7 @@
 #include "crystal.h"
 #include "mage.h"
 #include "mapgenerator.h"
+#include "mercenary.h"
 #include "merchant.h"
 #include "player.h"
 #include "subrace.h"
@@ -219,6 +220,7 @@ void TemplateZone::fill()
     fractalize();
     placeMerchants();
     placeMages();
+    placeMercenaries();
     placeRuins();
     placeMines();
     createRequiredObjects();
@@ -1286,6 +1288,39 @@ void TemplateZone::placeMages()
         }
 
         addRequiredObject(std::move(mage));
+    }
+}
+
+void TemplateZone::placeMercenaries()
+{
+    /*
+    Vanilla mercenary images:
+    0
+    1
+    2
+    3
+    4
+    */
+    static const int mercenaryImages[] = {0, 1, 2, 3, 4};
+
+    auto& rand{mapGenerator->randomGenerator};
+
+    for (const auto& info : mercenaries) {
+        auto mercenaryId{mapGenerator->createId(CMidgardID::Type::Site)};
+        auto mercenary{std::make_unique<Mercenary>(mercenaryId)};
+        mercenary->setTitle("Mercenaries camp");
+        mercenary->setDescription("Mercenaries camp description");
+
+        int image{(int)rand.getInt64Range(0, std::size(mercenaryImages) - 1)()};
+        mercenary->setImgIso(image);
+
+        // TODO: generate units from specified subraces according to 'cash'
+
+        for (const auto& unit : info.requiredUnits) {
+            mercenary->addUnit(unit.unitId, unit.level, unit.unique);
+        }
+
+        addRequiredObject(std::move(mercenary));
     }
 }
 

@@ -26,6 +26,24 @@ static void bindLuaApi(sol::state& lua)
         "Elf", RaceType::Elf
     );
 
+    lua.new_enum("Subrace",
+        "Custom", SubRaceType::Custom,
+        "Human", SubRaceType::Human,
+        "Undead", SubRaceType::Undead,
+        "Heretic", SubRaceType::Heretic,
+        "Dwarf", SubRaceType::Dwarf,
+        "Neutral", SubRaceType::Neutral,
+        "NeutralHuman", SubRaceType::NeutralHuman,
+        "NeutralElf", SubRaceType::NeutralElf,
+        "NeutralGreenSkin", SubRaceType::NeutralGreenSkin,
+        "NeutralDragon", SubRaceType::NeutralDragon,
+        "NeutralMarsh", SubRaceType::NeutralMarsh,
+        "NeutralWater", SubRaceType::NeutralWater,
+        "NeutralBarbarian", SubRaceType::NeutralBarbarian,
+        "NeutralWolf", SubRaceType::NeutralWolf,
+        "Elf", SubRaceType::Elf
+    );
+
     lua.new_enum("Terrain",
         "Human", TerrainType::Human,
         "Dwarf", TerrainType::Dwarf,
@@ -280,6 +298,45 @@ static void readMages(ZoneOptions& options, const std::vector<sol::table>& mages
     }
 }
 
+static void readMercenaryUnits(std::vector<MercenaryUnitInfo>& mercenaryUnits,
+                               const std::vector<sol::table>& units)
+{
+    for (const auto& unit : units) {
+        MercenaryUnitInfo info{};
+
+        readId(info.unitId, unit, "id");
+        info.level = readValue(unit, "level", 1, 1, 99);
+        info.unique = readValue(unit, "unique", false);
+
+        mercenaryUnits.push_back(info);
+    }
+}
+
+static void readMercenaries(ZoneOptions& options, const std::vector<sol::table>& mercenaries)
+{
+    for (const auto& mercenary : mercenaries) {
+        MercenaryInfo info{};
+
+        auto subraceTypes = mercenary.get<sol::optional<decltype(info.subraceTypes)>>(
+            "subraceTypes");
+        if (subraceTypes.has_value()) {
+            info.subraceTypes = subraceTypes.value();
+        }
+
+        auto cash = mercenary.get<OptionalTable>("cash");
+        if (cash.has_value()) {
+            readRandomValue<std::uint32_t>(info.cash, cash.value(), 0, 0);
+        }
+
+        auto units = mercenary.get<OptionalTableArray>("units");
+        if (units.has_value()) {
+            readMercenaryUnits(info.requiredUnits, units.value());
+        }
+
+        options.mercenaries.push_back(info);
+    }
+}
+
 static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
 {
     auto options = std::make_shared<ZoneOptions>();
@@ -319,6 +376,11 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     auto mages = zone.get<OptionalTableArray>("mages");
     if (mages.has_value()) {
         readMages(*options, mages.value());
+    }
+
+    auto mercenaries = zone.get<OptionalTableArray>("mercenaries");
+    if (mercenaries.has_value()) {
+        readMercenaries(*options, mercenaries.value());
     }
 
     return options;

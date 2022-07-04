@@ -48,7 +48,7 @@ struct MerchantInfo
     // Items that merchant must sell, regardless of itemTypes and cash
     std::vector<ItemInfo> requiredItems;
     // Total value of merchant tradable items, excluding requiredItems
-    RandomValue<std::uint32_t> cash;
+    RandomValue<std::uint32_t> cash{};
 };
 
 struct MageInfo
@@ -58,7 +58,24 @@ struct MageInfo
     // Spells that merchant must sell, regardless of spellTypes and cash
     std::set<CMidgardID> requiredSpells;
     // Total value of merchant tradable spells, excluding requiredSpells
-    RandomValue<std::uint32_t> cash;
+    RandomValue<std::uint32_t> cash{};
+};
+
+struct MercenaryUnitInfo
+{
+    CMidgardID unitId;
+    int level{};
+    bool unique{};
+};
+
+struct MercenaryInfo
+{
+    // Subraces of units allowed for hire
+    std::set<SubRaceType> subraceTypes;
+    // Units that must be generated
+    std::vector<MercenaryUnitInfo> requiredUnits;
+    // Total value of units, excluding requiredUnits
+    RandomValue<std::uint32_t> cash{};
 };
 
 // Template zone settings
@@ -74,6 +91,7 @@ struct ZoneOptions
     std::vector<RuinInfo> ruins;                // Ruins in the zone
     std::vector<MerchantInfo> merchants;        // Merchants
     std::vector<MageInfo> mages;                // Mage towers
+    std::vector<MercenaryInfo> mercenaries;     // Mercenary camps
     TemplateZoneId id{0};
     TemplateZoneType type{TemplateZoneType::PlayerStart};
     MonsterStrength monsterStrength{MonsterStrength::ZoneNormal};
