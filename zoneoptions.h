@@ -78,6 +78,12 @@ struct MercenaryInfo
     RandomValue<std::uint32_t> cash{};
 };
 
+struct StackInfo
+{
+    RandomValue<std::uint32_t> value{};
+    std::uint32_t count{};
+};
+
 // Template zone settings
 struct ZoneOptions
 {
@@ -92,6 +98,7 @@ struct ZoneOptions
     std::vector<MerchantInfo> merchants;        // Merchants
     std::vector<MageInfo> mages;                // Mage towers
     std::vector<MercenaryInfo> mercenaries;     // Mercenary camps
+    StackInfo stacks;                           // Neutral stacks
     TemplateZoneId id{0};
     TemplateZoneType type{TemplateZoneType::PlayerStart};
     MonsterStrength monsterStrength{MonsterStrength::ZoneNormal};

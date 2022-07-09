@@ -2,6 +2,7 @@
 #include "capital.h"
 #include "containers.h"
 #include "crystal.h"
+#include "gameinfo.h"
 #include "mage.h"
 #include "mapgenerator.h"
 #include "mercenary.h"
@@ -9,6 +10,7 @@
 #include "player.h"
 #include "subrace.h"
 #include "unit.h"
+#include "unitpicker.h"
 #include "village.h"
 #include <cassert>
 #include <iostream>
@@ -223,6 +225,7 @@ void TemplateZone::fill()
     placeMercenaries();
     placeRuins();
     placeMines();
+    placeStacks();
     createRequiredObjects();
     createTreasures();
 
@@ -680,6 +683,47 @@ void TemplateZone::placeMountain(const Position& position, const Position& size,
     mapGenerator->map->addMountain(position, size, image);
 }
 
+bool TemplateZone::guardObject(const MapElement& mapElement, int guardStrength, bool zoneGuard)
+{
+    const auto tiles{getAccessibleTiles(mapElement)};
+    Position guardTile{-1, -1};
+
+    if (!tiles.empty()) {
+        guardTile = getAccessibleOffset(mapElement, mapElement.getPosition());
+
+        std::cout << "Guard object at " << mapElement.getPosition() << '\n';
+    } else {
+        std::cerr << "Failed to guard object at " << mapElement.getPosition() << '\n';
+        return false;
+    }
+
+    // Do not place obstacles around unguarded object
+    if (addStack(guardTile, guardStrength, false, zoneGuard)) {
+        for (const auto& tile : tiles) {
+            if (mapGenerator->isPossible(tile) && mapGenerator->getZoneId(tile) == id) {
+                mapGenerator->setOccupied(tile, TileType::Blocked);
+            }
+        }
+
+        mapGenerator->foreachNeighbor(guardTile, [this](Position& pos) {
+            if (mapGenerator->isPossible(pos) && mapGenerator->getZoneId(pos) == id) {
+                mapGenerator->setOccupied(pos, TileType::Free);
+            }
+        });
+
+        mapGenerator->setOccupied(guardTile, TileType::Used);
+    } else {
+        // Allow no guard or other object in front of this object
+        for (const auto& tile : tiles) {
+            if (mapGenerator->isPossible(tile)) {
+                mapGenerator->setOccupied(tile, TileType::Free);
+            }
+        }
+    }
+
+    return true;
+}
+
 void TemplateZone::updateDistances(const Position& position)
 {
     for (auto& tile : possibleTiles) {
@@ -995,20 +1039,8 @@ bool TemplateZone::addStack(const Position& position,
                             bool clearSurroundingTiles,
                             bool zoneGuard)
 {
-    auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
-    auto leader{std::make_unique<Unit>(leaderId)};
-    // Use Ork leader for testing
-    leader->setImplId(CMidgardID("g000uu5113"));
-    leader->setHp(200);
-    leader->setName("Ork");
-    mapGenerator->insertObject(std::move(leader));
+    auto stack{createStack(strength)};
 
-    auto stackId{mapGenerator->createId(CMidgardID::Type::Stack)};
-    auto stack{std::make_unique<Stack>(stackId)};
-    auto leaderAdded{stack->addLeader(leaderId, 2)};
-    assert(leaderAdded);
-
-    stack->setMove(20);
     stack->setOwner(mapGenerator->getNeutralPlayerId());
     stack->setSubrace(mapGenerator->getNeutralSubraceId());
 
@@ -1024,6 +1056,189 @@ bool TemplateZone::addStack(const Position& position,
     }
 
     return true;
+}
+
+std::unique_ptr<Stack> TemplateZone::createStack(int strength)
+{
+    auto& rand{mapGenerator->randomGenerator};
+
+    auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
+    auto leader{std::make_unique<Unit>(leaderId)};
+
+    auto stackId{mapGenerator->createId(CMidgardID::Type::Stack)};
+    auto stack{std::make_unique<Stack>(stackId)};
+
+    // Roll random number of units in group
+    int unitsTotal{(int)rand.getInt64Range(1, 6)()};
+    // v - average value of 1 unit
+    double v{double(strength) / unitsTotal};
+
+    auto removeWrongValue = [min = v * 0.75, max = v * 1.25](const UnitInfo* info) {
+        return info->value < min || info->value > max;
+    };
+
+    // pick leader from [v * 0.75 : v * 1.25]
+    auto leaderInfo{pickLeader(rand, {noPlayableRaces, removeWrongValue})};
+    assert(leaderInfo != nullptr);
+
+    leader->setImplId(leaderInfo->unitId);
+    leader->setHp(leaderInfo->hitPoints);
+    leader->setName("Guard");
+
+    mapGenerator->insertObject(std::move(leader));
+
+    // If leader is summoner
+    if (leaderInfo->attackType == AttackType::Summon) {
+        // Place leader
+        const std::size_t leaderPosition = leaderInfo->bigUnit ? 2 : 3;
+        auto leaderAdded{stack->addLeader(leaderId, leaderPosition, leaderInfo->bigUnit)};
+        assert(leaderAdded);
+
+        // Big summoner, really? Don't add defenders at all, or it will be ineffective
+        if (!leaderInfo->bigUnit) {
+            // Roll 1-2 defender units
+            unitsTotal = rand.chance(50) ? 2 : 1;
+            const bool backLine = unitsTotal == 2 && rand.chance(50);
+
+            // Reconsider single unit value
+            v = (double(strength) - leaderInfo->value) / unitsTotal;
+
+            auto notTooWeak = [v](const UnitInfo* info) {
+                return info->value < v * 0.5;
+            };
+
+            auto notTooStrong = [v](const UnitInfo* info) {
+                return info->value > v;
+            };
+
+            // Pick melee defender within recomputed value
+            auto unit1{
+                pickUnit(rand, {noPlayableRaces, noRanged, notTooWeak, notTooStrong, noBig})};
+            assert(unit1 != nullptr);
+
+            {
+                auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
+                auto unit{std::make_unique<Unit>(unitId)};
+                unit->setImplId(unit1->unitId);
+                unit->setHp(unit1->hitPoints);
+
+                // Always place one unit at the front line,
+                // at center if it is a single defender
+                const std::size_t unitPos = unitsTotal == 2 ? 0 : 2;
+
+                auto unitAdded{stack->addUnit(unitId, unitPos, unit1->bigUnit)};
+                assert(unitAdded);
+
+                mapGenerator->insertObject(std::move(unit));
+            }
+
+            // Place second
+            if (unitsTotal == 2) {
+                auto removeMelee = [](const UnitInfo* info) {
+                    return info->reach == ReachType::Adjacent;
+                };
+
+                auto filter = backLine ? noMelee : noRanged;
+                auto unit2{
+                    pickUnit(rand, {noPlayableRaces, filter, notTooWeak, notTooStrong, noBig})};
+                assert(unit2 != nullptr);
+
+                {
+                    auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
+                    auto unit{std::make_unique<Unit>(unitId)};
+                    unit->setImplId(unit2->unitId);
+                    unit->setHp(unit2->hitPoints);
+
+                    // Place second defender behind the first one, if backline
+                    // Otherwise, place both nearby at front line and leave room for big summons
+                    const std::size_t unitPos = backLine ? 1 : 2;
+
+                    auto unitAdded{stack->addUnit(unitId, unitPos, unit2->bigUnit)};
+                    assert(unitAdded);
+
+                    mapGenerator->insertObject(std::move(unit));
+                }
+            }
+        }
+    } else {
+        // Free unit positions in stack
+        std::set<std::size_t> positions{0, 1, 2, 3, 4, 5};
+
+        // Leader is not summoner
+        unitsTotal -= leaderInfo->bigUnit ? 2 : 1;
+
+        const int unitStrength{(int)v};
+
+        std::size_t leaderPos{2};
+        if (!leaderInfo->bigUnit && leaderInfo->reach != ReachType::Adjacent) {
+            // Place non-melee small leaders at back line
+            leaderPos = 3;
+        }
+
+        positions.erase(leaderPos);
+        if (leaderInfo->bigUnit) {
+            positions.erase(leaderPos + 1);
+        }
+
+        // add leader
+        auto leaderAdded{stack->addLeader(leaderId, leaderPos, leaderInfo->bigUnit)};
+        assert(leaderAdded);
+
+        // create units
+        for (int i = 0; i < unitsTotal;) {
+            // Leader is at position 2 or 3 or both,
+            // don't even consider these positions as suitable for another big unit
+            const auto allowBigUnits{positions.count(0) || positions.count(4)};
+
+            auto notTooStrong = [unitStrength](const UnitInfo* info) {
+                return info->value > unitStrength;
+            };
+
+            const UnitInfo* unitInfo{allowBigUnits
+                                         ? pickUnit(rand, {noPlayableRaces, notTooStrong})
+                                         : pickUnit(rand, {noPlayableRaces, notTooStrong, noBig})};
+            assert(unitInfo != nullptr);
+
+            // pick position
+            std::size_t position{};
+            if (unitInfo->bigUnit) {
+                // Pick one of the remaining big unit positions
+                if (positions.count(0)) {
+                    position = 0;
+                }
+
+                if (positions.count(4)) {
+                    position = 4;
+                }
+
+                // Remove picked position and next one from available
+                positions.erase(position);
+                positions.erase(position + 1);
+            } else {
+                // pick first available position
+                auto it{positions.begin()};
+                position = *it;
+                // Remove picked position from available
+                positions.erase(it);
+            }
+
+            auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
+            auto unit{std::make_unique<Unit>(unitId)};
+            unit->setImplId(unitInfo->unitId);
+            unit->setHp(unitInfo->hitPoints);
+
+            auto unitAdded{stack->addUnit(unitId, position, unitInfo->bigUnit)};
+            assert(unitAdded);
+
+            mapGenerator->insertObject(std::move(unit));
+
+            i += unitInfo->bigUnit ? 2 : 1;
+        }
+    }
+
+    stack->setMove(leaderInfo->move);
+
+    return std::move(stack);
 }
 
 void TemplateZone::initTerrain()
@@ -1411,6 +1626,23 @@ bool TemplateZone::placeMines()
     return true;
 }
 
+void TemplateZone::placeStacks()
+{
+    if (!stacks.count) {
+        return;
+    }
+
+    auto& rand{mapGenerator->randomGenerator};
+    // Roll actual stacks value in the zone
+    auto totalValue{(int)rand.getInt64Range(stacks.value.min, stacks.value.max)()};
+
+    const auto stackValue{totalValue / stacks.count};
+
+    for (std::uint32_t i = 0; i < stacks.count; ++i) {
+        neutralStacks.push_back(stackValue);
+    }
+}
+
 bool TemplateZone::createRequiredObjects()
 {
     std::cout << "Creating required objects\n";
@@ -1440,8 +1672,33 @@ bool TemplateZone::createRequiredObjects()
                 == ObjectPlacingResult::Success) {
 
                 placeScenarioObject(std::move(object), position);
-                // TODO:
-                // guardObject();
+                guardObject(*mapElement, pair.second);
+                break;
+            }
+        }
+    }
+
+    // Place neutral guardian stacks, they are for xp only and does not guard anything
+    // TODO: adjust their strength according to distance from capital in starting zones?
+    // TODO: unify with code above
+    for (auto& value : neutralStacks) {
+        Position position;
+
+        MapElement mapElement(Position{1, 1});
+        while (true) {
+            const auto elementSize{mapElement.getSize().x};
+            const auto sizeSquared{elementSize * elementSize};
+            // TODO: move this setting into template for better object placement ?
+            const auto minDistance{elementSize * 2};
+
+            if (!findPlaceForObject(mapElement, minDistance, position)) {
+                std::cerr << "Failed to fill zone " << id << " due to lack of space\n";
+                return false;
+            }
+
+            if (tryToPlaceObjectAndConnectToPath(mapElement, position)
+                == ObjectPlacingResult::Success) {
+                addStack(position, value);
                 break;
             }
         }
@@ -1519,8 +1776,8 @@ bool TemplateZone::createRequiredObjects()
                 auto result{tryToPlaceObjectAndConnectToPath(*mapElement, tile)};
                 if (result == ObjectPlacingResult::Success) {
                     placeScenarioObject(std::move(object), tile);
-                    // TODO:
-                    // guardObject();
+                    guardObject(*mapElement, pair.second);
+
                     finished = true;
                     break;
                 }
@@ -1542,6 +1799,7 @@ bool TemplateZone::createRequiredObjects()
 
     requiredObjects.clear();
     closeObjects.clear();
+    neutralStacks.clear();
 
     return true;
 }
@@ -1657,6 +1915,31 @@ Position TemplateZone::getAccessibleOffset(const MapElement& mapElement,
     }
 
     return result;
+}
+
+std::vector<Position> TemplateZone::getAccessibleTiles(const MapElement& mapElement) const
+{
+    const auto entrance{mapElement.getEntrance()};
+    std::vector<Position> tiles;
+
+    const auto tilesBlockedByObject{mapElement.getBlockedPositions()};
+
+    mapGenerator->foreachNeighbor(entrance, [this, mapElement, &entrance, &tilesBlockedByObject,
+                                             &tiles](Position& position) {
+        if (!(mapGenerator->isPossible(position) || mapGenerator->isFree(position))) {
+            return;
+        }
+
+        if (contains(tilesBlockedByObject, position)) {
+            return;
+        }
+
+        if (mapElement.isVisitableFrom(position - entrance) && !mapGenerator->isBlocked(position)) {
+            tiles.push_back(position);
+        }
+    });
+
+    return tiles;
 }
 
 bool TemplateZone::areAllTilesAvailable(const MapElement& mapElement,

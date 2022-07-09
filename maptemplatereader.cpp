@@ -337,6 +337,13 @@ static void readMercenaries(ZoneOptions& options, const std::vector<sol::table>&
     }
 }
 
+static void readStacks(StackInfo& stackInfo, const sol::table& stacks)
+{
+    auto value = stacks.get<sol::table>("value");
+    readRandomValue<std::uint32_t>(stackInfo.value, value, 0, 0);
+    stackInfo.count = readValue(stacks, "count", 0, 0);
+}
+
 static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
 {
     auto options = std::make_shared<ZoneOptions>();
@@ -381,6 +388,11 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     auto mercenaries = zone.get<OptionalTableArray>("mercenaries");
     if (mercenaries.has_value()) {
         readMercenaries(*options, mercenaries.value());
+    }
+
+    auto stacks = zone.get<OptionalTable>("stacks");
+    if (stacks.has_value()) {
+        readStacks(options->stacks, stacks.value());
     }
 
     return options;

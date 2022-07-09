@@ -27,6 +27,13 @@ template = {
 				tier1 = 0
 			},
 
+			stacks = {
+				-- Total stacks value
+				value = { min = 1500, max = 2500 },
+				-- Stacks count
+				count = 10,
+			},
+
 			merchants = {
 				{
 					-- Types of items allowed for this merchant, optional
@@ -68,6 +75,13 @@ template = {
 				{ cash = {min = 50, max = 500}},
 			},
 
+			stacks = {
+				-- Total stacks value
+				value = { min = 1500, max = 2500 },
+				-- Stacks count
+				count = 10,
+			},
+
 			merchants = {
 				{
 					-- Types of items allowed for this merchant, optional
@@ -105,6 +119,15 @@ template = {
 			neutralTowns = {
 				tier3 = 2,
 				tier4 = 1
+			},
+
+			-- Neutral stacks that does not guard anything
+			-- For xp only
+			stacks = {
+				-- Total stacks value
+				value = { min = 3500, max = 7500 },
+				-- Stacks count
+				count = 15,
 			},
 
 			-- Merchants
@@ -209,6 +232,13 @@ template = {
 				tier1 = 1,
 				tier2 = 1
 			},
+
+			stacks = {
+				-- Total stacks value
+				value = { min = 2500, max = 3500 },
+				-- Stacks count
+				count = 12,
+			},
 		},
 		{
 			-- For testing
@@ -231,14 +261,21 @@ template = {
 				tier1 = 1,
 				tier2 = 1
 			},
+
+			stacks = {
+				-- Total stacks value
+				value = { min = 2500, max = 3500 },
+				-- Stacks count
+				count = 12,
+			},
 		},
 	},
 
 	connections = {
-		{a = 0, b = 3, guard = 1000},
-		{a = 1, b = 4, guard = 1000},
-		{a = 2, b = 3, guard = 10},
-		{a = 2, b = 4, guard = 20},
+		{a = 0, b = 3, guard = 550},
+		{a = 1, b = 4, guard = 550},
+		{a = 2, b = 3, guard = 1000},
+		{a = 2, b = 4, guard = 1000},
 	},
 }
 

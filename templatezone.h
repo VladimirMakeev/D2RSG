@@ -90,8 +90,8 @@ struct TemplateZone : public ZoneOptions
 
     ObjectPlacingResult tryToPlaceObjectAndConnectToPath(MapElement& mapElement,
                                                          const Position& position);
-    void addRequiredObject(ScenarioObjectPtr&& object, int guardStrength = 0);
-    void addCloseObject(ScenarioObjectPtr&& object, int guardStrength = 0);
+    void addRequiredObject(ScenarioObjectPtr&& object, int guardStrength = 500);
+    void addCloseObject(ScenarioObjectPtr&& object, int guardStrength = 500);
 
     void placeScenarioObject(ScenarioObjectPtr&& object, const Position& position);
 
@@ -113,6 +113,8 @@ struct TemplateZone : public ZoneOptions
                      bool updateDistance = true);
 
     void placeMountain(const Position& position, const Position& size, int image);
+
+    bool guardObject(const MapElement& mapElement, int guardStrength, bool zoneGuard = false);
 
     void updateDistances(const Position& position);
 
@@ -139,6 +141,7 @@ struct TemplateZone : public ZoneOptions
                   int strength,
                   bool clearSurroundingTiles = true,
                   bool zoneGuard = false);
+    std::unique_ptr<Stack> createStack(int strength);
 
     void initTerrain();
     void addAllPossibleObjects();
@@ -149,6 +152,7 @@ struct TemplateZone : public ZoneOptions
     void placeMercenaries();
     void placeRuins();
     bool placeMines();
+    void placeStacks();
     bool createRequiredObjects();
     void createTreasures();
 
@@ -156,6 +160,8 @@ struct TemplateZone : public ZoneOptions
     bool isAccessibleFromSomewhere(const MapElement& mapElement, const Position& position) const;
     bool isEntranceAccessible(const MapElement& mapElement, const Position& position) const;
     Position getAccessibleOffset(const MapElement& mapElement, const Position& position) const;
+    // Returns all tiles from which specified map element can be accessed
+    std::vector<Position> getAccessibleTiles(const MapElement& mapElement) const;
     bool areAllTilesAvailable(const MapElement& mapElement,
                               const Position& position,
                               const std::set<Position>& blockedOffsets) const;
@@ -186,6 +192,7 @@ private:
     TerrainType terrainType{TerrainType::Neutral};
     std::vector<std::pair<ScenarioObjectPtr, int>> requiredObjects;
     std::vector<std::pair<ScenarioObjectPtr, int>> closeObjects;
+    std::vector<int> neutralStacks;
     std::vector<ObjectInfo> possibleObjects;
 
     std::map<ScenarioObject*, Position> requestedPositions;

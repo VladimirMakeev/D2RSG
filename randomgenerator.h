@@ -48,6 +48,12 @@ public:
         return getDoubleRange(min, max)();
     }
 
+    bool chance(int percent)
+    {
+        percent = std::clamp(percent, 0, 100);
+        return nextDouble(0, 99) < percent;
+    }
+
     void resetSeed()
     {
         auto threadId{std::this_thread::get_id()};
