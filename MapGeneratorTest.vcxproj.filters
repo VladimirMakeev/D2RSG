@@ -255,6 +255,9 @@
     <ClCompile Include="mercenary.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="dbf.cpp">
+      <Filter>Исходные файлы\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -508,6 +511,9 @@
     </ClInclude>
     <ClInclude Include="mercenary.h">
       <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="dbf.h">
+      <Filter>Файлы заголовков\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

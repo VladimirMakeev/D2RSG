@@ -159,6 +159,7 @@
     <ClCompile Include="capital.cpp" />
     <ClCompile Include="crystal.cpp" />
     <ClCompile Include="currency.cpp" />
+    <ClCompile Include="dbf.cpp" />
     <ClCompile Include="diplomacy.cpp" />
     <ClCompile Include="fog.cpp" />
     <ClCompile Include="fortification.cpp" />
@@ -236,6 +237,7 @@
     <ClInclude Include="containers.h" />
     <ClInclude Include="crystal.h" />
     <ClInclude Include="currency.h" />
+    <ClInclude Include="dbf.h" />
     <ClInclude Include="diplomacy.h" />
     <ClInclude Include="group.h" />
     <ClInclude Include="image.h" />
