@@ -4,18 +4,22 @@
 #include <cstdio>
 #include <iterator>
 
-bool Group::addLeader(const CMidgardID& leaderId, std::size_t position)
+bool Group::addLeader(const CMidgardID& leaderId, std::size_t position, bool bigUnit)
 {
     if (!units.empty()) {
         return false;
     }
 
-    return addUnit(leaderId, position);
+    return addUnit(leaderId, position, bigUnit);
 }
 
-bool Group::addUnit(const CMidgardID& unitId, std::size_t position)
+bool Group::addUnit(const CMidgardID& unitId, std::size_t position, bool bigUnit)
 {
     if (position >= positions.size()) {
+        return false;
+    }
+
+    if (bigUnit && (position == 1 || position == 3 || position == 5)) {
         return false;
     }
 
@@ -31,14 +35,21 @@ bool Group::addUnit(const CMidgardID& unitId, std::size_t position)
         return false;
     }
 
-    // TODO: check if unit is big, handle big units
+    if (bigUnit && getUnitId(getBigUnitSecondPos(position)) != emptyId) {
+        return false;
+    }
 
     units.push_back(unitId);
     positions[position] = unitId;
+
+    if (bigUnit) {
+        positions[position + 1] = unitId;
+    }
+
     return true;
 }
 
-bool Group::removeUnit(const CMidgardID& unitId)
+bool Group::removeUnit(const CMidgardID& unitId, bool bigUnit)
 {
     // TODO
     return false;

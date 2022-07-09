@@ -25,9 +25,9 @@ public:
 
     void serialize(Serializer& serializer, const Map& scenario) const override;
 
-    bool addLeader(const CMidgardID& leaderId, std::size_t position)
+    bool addLeader(const CMidgardID& leaderId, std::size_t position, bool bigUnit = false)
     {
-        if (group.addLeader(leaderId, position)) {
+        if (group.addLeader(leaderId, position, bigUnit)) {
             this->leaderId = leaderId;
             return true;
         }
@@ -35,14 +35,14 @@ public:
         return false;
     }
 
-    bool addUnit(const CMidgardID& unitId, std::size_t position)
+    bool addUnit(const CMidgardID& unitId, std::size_t position, bool bigUnit = false)
     {
-        return group.addUnit(unitId, position);
+        return group.addUnit(unitId, position, bigUnit);
     }
 
-    bool removeUnit(const CMidgardID& unitId)
+    bool removeUnit(const CMidgardID& unitId, bool bigUnit = false)
     {
-        return group.removeUnit(unitId);
+        return group.removeUnit(unitId, bigUnit);
     }
 
     const CMidgardID& getLeader() const
