@@ -163,6 +163,7 @@
     <ClCompile Include="diplomacy.cpp" />
     <ClCompile Include="fog.cpp" />
     <ClCompile Include="fortification.cpp" />
+    <ClCompile Include="gameinfo.cpp" />
     <ClCompile Include="group.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="inventory.cpp" />
@@ -239,6 +240,7 @@
     <ClInclude Include="currency.h" />
     <ClInclude Include="dbf.h" />
     <ClInclude Include="diplomacy.h" />
+    <ClInclude Include="gameinfo.h" />
     <ClInclude Include="group.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="inventory.h" />

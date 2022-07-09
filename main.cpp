@@ -1,4 +1,5 @@
-﻿#include "mapgenerator.h"
+﻿#include "gameinfo.h"
+#include "mapgenerator.h"
 #include "maptemplate.h"
 #include "maptemplatereader.h"
 #include <iostream>
@@ -6,8 +7,18 @@
 // debug
 #include "image.h"
 
+// argv[1] - template file
+// argv[2] - path to game
+// argv[3] - path where save created map
 int main(int argc, char* argv[])
 {
+    assert(argc == 4);
+
+    std::filesystem::path gameFolder{argv[2]};
+    if (!readUnitsInfo(gameFolder / "Globals")) {
+        return 1;
+    }
+
     auto mapSeed{/*std::time(nullptr)*/ std::time_t(1656538751)};
     const auto seedString{std::to_string(mapSeed)};
 
@@ -27,7 +38,7 @@ int main(int argc, char* argv[])
     try {
         auto map{generator.generate()};
 
-        map->serialize({argv[2]});
+        map->serialize({argv[3]});
 
         {
             const auto width{generator.mapGenOptions.size};
@@ -95,6 +106,7 @@ int main(int argc, char* argv[])
     }
 
     if (options.mapTemplate) {
+        // TODO: use smart pointer
         delete options.mapTemplate;
         options.mapTemplate = nullptr;
     }
