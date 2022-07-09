@@ -230,6 +230,7 @@
     <ClCompile Include="templatezone.cpp" />
     <ClCompile Include="turnsummary.cpp" />
     <ClCompile Include="unit.cpp" />
+    <ClCompile Include="unitpicker.cpp" />
     <ClCompile Include="village.cpp" />
     <ClCompile Include="zoneplacer.cpp" />
   </ItemGroup>
@@ -314,6 +315,7 @@
     <ClInclude Include="tileinfo.h" />
     <ClInclude Include="turnsummary.h" />
     <ClInclude Include="unit.h" />
+    <ClInclude Include="unitpicker.h" />
     <ClInclude Include="village.h" />
     <ClInclude Include="vposition.h" />
     <ClInclude Include="zoneconnection.h" />

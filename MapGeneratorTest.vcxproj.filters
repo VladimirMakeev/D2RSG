@@ -261,6 +261,9 @@
     <ClCompile Include="gameinfo.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="unitpicker.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -519,6 +522,9 @@
       <Filter>Файлы заголовков\utils</Filter>
     </ClInclude>
     <ClInclude Include="gameinfo.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="unitpicker.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
