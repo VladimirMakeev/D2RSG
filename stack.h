@@ -1,6 +1,7 @@
 #pragma once
 
 #include "aipriority.h"
+#include "enums.h"
 #include "group.h"
 #include "inventory.h"
 #include "mapelement.h"
@@ -107,7 +108,7 @@ private:
     int move{};
     int facing{};
     int upgradeCount{};
-    int order{1};
+    OrderType order{OrderType::Stand};
     int aiOrder{1};
     int creatureLevel{1};
     int nbBattle{};

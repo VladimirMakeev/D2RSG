@@ -27,7 +27,7 @@ void Stack::serialize(Serializer& serializer, const Map& scenario) const
     serializer.serialize("INVISIBLE", invisible);
     serializer.serialize("AI_IGNORE", aiIgnore);
     serializer.serialize("UPGCOUNT", upgradeCount);
-    serializer.serialize("ORDER", order);
+    serializer.serialize("ORDER", static_cast<std::uint32_t>(order));
     serializer.serialize("ORDER_TARG", orderTargetId);
     serializer.serialize("AIORDER", aiOrder);
     serializer.serialize("AIORDERTAR", aiOrderTargetId);
