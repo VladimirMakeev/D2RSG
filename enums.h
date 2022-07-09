@@ -105,6 +105,71 @@ enum class SpellType
     GiveWards,
 };
 
+// Same as LUnitC.dbf
+enum class UnitType
+{
+    Soldier,
+    Noble,
+    Leader,
+    Summon = 4,
+    Illusion,
+    Guardian = 8
+};
+
+// Same as LAttC.dbf
+enum class AttackType
+{
+    Damage = 1,
+    Drain,
+    Paralyze,
+    Heal = 6,
+    Fear,
+    BoostDamage,
+    Petrify,
+    LowerDamage,
+    LowerIni,
+    Poison,
+    Frostbite,
+    Revive,
+    DrainOverflow,
+    Cure,
+    Summon,
+    DrainLevel,
+    GiveAttack,
+    Doppelganger,
+    TransformSelf,
+    TransformOther,
+    Blister,
+    BestowWards,
+    Shatter,
+};
+
+// Same as LAttR.dbf
+enum class ReachType
+{
+    All = 1,
+    Any,
+    Adjacent,
+};
+
+// Same as LOrder.dbf
+enum class OrderType
+{
+    Normal = 1,
+    Stand,
+    Guard,
+    AttackStack,
+    DefendStack,
+    SecureCity,
+    Roam,
+    MoveToLocation,
+    DefendLocation,
+    Bezerk,
+    Assist,
+    Steal,
+    DefendCity,
+};
+
 // Internal generator use only
 enum class MapFormat
 {
