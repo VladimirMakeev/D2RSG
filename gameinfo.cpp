@@ -6,6 +6,10 @@ static UnitsInfo unitsInfo{};
 static UnitInfoArray leaders{};
 static UnitInfoArray soldiers{};
 
+static ItemsInfo itemsInfo;
+static ItemInfoArray allItems;
+static std::map<ItemType, ItemInfoArray> itemsByType;
+
 const UnitsInfo& getUnitsInfo()
 {
     return unitsInfo;
@@ -24,6 +28,8 @@ const UnitInfoArray& getSoldiers()
 bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
 {
     unitsInfo.clear();
+    leaders.clear();
+    soldiers.clear();
 
     std::map<CMidgardID /* attack id */, std::pair<ReachType, AttackType>> attacks;
 
@@ -155,6 +161,75 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
         }
 
         unitsInfo[unitId] = std::move(info);
+    }
+
+    return true;
+}
+
+const ItemsInfo& getItemsInfo()
+{
+    return itemsInfo;
+}
+
+const ItemInfoArray& getItems()
+{
+    return allItems;
+}
+
+const ItemInfoArray& getItems(ItemType itemType)
+{
+    return itemsByType[itemType];
+}
+
+bool readItemsInfo(const std::filesystem::path& globalsFolderPath)
+{
+    itemsInfo.clear();
+    allItems.clear();
+    itemsByType.clear();
+
+    Dbf itemsDb{globalsFolderPath / "GItem.dbf"};
+    if (!itemsDb) {
+        std::cerr << "Could not open GItem.dbf\n";
+        return false;
+    }
+
+    for (const auto& record : itemsDb) {
+        int type{};
+        if (!record.value(type, "ITEM_CAT")) {
+            continue;
+        }
+
+        std::string_view idString{};
+        if (!record.value(idString, "ITEM_ID")) {
+            continue;
+        }
+
+        CMidgardID itemId(idString.data());
+        if (itemId == invalidId || itemId == emptyId) {
+            continue;
+        }
+
+        std::string_view valueString{};
+        if (!record.value(valueString, "VALUE")) {
+            continue;
+        }
+
+        if (valueString.size() < 35) {
+            continue;
+        }
+
+        // Use gold as value
+        // TODO: get values by running Lua script
+        char buf[5] = {valueString[1], valueString[2], valueString[3], valueString[4], '\0'};
+        int value{std::atoi(buf)};
+
+        auto itemType{static_cast<ItemType>(type)};
+
+        auto info{std::make_unique<ItemInfo>(itemId, value, itemType)};
+
+        allItems.push_back(info.get());
+        itemsByType[itemType].push_back(info.get());
+        itemsInfo[itemId] = std::move(info);
     }
 
     return true;

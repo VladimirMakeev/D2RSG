@@ -56,3 +56,31 @@ const UnitInfoArray& getLeaders();
 const UnitInfoArray& getSoldiers();
 
 bool readUnitsInfo(const std::filesystem::path& globalsFolderPath);
+
+// Brief information about items from GItem and LmagItm.dbf
+struct ItemInfo
+{
+    ItemInfo(const CMidgardID& itemId, int value, ItemType itemType)
+        : itemId{itemId}
+        , value{value}
+        , itemType{itemType}
+    { }
+
+    CMidgardID itemId;
+    int value{};
+    ItemType itemType{ItemType::Valuable};
+};
+
+using ItemInfoPtr = std::unique_ptr<ItemInfo>;
+using ItemInfoArray = std::vector<ItemInfo*>;
+
+using ItemsInfo = std::map<CMidgardID /* item id */, ItemInfoPtr>;
+
+// Returns all items known to map generator
+const ItemsInfo& getItemsInfo();
+// Returns all items known to map generator as plain array
+const ItemInfoArray& getItems();
+// Returns all items of specific type known to map generator
+const ItemInfoArray& getItems(ItemType itemType);
+
+bool readItemsInfo(const std::filesystem::path& globalsFolderPath);

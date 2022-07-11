@@ -19,6 +19,10 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    if (!readItemsInfo(gameFolder / "Globals")) {
+        return 1;
+    }
+
     auto mapSeed{/*std::time(nullptr)*/ std::time_t(1656538751)};
     const auto seedString{std::to_string(mapSeed)};
 
