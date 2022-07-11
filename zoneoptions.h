@@ -35,7 +35,7 @@ struct RuinInfo
     CMidgardID itemId;                 // Item that must be generated as a reward
 };
 
-struct ItemInfo
+struct MerchantItemInfo
 {
     CMidgardID itemId;
     RandomValue<std::uint8_t> amount;
@@ -46,7 +46,7 @@ struct MerchantInfo
     // Types of items merchant is allowed to sell
     std::set<ItemType> itemTypes;
     // Items that merchant must sell, regardless of itemTypes and cash
-    std::vector<ItemInfo> requiredItems;
+    std::vector<MerchantItemInfo> requiredItems;
     // Total value of merchant tradable items, excluding requiredItems
     RandomValue<std::uint32_t> cash{};
 };

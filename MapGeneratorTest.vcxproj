@@ -167,6 +167,7 @@
     <ClCompile Include="group.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="inventory.cpp" />
+    <ClCompile Include="itempicker.cpp" />
     <ClCompile Include="knownspells.cpp" />
     <ClCompile Include="lua\lapi.c" />
     <ClCompile Include="lua\lauxlib.c" />
@@ -245,6 +246,7 @@
     <ClInclude Include="group.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="inventory.h" />
+    <ClInclude Include="itempicker.h" />
     <ClInclude Include="knownspells.h" />
     <ClInclude Include="mage.h" />
     <ClInclude Include="mapblock.h" />

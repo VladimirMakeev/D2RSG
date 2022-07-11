@@ -229,11 +229,11 @@ static void readRuins(ZoneOptions& options, const std::vector<sol::table>& ruins
     }
 }
 
-static void readMerchantItems(std::vector<ItemInfo>& merchantItems,
+static void readMerchantItems(std::vector<MerchantItemInfo>& merchantItems,
                               const std::vector<sol::table>& items)
 {
     for (const auto& item : items) {
-        ItemInfo info{};
+        MerchantItemInfo info{};
 
         readId(info.itemId, item, "id");
         readRandomValue<std::uint8_t>(info.amount, item, 1, 1);

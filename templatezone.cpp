@@ -3,6 +3,7 @@
 #include "containers.h"
 #include "crystal.h"
 #include "gameinfo.h"
+#include "itempicker.h"
 #include "mage.h"
 #include "mapgenerator.h"
 #include "mercenary.h"
@@ -1438,13 +1439,13 @@ void TemplateZone::placeMerchants()
     /*
     Vanilla merchant images:
     0 - windmill
-    7 - inn
     1 - tower
     2 - house dark wood
     3 - house bright wood
     4 - tower on the left and big tent-house
     5 - tower on the right and L-shaped house on the left
     6 - tents and ruined building on the left
+    7 - inn
     */
     static const int merchantImages[] = {0, 1, 2, 3, 4, 5, 6, 7};
 
@@ -1456,11 +1457,34 @@ void TemplateZone::placeMerchants()
         merchant->setTitle("Merchant");
         merchant->setDescription("Merchant description");
 
+        // Pick random merchant image
         int image{(int)rand.getInt64Range(0, std::size(merchantImages) - 1)()};
         merchant->setImgIso(image);
 
-        // TODO: generate items of specified itemTypes
+        // Generate random merchant items of specified types
+        if (!merchantInfo.itemTypes.empty() && merchantInfo.cash.max) {
+            const auto& cash{merchantInfo.cash};
+            int desiredValue{(int)rand.getInt64Range(cash.min, cash.max)()};
+            int currentValue{};
 
+            auto noWrongType = [types = &merchantInfo.itemTypes](const ItemInfo* info) {
+                // Remove items of types that merchant is not allowed to sell
+                return types->find(info->itemType) == types->end();
+            };
+
+            while (currentValue <= desiredValue) {
+                auto item{pickItem(rand, {noWrongType})};
+                if (!item) {
+                    // Could not pick anything, stop
+                    break;
+                }
+
+                currentValue += item->value;
+                merchant->addItem(item->itemId);
+            }
+        }
+
+        // Add required items
         for (const auto& item : merchantInfo.requiredItems) {
             if (item.itemId == emptyId) {
                 continue;

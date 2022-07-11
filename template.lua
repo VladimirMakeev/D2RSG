@@ -39,7 +39,7 @@ template = {
 					-- Types of items allowed for this merchant, optional
 					itemTypes = {Item.PotionHeal, Item.PotionBoost},
 					-- Total value of merchant items, excluding items that must be generated, optional 
-					cash = { min = 200, max = 1000},
+					cash = { min = 2000, max = 4000},
 					-- Items that must be generated, optional
 					items = {
 						{
@@ -85,9 +85,9 @@ template = {
 			merchants = {
 				{
 					-- Types of items allowed for this merchant, optional
-					itemTypes = {Item.PotionHeal, Item.PotionBoost},
+					itemTypes = {Item.Talisman, Item.Orb, Item.PotionBoost},
 					-- Total value of merchant items, excluding items that must be generated, optional 
-					cash = { min = 200, max = 1000},
+					cash = { min = 3200, max = 6000},
 					-- Items that must be generated, optional
 					items = {
 						{
@@ -138,15 +138,15 @@ template = {
 			merchants = {
 				{
 					-- Types of items allowed for this merchant, optional
-					itemTypes = {Item.PotionHeal, Item.PotionBoost},
+					itemTypes = {Item.TravelItem, Item.Weapon, Item.Armor, Item.Wand, Item.Scroll},
 					-- Total value of merchant items, excluding items that must be generated, optional 
-					cash = { min = 200, max = 1000 },
+					cash = { min = 20000, max = 50000 },
 					-- Items that must be generated, optional
 					items = {
 						{
 							id = 'g000ig0004',
-							min = 10,
-							max = 50
+							min = 1,
+							max = 2
 						},
 					},
 				},

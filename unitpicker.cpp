@@ -2,9 +2,9 @@
 #include "gameinfo.h"
 #include "randomgenerator.h"
 #include <algorithm>
-#include <cassert>
+#include <iterator>
 
-static UnitInfo* pick(const UnitInfoArray& unitPool, Rng& random, const FilterList& filters)
+static UnitInfo* pick(const UnitInfoArray& unitPool, Rng& random, const UnitFilterList& filters)
 {
     UnitInfoArray pool{unitPool};
 
@@ -21,12 +21,12 @@ static UnitInfo* pick(const UnitInfoArray& unitPool, Rng& random, const FilterLi
     return pool[index];
 }
 
-UnitInfo* pickLeader(Rng& random, const FilterList& filters)
+UnitInfo* pickLeader(Rng& random, const UnitFilterList& filters)
 {
     return pick(getLeaders(), random, filters);
 }
 
-UnitInfo* pickUnit(Rng& random, const FilterList& filters)
+UnitInfo* pickUnit(Rng& random, const UnitFilterList& filters)
 {
     return pick(getSoldiers(), random, filters);
 }
