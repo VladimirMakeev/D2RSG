@@ -1553,8 +1553,30 @@ void TemplateZone::placeMercenaries()
         int image{(int)rand.getInt64Range(0, std::size(mercenaryImages) - 1)()};
         mercenary->setImgIso(image);
 
-        // TODO: generate units from specified subraces according to 'cash'
+        // Generate random mercenary units of specified subraces
+        if (!info.subraceTypes.empty() && info.cash.max) {
+            const auto& cash{info.cash};
+            int desiredValue{(int)rand.getInt64Range(cash.min, cash.max)()};
+            int currentValue{};
 
+            auto noWrongType = [types = &info.subraceTypes](const UnitInfo* info) {
+                // Remove units of subraces that mercenary is not allowed to sell
+                return types->find(info->subrace) == types->end();
+            };
+
+            while (currentValue <= desiredValue) {
+                auto unit{pickUnit(rand, {noWrongType})};
+                if (!unit) {
+                    // Could not pick anything, stop
+                    break;
+                }
+
+                currentValue += unit->value;
+                mercenary->addUnit(unit->unitId, unit->level, true);
+            }
+        }
+
+        // Add required units
         for (const auto& unit : info.requiredUnits) {
             mercenary->addUnit(unit.unitId, unit.level, unit.unique);
         }
