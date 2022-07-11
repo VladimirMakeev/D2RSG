@@ -101,6 +101,11 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
 
         const auto unitType{static_cast<UnitType>(type)};
 
+        int level{};
+        if (!record.value(level, "LEVEL")) {
+            continue;
+        }
+
         bool smallUnit{};
         if (!record.value(smallUnit, "SIZE_SMALL")) {
             continue;
@@ -150,7 +155,7 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
 
         auto& pair{it->second};
 
-        auto info{std::make_unique<UnitInfo>(unitId, value, unitType,
+        auto info{std::make_unique<UnitInfo>(unitId, level, value, unitType,
                                              static_cast<SubRaceType>(subrace), pair.first,
                                              pair.second, hp, move, !smallUnit)};
 

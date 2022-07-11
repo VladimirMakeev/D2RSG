@@ -13,6 +13,7 @@ struct UnitInfo
     UnitInfo() = default;
 
     UnitInfo(const CMidgardID& unitId,
+             int level,
              int value,
              UnitType type,
              SubRaceType subrace,
@@ -22,6 +23,7 @@ struct UnitInfo
              int move,
              bool bigUnit)
         : unitId{unitId}
+        , level{level}
         , value{value}
         , unitType{type}
         , subrace{subrace}
@@ -33,6 +35,7 @@ struct UnitInfo
     { }
 
     CMidgardID unitId;
+    int level{};
     int value{};
     UnitType unitType{UnitType::Soldier};
     SubRaceType subrace{SubRaceType::Neutral};
