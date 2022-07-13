@@ -9,6 +9,7 @@
 #include "mercenary.h"
 #include "merchant.h"
 #include "player.h"
+#include "spellpicker.h"
 #include "subrace.h"
 #include "unit.h"
 #include "unitpicker.h"
@@ -1520,7 +1521,28 @@ void TemplateZone::placeMages()
         int image{(int)rand.getInt64Range(0, std::size(mageImages) - 1)()};
         mage->setImgIso(image);
 
-        // TODO: generate spells of specified spellTypes
+        // Generate random spells of specified types
+        if (!mageInfo.spellTypes.empty() && mageInfo.cash.max) {
+            const auto& cash{mageInfo.cash};
+            int desiredValue{(int)rand.getInt64Range(cash.min, cash.max)()};
+            int currentValue{};
+
+            auto noWrongType = [types = &mageInfo.spellTypes](const SpellInfo* info) {
+                // Remove spells of types that mage is not allowed to sell
+                return types->find(info->spellType) == types->end();
+            };
+
+            while (currentValue <= desiredValue) {
+                auto spell{pickSpell(rand, {noWrongType})};
+                if (!spell) {
+                    // Could not pick anything, stop
+                    break;
+                }
+
+                currentValue += spell->value;
+                mage->addSpell(spell->spellId);
+            }
+        }
 
         for (const auto& spell : mageInfo.requiredSpells) {
             mage->addSpell(spell);

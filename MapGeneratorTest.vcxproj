@@ -224,6 +224,7 @@
     <ClCompile Include="site.cpp" />
     <ClCompile Include="spellcast.cpp" />
     <ClCompile Include="spelleffects.cpp" />
+    <ClCompile Include="spellpicker.cpp" />
     <ClCompile Include="stack.cpp" />
     <ClCompile Include="stackdestroyed.cpp" />
     <ClCompile Include="subrace.cpp" />
@@ -308,6 +309,7 @@
     <ClInclude Include="site.h" />
     <ClInclude Include="spellcast.h" />
     <ClInclude Include="spelleffects.h" />
+    <ClInclude Include="spellpicker.h" />
     <ClInclude Include="stack.h" />
     <ClInclude Include="stackdestroyed.h" />
     <ClInclude Include="stb_image_write.h" />

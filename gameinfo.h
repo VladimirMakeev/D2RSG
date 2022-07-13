@@ -87,3 +87,30 @@ const ItemInfoArray& getItems();
 const ItemInfoArray& getItems(ItemType itemType);
 
 bool readItemsInfo(const std::filesystem::path& globalsFolderPath);
+
+struct SpellInfo
+{
+    SpellInfo(const CMidgardID& spellId, int value, SpellType spellType)
+        : spellId{spellId}
+        , value{value}
+        , spellType{spellType}
+    { }
+
+    CMidgardID spellId;
+    int value{};
+    SpellType spellType{SpellType::Attack};
+};
+
+using SpellInfoPtr = std::unique_ptr<SpellInfo>;
+using SpellInfoArray = std::vector<SpellInfo*>;
+
+using SpellsInfo = std::map<CMidgardID /* spell id */, SpellInfoPtr>;
+
+// Returns all spells known to map generator
+const SpellsInfo& getSpellsInfo();
+// Returns all spells known to map generator as plain array
+const SpellInfoArray& getSpells();
+// Returns all spells of specific type known to map generator
+const SpellInfoArray& getSpells(SpellType spellType);
+
+bool readSpellsInfo(const std::filesystem::path& globalsFolderPath);

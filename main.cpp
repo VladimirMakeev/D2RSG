@@ -14,12 +14,18 @@ int main(int argc, char* argv[])
 {
     assert(argc == 4);
 
-    std::filesystem::path gameFolder{argv[2]};
-    if (!readUnitsInfo(gameFolder / "Globals")) {
+    const std::filesystem::path gameFolder{argv[2]};
+    const auto globalsFolder{gameFolder / "Globals"};
+
+    if (!readUnitsInfo(globalsFolder)) {
         return 1;
     }
 
-    if (!readItemsInfo(gameFolder / "Globals")) {
+    if (!readItemsInfo(globalsFolder)) {
+        return 1;
+    }
+
+    if (!readSpellsInfo(globalsFolder)) {
         return 1;
     }
 

@@ -162,6 +162,12 @@ template = {
 					-- Spells that must be generated, optional
 					spells = { 'g000ss0002', 'g000ss0004' },
 				},
+				{
+					-- Types of spells allowed for this mage, optional
+					spellTypes = {Spell.Attack, Spell.Boost, Spell.Lower},
+					-- Total value of mage spells, excluding spells that must be generated, optional
+					cash = { min = 2000, max = 5000 },
+				},
 			},
 
 			-- Mercenaries

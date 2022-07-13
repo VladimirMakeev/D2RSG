@@ -10,6 +10,10 @@ static ItemsInfo itemsInfo;
 static ItemInfoArray allItems;
 static std::map<ItemType, ItemInfoArray> itemsByType;
 
+static SpellsInfo spellsInfo;
+static SpellInfoArray allSpells;
+static std::map<SpellType, SpellInfoArray> spellsByType;
+
 const UnitsInfo& getUnitsInfo()
 {
     return unitsInfo;
@@ -235,6 +239,75 @@ bool readItemsInfo(const std::filesystem::path& globalsFolderPath)
         allItems.push_back(info.get());
         itemsByType[itemType].push_back(info.get());
         itemsInfo[itemId] = std::move(info);
+    }
+
+    return true;
+}
+
+const SpellsInfo& getSpellsInfo()
+{
+    return spellsInfo;
+}
+
+const SpellInfoArray& getSpells()
+{
+    return allSpells;
+}
+
+const SpellInfoArray& getSpells(SpellType spellType)
+{
+    return spellsByType[spellType];
+}
+
+bool readSpellsInfo(const std::filesystem::path& globalsFolderPath)
+{
+    spellsInfo.clear();
+    allSpells.clear();
+    spellsByType.clear();
+
+    Dbf spellsDb{globalsFolderPath / "GSpells.dbf"};
+    if (!spellsDb) {
+        std::cerr << "Could not open GSpells.dbf\n";
+        return false;
+    }
+
+    for (const auto& record : spellsDb) {
+        std::string_view idString{};
+        if (!record.value(idString, "SPELL_ID")) {
+            continue;
+        }
+
+        CMidgardID spellId(idString.data());
+        if (spellId == invalidId || spellId == emptyId) {
+            continue;
+        }
+
+        int type{};
+        if (!record.value(type, "CATEGORY")) {
+            continue;
+        }
+
+        std::string_view costString{};
+        if (!record.value(costString, "BUY_C")) {
+            continue;
+        }
+
+        if (costString.size() < 35) {
+            continue;
+        }
+
+        // Use gold as value
+        // TODO: get values by running Lua script
+        char buf[5] = {costString[1], costString[2], costString[3], costString[4], '\0'};
+        int value{std::atoi(buf)};
+
+        auto spellType{static_cast<SpellType>(type)};
+
+        auto info{std::make_unique<SpellInfo>(spellId, value, spellType)};
+
+        allSpells.push_back(info.get());
+        spellsByType[spellType].push_back(info.get());
+        spellsInfo[spellId] = std::move(info);
     }
 
     return true;
