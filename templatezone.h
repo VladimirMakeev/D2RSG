@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bag.h"
 #include "crystal.h"
 #include "fortification.h"
 #include "objectinfo.h"
@@ -111,6 +112,9 @@ struct TemplateZone : public ZoneOptions
     void placeObject(std::unique_ptr<Site>&& site,
                      const Position& position,
                      bool updateDistance = true);
+    void placeObject(std::unique_ptr<Bag>&& bag,
+                     const Position& position,
+                     bool updateDistance = true);
 
     void placeMountain(const Position& position, const Position& size, int image);
 
@@ -153,6 +157,7 @@ struct TemplateZone : public ZoneOptions
     void placeRuins();
     bool placeMines();
     void placeStacks();
+    void placeBags();
     bool createRequiredObjects();
     void createTreasures();
 

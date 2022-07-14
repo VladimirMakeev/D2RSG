@@ -3,6 +3,7 @@
 #include "containers.h"
 #include "crystal.h"
 #include "gameinfo.h"
+#include "item.h"
 #include "itempicker.h"
 #include "mage.h"
 #include "mapgenerator.h"
@@ -228,6 +229,7 @@ void TemplateZone::fill()
     placeRuins();
     placeMines();
     placeStacks();
+    placeBags();
     createRequiredObjects();
     createTreasures();
 
@@ -441,6 +443,12 @@ void TemplateZone::placeScenarioObject(ScenarioObjectPtr&& object, const Positio
     case CMidgardID::Type::Site: {
         auto site{dynamic_unique_cast<Site>(std::move(object))};
         placeObject(std::move(site), position);
+        break;
+    }
+
+    case CMidgardID::Type::Bag: {
+        auto bag{dynamic_unique_cast<Bag>(std::move(object))};
+        placeObject(std::move(bag), position);
         break;
     }
     }
@@ -664,6 +672,41 @@ void TemplateZone::placeObject(std::unique_ptr<Site>&& site,
     mapGenerator->map->insertMapElement(*site.get(), site->getId());
     // Store object in scenario map
     mapGenerator->insertObject(std::move(site));
+}
+
+void TemplateZone::placeObject(std::unique_ptr<Bag>&& bag,
+                               const Position& position,
+                               bool updateDistance)
+{
+    // Check position
+    if (!mapGenerator->map->isInTheMap(position)) {
+        CMidgardID::String bagId{};
+        bag->getId().toString(bagId);
+
+        std::stringstream stream;
+        stream << "Position of bag " << bagId.data() << " at " << position
+               << " is outside of the map\n";
+        throw std::runtime_error(stream.str());
+    }
+
+    bag->setPosition(position);
+
+    // Mark bag tiles as used
+    auto blocked{bag->getBlockedPositions()};
+    blocked.insert(bag->getEntrance());
+
+    for (auto& tile : blocked) {
+        mapGenerator->setOccupied(tile, TileType::Used);
+    }
+
+    // Update distances
+    if (updateDistance) {
+        updateDistances(position);
+    }
+
+    mapGenerator->map->insertMapElement(*bag.get(), bag->getId());
+    // Store object in scenario map
+    mapGenerator->insertObject(std::move(bag));
 }
 
 void TemplateZone::placeMountain(const Position& position, const Position& size, int image)
@@ -1116,9 +1159,8 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
             // Pick melee defender within recomputed value
             auto unit1{
                 pickUnit(rand, {noPlayableRaces, noRanged, notTooWeak, notTooStrong, noBig})};
-            assert(unit1 != nullptr);
 
-            {
+            if (unit1) {
                 auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
                 auto unit{std::make_unique<Unit>(unitId)};
                 unit->setImplId(unit1->unitId);
@@ -1143,9 +1185,8 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
                 auto filter = backLine ? noMelee : noRanged;
                 auto unit2{
                     pickUnit(rand, {noPlayableRaces, filter, notTooWeak, notTooStrong, noBig})};
-                assert(unit2 != nullptr);
 
-                {
+                if (unit2) {
                     auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
                     auto unit{std::make_unique<Unit>(unitId)};
                     unit->setImplId(unit2->unitId);
@@ -1289,11 +1330,6 @@ void TemplateZone::fractalize()
     std::vector<Position> clearedTiles(freePaths.begin(), freePaths.end());
     std::set<Position> possibleTiles;
     std::set<Position> tilesToIgnore;
-
-    int totalDensity{};
-    for (const auto& treasure : treasureInfo) {
-        totalDensity += treasure.density;
-    }
 
     // TODO: move this setting into template for better zone free space control
     // TODO: adjust this setting based on template value
@@ -1708,6 +1744,58 @@ void TemplateZone::placeStacks()
 
     for (std::uint32_t i = 0; i < stacks.count; ++i) {
         neutralStacks.push_back(stackValue);
+    }
+}
+
+void TemplateZone::placeBags()
+{
+    if (!bags.count) {
+        return;
+    }
+
+    static const int bagImages[] = {0, 1, 2, 3, 4, 5, 6, 7};
+
+    auto& rand{mapGenerator->randomGenerator};
+    // Roll actual bags value in the zone
+    auto totalValue{(int)rand.getInt64Range(bags.value.min, bags.value.max)()};
+
+    const auto bagValue{totalValue / bags.count};
+
+    for (std::uint32_t i = 0; i < bags.count; ++i) {
+        // Create bag
+        auto bagId{mapGenerator->createId(CMidgardID::Type::Bag)};
+        auto bag{std::make_unique<Bag>(bagId)};
+
+        int bagImage = (int)rand.getInt64Range(0, std::size(bagImages) - 1)();
+        bag->setImage(bagImage);
+
+        auto noSpecial = [](const ItemInfo* info) {
+            return info->itemType == ItemType::Special;
+        };
+
+        auto noWrongValue = [bagValue](const ItemInfo* info) {
+            return info->value > static_cast<int>(bagValue);
+        };
+
+        // Create items
+        int currentValue{};
+        while (currentValue <= static_cast<int>(bagValue)) {
+            auto itemInfo{pickItem(rand, {noSpecial, noWrongValue})};
+            if (!itemInfo) {
+                break;
+            }
+
+            // Create item
+            auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
+            auto item{std::make_unique<Item>(itemId)};
+            item->setItemType(itemInfo->itemId);
+
+            mapGenerator->insertObject(std::move(item));
+            bag->add(itemId);
+            currentValue += itemInfo->value;
+        }
+
+        addRequiredObject(std::move(bag), bagValue);
     }
 }
 

@@ -130,6 +130,15 @@ template = {
 				count = 15,
 			},
 
+			-- Bags with treasures, potions, spells or other items
+			-- Loosely guarded
+			bags = {
+				-- Total value of items in bags
+				value = { min = 20000, max = 30000 },
+				-- Bags count
+				count = 20,
+			},
+
 			-- Merchants
 			-- Merchant content (tradable items) depends on cash and itemTypes.
 			-- Cash is spread equally between all types specified.
@@ -245,6 +254,13 @@ template = {
 				-- Stacks count
 				count = 12,
 			},
+
+			bags = {
+				-- Total value of items in bags
+				value = { min = 10000, max = 15000 },
+				-- Bags count
+				count = 10,
+			},
 		},
 		{
 			-- For testing
@@ -273,6 +289,13 @@ template = {
 				value = { min = 2500, max = 3500 },
 				-- Stacks count
 				count = 12,
+			},
+
+			bags = {
+				-- Total value of items in bags
+				value = { min = 10000, max = 15000 },
+				-- Bags count
+				count = 10,
 			},
 		},
 	},

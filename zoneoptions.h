@@ -9,13 +9,6 @@
 #include <set>
 #include <vector>
 
-struct TreasureInfo
-{
-    std::uint32_t min{};
-    std::uint32_t max{};
-    std::uint16_t density{};
-};
-
 struct CityInfo
 {
     std::array<std::uint8_t, 5> cities{}; // City count for each tier
@@ -84,13 +77,18 @@ struct StackInfo
     std::uint32_t count{};
 };
 
+struct BagInfo
+{
+    RandomValue<std::uint32_t> value{};
+    std::uint32_t count{};
+};
+
 // Template zone settings
 struct ZoneOptions
 {
     std::set<TerrainType> terrainTypes;         // Terrain types allowed in zone
     std::set<GroundType> groundTypes;           // Ground types allowed in zone
     std::map<ResourceType, std::uint8_t> mines; // Mines and their count in zone
-    std::vector<TreasureInfo> treasureInfo;     // Treasures
     std::vector<TemplateZoneId> connections;    // Adjacent zones
     CityInfo playerCities;                      // Cities assigned to player
     CityInfo neutralCities;                     // Neutral cities
@@ -99,6 +97,7 @@ struct ZoneOptions
     std::vector<MageInfo> mages;                // Mage towers
     std::vector<MercenaryInfo> mercenaries;     // Mercenary camps
     StackInfo stacks;                           // Neutral stacks
+    BagInfo bags;                               // Bags with treasures
     TemplateZoneId id{0};
     TemplateZoneType type{TemplateZoneType::PlayerStart};
     MonsterStrength monsterStrength{MonsterStrength::ZoneNormal};

@@ -344,6 +344,13 @@ static void readStacks(StackInfo& stackInfo, const sol::table& stacks)
     stackInfo.count = readValue(stacks, "count", 0, 0);
 }
 
+static void readBags(BagInfo& bagInfo, const sol::table& bags)
+{
+    auto value = bags.get<sol::table>("value");
+    readRandomValue<std::uint32_t>(bagInfo.value, value, 0, 0);
+    bagInfo.count = readValue(bags, "count", 0, 0);
+}
+
 static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
 {
     auto options = std::make_shared<ZoneOptions>();
@@ -393,6 +400,11 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     auto stacks = zone.get<OptionalTable>("stacks");
     if (stacks.has_value()) {
         readStacks(options->stacks, stacks.value());
+    }
+
+    auto bags = zone.get<OptionalTable>("bags");
+    if (bags.has_value()) {
+        readBags(options->bags, bags.value());
     }
 
     return options;
