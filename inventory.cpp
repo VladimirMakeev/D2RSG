@@ -14,3 +14,8 @@ void Inventory::serialize(Serializer& serializer,
         serializer.serialize("ITEM_ID", item);
     }
 }
+
+void Inventory::add(const CMidgardID& itemId)
+{
+    items.push_back(itemId);
+}

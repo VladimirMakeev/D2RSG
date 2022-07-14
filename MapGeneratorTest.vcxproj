@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bag.cpp" />
     <ClCompile Include="capital.cpp" />
     <ClCompile Include="crystal.cpp" />
     <ClCompile Include="currency.cpp" />
@@ -239,6 +240,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aipriority.h" />
+    <ClInclude Include="bag.h" />
     <ClInclude Include="containers.h" />
     <ClInclude Include="crystal.h" />
     <ClInclude Include="currency.h" />

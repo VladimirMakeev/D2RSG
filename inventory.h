@@ -15,6 +15,8 @@ public:
                    const Map& scenario,
                    const CMidgardID& inventoryId) const;
 
+    void add(const CMidgardID& itemId);
+
 private:
     std::vector<CMidgardID> items;
 };
