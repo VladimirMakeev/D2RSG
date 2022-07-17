@@ -45,6 +45,10 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
         }
 
         for (const auto& record : attacksDb) {
+            if (record.deleted()) {
+                continue;
+            }
+
             std::string_view idString{};
             if (!record.value(idString, "ATT_ID")) {
                 continue;
@@ -78,6 +82,10 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
     }
 
     for (const auto& record : unitsDb) {
+        if (record.deleted()) {
+            continue;
+        }
+
         bool waterOnly{};
         if (!record.value(waterOnly, "WATER_ONLY")) {
             continue;
@@ -203,6 +211,10 @@ bool readItemsInfo(const std::filesystem::path& globalsFolderPath)
     }
 
     for (const auto& record : itemsDb) {
+        if (record.deleted()) {
+            continue;
+        }
+
         int type{};
         if (!record.value(type, "ITEM_CAT")) {
             continue;
@@ -272,6 +284,10 @@ bool readSpellsInfo(const std::filesystem::path& globalsFolderPath)
     }
 
     for (const auto& record : spellsDb) {
+        if (record.deleted()) {
+            continue;
+        }
+
         std::string_view idString{};
         if (!record.value(idString, "SPELL_ID")) {
             continue;
