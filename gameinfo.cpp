@@ -1,6 +1,8 @@
 #include "gameinfo.h"
+#include "containers.h"
 #include "dbf.h"
 #include <iostream>
+#include <set>
 
 static UnitsInfo unitsInfo{};
 static UnitInfoArray leaders{};
@@ -13,6 +15,10 @@ static std::map<ItemType, ItemInfoArray> itemsByType;
 static SpellsInfo spellsInfo;
 static SpellInfoArray allSpells;
 static std::map<SpellType, SpellInfoArray> spellsByType;
+
+static LandmarksInfo landmarksInfo;
+static std::map<LandmarkType, LandmarkInfoArray> landmarksByType;
+static std::map<RaceType, LandmarkInfoArray> landmarksByRace;
 
 const UnitsInfo& getUnitsInfo()
 {
@@ -324,6 +330,306 @@ bool readSpellsInfo(const std::filesystem::path& globalsFolderPath)
         allSpells.push_back(info.get());
         spellsByType[spellType].push_back(info.get());
         spellsInfo[spellId] = std::move(info);
+    }
+
+    return true;
+}
+
+const LandmarksInfo& getLandmarksInfo()
+{
+    return landmarksInfo;
+}
+
+const LandmarkInfoArray& getLandmarks(LandmarkType landmarkType)
+{
+    return landmarksByType[landmarkType];
+}
+
+const LandmarkInfoArray& getLandmarks(RaceType raceType)
+{
+    return landmarksByRace[raceType];
+}
+
+static bool isEmpireLandmark(const CMidgardID& landmarkId)
+{
+    // clang-format off
+    // Landmarks that looks good nearby Empire capital
+    static const std::set<CMidgardID> empireLandmarks{
+        // statues
+        CMidgardID{"g000mg0042"},
+        CMidgardID{"g000mg0043"},
+        CMidgardID{"g000mg0044"},
+        CMidgardID{"g000mg0070"},
+        // fountains
+        CMidgardID{"g000mg0083"},
+        CMidgardID{"g000mg0084"},
+        // neutral houses
+        CMidgardID{"g000mg0091"},
+        CMidgardID{"g000mg0092"},
+        CMidgardID{"g000mg0093"},
+        CMidgardID{"g000mg0094"},
+        CMidgardID{"g000mg0095"},
+        CMidgardID{"g000mg0096"},
+        CMidgardID{"g000mg0097"},
+        CMidgardID{"g000mg0098"},
+        // empire houses
+        CMidgardID{"g000mg0099"},
+        CMidgardID{"g000mg0100"},
+        CMidgardID{"g000mg0101"},
+        CMidgardID{"g000mg0102"},
+        // tents
+        CMidgardID{"g000mg0115"},
+        CMidgardID{"g000mg0116"},
+        CMidgardID{"g000mg0117"},
+        CMidgardID{"g000mg0118"},
+        CMidgardID{"g000mg0119"},
+        // towers
+        CMidgardID{"g000mg0149"},
+        CMidgardID{"g000mg0150"}
+    };
+    // clang-format on
+
+    return contains(empireLandmarks, landmarkId);
+}
+
+static bool isClansLandmark(const CMidgardID& landmarkId)
+{
+    // clang-format off
+    // Landmarks that looks good nearby Mountain Clans capital
+    static const std::set<CMidgardID> clansLandmarks{
+        // ice, glaciers
+        CMidgardID{"g000mg0033"},
+        CMidgardID{"g000mg0034"},
+        CMidgardID{"g000mg0035"},
+        CMidgardID{"g000mg0036"},
+        CMidgardID{"g000mg0037"},
+        CMidgardID{"g000mg0038"},
+        CMidgardID{"g000mg0039"},
+        CMidgardID{"g000mg0040"},
+        // statues
+        CMidgardID{"g000mg0045"},
+        CMidgardID{"g000mg0049"},
+        CMidgardID{"g000mg0050"},
+        // clan houses
+        CMidgardID{"g000mg0103"},
+        CMidgardID{"g000mg0104"},
+        CMidgardID{"g000mg0105"},
+        CMidgardID{"g000mg0106"},
+        // towers
+        CMidgardID{"g000mg0149"},
+        CMidgardID{"g000mg0150"}
+    };
+    // clang-format on
+
+    return contains(clansLandmarks, landmarkId);
+}
+
+static bool isUndeadLandmark(const CMidgardID& landmarkId)
+{
+    // clang-format off
+    // Landmarks that looks good nearby Undead Hordes capital
+    static const std::set<CMidgardID> undeadLandmarks{
+        CMidgardID{"g000mg0065"},
+        // spider caves
+        CMidgardID{"g000mg0120"},
+        CMidgardID{"g000mg0121"},
+        // skeletons
+        CMidgardID{"g000mg0085"},
+        CMidgardID{"g000mg0086"},
+        CMidgardID{"g000mg0087"},
+        CMidgardID{"g000mg0088"},
+        CMidgardID{"g000mg0089"},
+        CMidgardID{"g000mg0090"},
+        // houses
+        CMidgardID{"g000mg0111"},
+        CMidgardID{"g000mg0112"},
+        CMidgardID{"g000mg0113"},
+        CMidgardID{"g000mg0114"}
+        // TODO: big dragon skeletons
+    };
+    // clang-format on
+
+    return contains(undeadLandmarks, landmarkId);
+}
+
+static bool isLegionsLandmark(const CMidgardID& landmarkId)
+{
+    // clang-format off
+    // Landmarks that looks good nearby Legions of the Damned capital
+    static const std::set<CMidgardID> legionsLandmarks{
+        // obelisks
+        CMidgardID{"g000mg0004"},
+        CMidgardID{"g000mg0005"},
+        // lava craters
+        CMidgardID{"g000mg0022"},
+        CMidgardID{"g000mg0023"},
+        CMidgardID{"g000mg0024"},
+        CMidgardID{"g000mg0052"},
+        CMidgardID{"g000mg0053"},
+        CMidgardID{"g000mg0054"},
+        // houses
+        CMidgardID{"g000mg0107"},
+        CMidgardID{"g000mg0108"},
+        CMidgardID{"g000mg0109"},
+        CMidgardID{"g000mg0110"}
+    };
+    // clang-format on
+
+    return contains(legionsLandmarks, landmarkId);
+}
+
+static bool isElvesLandmark(const CMidgardID& landmarkId)
+{
+    // clang-format off
+    // Landmarks that looks good nearby Elves capital
+    static const std::set<CMidgardID> elvesLandmarks{
+        // houses
+        CMidgardID{"g000mg0028"},
+        CMidgardID{"g000mg0029"},
+        CMidgardID{"g000mg0030"},
+        CMidgardID{"g000mg0130"},
+        CMidgardID{"g000mg0131"},
+        CMidgardID{"g000mg0134"},
+        CMidgardID{"g000mg0145"},
+        CMidgardID{"g000mg0146"},
+        CMidgardID{"g000mg0147"},
+        CMidgardID{"g000mg0148"}
+    };
+    // clang-format on
+
+    return contains(elvesLandmarks, landmarkId);
+}
+
+static bool isNeutralLandmark(const CMidgardID& landmarkId)
+{
+    // clang-format off
+    // Landmarks that looks good with neutral objects and terrain
+    static const std::set<CMidgardID> neutralLandmarks{
+        // spider caves
+        CMidgardID{"g000mg0120"},
+        CMidgardID{"g000mg0121"},
+        // fortress
+        CMidgardID{"g000mg0003"},
+        // cemeteries
+        CMidgardID{"g000mg0025"},
+        CMidgardID{"g000mg0026"},
+        CMidgardID{"g000mg0027"},
+        CMidgardID{"g000mg0031"},
+        CMidgardID{"g000mg0032"},
+        // statues
+        CMidgardID{"g000mg0042"},
+        CMidgardID{"g000mg0043"},
+        CMidgardID{"g000mg0044"},
+        // well
+        CMidgardID{"g000mg0070"},
+        // skeletons, should we use them? looks like too frequent..
+        CMidgardID{"g000mg0085"},
+        CMidgardID{"g000mg0086"},
+        CMidgardID{"g000mg0087"},
+        CMidgardID{"g000mg0088"},
+        CMidgardID{"g000mg0089"},
+        CMidgardID{"g000mg0090"},
+        // houses
+        CMidgardID{"g000mg0091"},
+        CMidgardID{"g000mg0092"},
+        CMidgardID{"g000mg0093"},
+        CMidgardID{"g000mg0094"},
+        CMidgardID{"g000mg0095"},
+        CMidgardID{"g000mg0096"},
+        CMidgardID{"g000mg0097"},
+        CMidgardID{"g000mg0098"},
+        // tents
+        CMidgardID{"g000mg0115"},
+        CMidgardID{"g000mg0116"},
+        CMidgardID{"g000mg0117"},
+        CMidgardID{"g000mg0118"},
+        CMidgardID{"g000mg0119"},
+        // towers
+        CMidgardID{"g000mg0149"},
+        CMidgardID{"g000mg0150"}
+    };
+    // clang-format on
+
+    return contains(neutralLandmarks, landmarkId);
+}
+
+bool readLandmarksInfo(const std::filesystem::path& globalsFolderPath)
+{
+    landmarksInfo.clear();
+    landmarksByType.clear();
+    landmarksByRace.clear();
+
+    Dbf landmarksDb{globalsFolderPath / "GLmark.dbf"};
+    if (!landmarksDb) {
+        std::cerr << "Could not open GLmark.dbf\n";
+        return false;
+    }
+
+    for (const auto& record : landmarksDb) {
+        if (record.deleted()) {
+            continue;
+        }
+
+        std::string_view idString{};
+        if (!record.value(idString, "LMARK_ID")) {
+            continue;
+        }
+
+        CMidgardID landmarkId(idString.data());
+        if (landmarkId == invalidId || landmarkId == emptyId) {
+            continue;
+        }
+
+        int x{};
+        if (!record.value(x, "CX")) {
+            continue;
+        }
+
+        int y{};
+        if (!record.value(y, "CY")) {
+            continue;
+        }
+
+        bool mountain{};
+        if (!record.value(mountain, "MOUNTAIN")) {
+            continue;
+        }
+
+        int type{};
+        if (!record.value(type, "CATEGORY")) {
+            continue;
+        }
+
+        auto landmarkType{static_cast<LandmarkType>(type)};
+        auto info{
+            std::make_unique<LandmarkInfo>(landmarkId, Position{x, y}, landmarkType, mountain)};
+
+        if (isEmpireLandmark(landmarkId)) {
+            landmarksByRace[RaceType::Human].push_back(info.get());
+        }
+
+        if (isClansLandmark(landmarkId)) {
+            landmarksByRace[RaceType::Dwarf].push_back(info.get());
+        }
+
+        if (isUndeadLandmark(landmarkId)) {
+            landmarksByRace[RaceType::Undead].push_back(info.get());
+        }
+
+        if (isLegionsLandmark(landmarkId)) {
+            landmarksByRace[RaceType::Heretic].push_back(info.get());
+        }
+
+        if (isElvesLandmark(landmarkId)) {
+            landmarksByRace[RaceType::Elf].push_back(info.get());
+        }
+
+        if (isNeutralLandmark(landmarkId)) {
+            landmarksByRace[RaceType::Neutral].push_back(info.get());
+        }
+
+        landmarksByType[landmarkType].push_back(info.get());
+        landmarksInfo[landmarkId] = std::move(info);
     }
 
     return true;

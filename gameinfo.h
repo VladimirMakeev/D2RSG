@@ -2,6 +2,7 @@
 
 #include "enums.h"
 #include "midgardid.h"
+#include "position.h"
 #include <filesystem>
 #include <map>
 #include <memory>
@@ -114,3 +115,36 @@ const SpellInfoArray& getSpells();
 const SpellInfoArray& getSpells(SpellType spellType);
 
 bool readSpellsInfo(const std::filesystem::path& globalsFolderPath);
+
+struct LandmarkInfo
+{
+    LandmarkInfo(const CMidgardID& landmarkId,
+                 const Position& size,
+                 LandmarkType type,
+                 bool mountain)
+        : landmarkId{landmarkId}
+        , size{size}
+        , landmarkType{type}
+        , mountain{mountain}
+    { }
+
+    CMidgardID landmarkId;
+    Position size{1, 1};
+    LandmarkType landmarkType{LandmarkType::Misc};
+    bool mountain{};
+};
+
+using LandmarkInfoPtr = std::unique_ptr<LandmarkInfo>;
+using LandmarkInfoArray = std::vector<LandmarkInfo*>;
+
+using LandmarksInfo = std::map<CMidgardID /* landmark id */, LandmarkInfoPtr>;
+
+// Returns all landmarks known to map generator
+const LandmarksInfo& getLandmarksInfo();
+
+// Returns all landmarks of specific type known to map generator
+const LandmarkInfoArray& getLandmarks(LandmarkType landmarkType);
+// Returns all landmarks that are visually appropriate for specified race
+const LandmarkInfoArray& getLandmarks(RaceType raceType);
+
+bool readLandmarksInfo(const std::filesystem::path& globalsFolderPath);

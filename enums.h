@@ -170,6 +170,15 @@ enum class OrderType
     DefendCity,
 };
 
+// Same as LLMCat.dbf
+enum class LandmarkType
+{
+    Misc,
+    Building,
+    Structure,
+    Terrain,
+};
+
 // Internal generator use only
 enum class MapFormat
 {
