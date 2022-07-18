@@ -87,9 +87,9 @@ void Serializer::serialize(const MapHeader& header,
     // unknown4
     serializeString("\0", 191);
     serializeValue(header.size);
-    // unknown5
+    // difficulty
     serializeValue(std::uint32_t{1});
-    // unknown6
+    // turn number
     serializeValue(std::uint32_t{0});
     // unknown7
     serializeValue(std::uint32_t{0});
@@ -100,8 +100,10 @@ void Serializer::serialize(const MapHeader& header,
         stream << std::ends;
     }
 
+    // suggested level
+    serializeValue(std::uint32_t{1});
     // unknown8
-    serializeString("\0", 5);
+    serializeValue(std::uint8_t{0});
 
     // Player name
     serializeString("Player", 10);

@@ -44,7 +44,7 @@ void ScenarioInfo::serialize(Serializer& serializer, const Map& scenario) const
         serializer.serialize(name, races[i]);
     }
 
-    serializer.serialize("SUGG_LVL", 0);
+    serializer.serialize("SUGG_LVL", 1);
     serializer.serialize("MAP_SEED", 0);
     serializer.leaveRecord();
 }
