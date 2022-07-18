@@ -19,6 +19,7 @@ static std::map<SpellType, SpellInfoArray> spellsByType;
 static LandmarksInfo landmarksInfo;
 static std::map<LandmarkType, LandmarkInfoArray> landmarksByType;
 static std::map<RaceType, LandmarkInfoArray> landmarksByRace;
+static LandmarkInfoArray mountainLandmarks;
 
 const UnitsInfo& getUnitsInfo()
 {
@@ -350,6 +351,11 @@ const LandmarkInfoArray& getLandmarks(RaceType raceType)
     return landmarksByRace[raceType];
 }
 
+const LandmarkInfoArray& getMountainLandmarks()
+{
+    return mountainLandmarks;
+}
+
 static bool isEmpireLandmark(const CMidgardID& landmarkId)
 {
     // clang-format off
@@ -553,11 +559,29 @@ static bool isNeutralLandmark(const CMidgardID& landmarkId)
     return contains(neutralLandmarks, landmarkId);
 }
 
+static bool isMountainLandmark(const CMidgardID& landmarkId)
+{
+    // clang-format off
+    static const std::set<CMidgardID> mountainLandmarks{
+        CMidgardID{"g000mg0138"},
+        CMidgardID{"g000mg0139"},
+        CMidgardID{"g000mg0140"},
+        CMidgardID{"g000mg0141"},
+        CMidgardID{"g000mg0142"},
+        CMidgardID{"g000mg0143"},
+        CMidgardID{"g000mg0144"},
+    };
+    // clang-format on
+
+    return contains(mountainLandmarks, landmarkId);
+}
+
 bool readLandmarksInfo(const std::filesystem::path& globalsFolderPath)
 {
     landmarksInfo.clear();
     landmarksByType.clear();
     landmarksByRace.clear();
+    mountainLandmarks.clear();
 
     Dbf landmarksDb{globalsFolderPath / "GLmark.dbf"};
     if (!landmarksDb) {
@@ -626,6 +650,10 @@ bool readLandmarksInfo(const std::filesystem::path& globalsFolderPath)
 
         if (isNeutralLandmark(landmarkId)) {
             landmarksByRace[RaceType::Neutral].push_back(info.get());
+        }
+
+        if (isMountainLandmark(landmarkId)) {
+            mountainLandmarks.push_back(info.get());
         }
 
         landmarksByType[landmarkType].push_back(info.get());

@@ -146,5 +146,7 @@ const LandmarksInfo& getLandmarksInfo();
 const LandmarkInfoArray& getLandmarks(LandmarkType landmarkType);
 // Returns all landmarks that are visually appropriate for specified race
 const LandmarkInfoArray& getLandmarks(RaceType raceType);
+// Returns all mountains landmarks, except volcano
+const LandmarkInfoArray& getMountainLandmarks();
 
 bool readLandmarksInfo(const std::filesystem::path& globalsFolderPath);
