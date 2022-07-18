@@ -276,6 +276,9 @@
     <ClCompile Include="item.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="landmark.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -549,6 +552,9 @@
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
     <ClInclude Include="item.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="landmark.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
   </ItemGroup>
