@@ -5,6 +5,7 @@
 #include "gameinfo.h"
 #include "item.h"
 #include "itempicker.h"
+#include "landmarkpicker.h"
 #include "mage.h"
 #include "mapgenerator.h"
 #include "mercenary.h"
@@ -292,12 +293,30 @@ void TemplateZone::createObstacles()
         auto it{nextItem(possibleObstacles[index].second, mapGenerator->randomGenerator)};
 
         const MapElement mountainElement({it->size, it->size});
-        if (canObstacleBePlacedHere(mountainElement, tile)) {
-            placeMountain(tile, mountainElement.getSize(), it->image);
-            return true;
+        if (!canObstacleBePlacedHere(mountainElement, tile)) {
+            return false;
         }
 
-        return false;
+        // If size is 3 or 5, roll 10% chance to spawn mountain landmark
+        // TODO: remove hardcoded values
+        if ((it->size == 3 || it->size == 5) && mapGenerator->randomGenerator.chance(10)) {
+            auto noWrongSize = [size = it->size](const LandmarkInfo* info) {
+                return info->size.x != size || info->size.y != size;
+            };
+
+            auto info{pickMountainLandmark(mapGenerator->randomGenerator, {noWrongSize})};
+            assert(info != nullptr);
+
+            auto landmarkId{mapGenerator->createId(CMidgardID::Type::Landmark)};
+            auto landmark{std::make_unique<Landmark>(landmarkId, info->size)};
+            landmark->setTypeId(info->landmarkId);
+
+            placeObject(std::move(landmark), tile);
+        } else {
+            placeMountain(tile, mountainElement.getSize(), it->image);
+        }
+
+        return true;
     };
 
     for (const auto& tile : tileInfo) {
@@ -707,6 +726,54 @@ void TemplateZone::placeObject(std::unique_ptr<Bag>&& bag,
     mapGenerator->map->insertMapElement(*bag.get(), bag->getId());
     // Store object in scenario map
     mapGenerator->insertObject(std::move(bag));
+}
+
+void TemplateZone::placeObject(std::unique_ptr<Landmark>&& landmark,
+                               const Position& position,
+                               bool updateDistance)
+{
+    // Check position
+    if (!mapGenerator->map->isInTheMap(position)) {
+        CMidgardID::String landmarkId{};
+        landmark->getId().toString(landmarkId);
+
+        std::stringstream stream;
+        stream << "Position of landmark " << landmarkId.data() << " at " << position
+               << " is outside of the map\n";
+        throw std::runtime_error(stream.str());
+    }
+
+    landmark->setPosition(position);
+
+    // Use entrance as bottom-right point of landmark area
+    // Since position and entrance form rectangle we don't need to check other tiles
+    if (!mapGenerator->map->isInTheMap(landmark->getEntrance())) {
+        CMidgardID::String landmarkId{};
+        landmark->getId().toString(landmarkId);
+
+        std::stringstream stream;
+        stream << "Bottom-right point " << landmark->getEntrance() << " of landmark "
+               << landmarkId.data() << " at " << position << " is outside of the map\n";
+        throw std::runtime_error(stream.str());
+    }
+
+    // Mark landmark tiles as used
+    auto blocked{landmark->getBlockedPositions()};
+    // Landmarks does not have entrance, but we use it to block all positions
+    blocked.insert(landmark->getEntrance());
+
+    for (auto& tile : blocked) {
+        mapGenerator->setOccupied(tile, TileType::Used);
+    }
+
+    // Update distances
+    if (updateDistance) {
+        updateDistances(position);
+    }
+
+    mapGenerator->map->insertMapElement(*landmark.get(), landmark->getId());
+    // Store object in scenario map
+    mapGenerator->insertObject(std::move(landmark));
 }
 
 void TemplateZone::placeMountain(const Position& position, const Position& size, int image)

@@ -3,6 +3,7 @@
 #include "bag.h"
 #include "crystal.h"
 #include "fortification.h"
+#include "landmark.h"
 #include "objectinfo.h"
 #include "position.h"
 #include "ruin.h"
@@ -113,6 +114,9 @@ struct TemplateZone : public ZoneOptions
                      const Position& position,
                      bool updateDistance = true);
     void placeObject(std::unique_ptr<Bag>&& bag,
+                     const Position& position,
+                     bool updateDistance = true);
+    void placeObject(std::unique_ptr<Landmark>&& landmark,
                      const Position& position,
                      bool updateDistance = true);
 
