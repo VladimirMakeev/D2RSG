@@ -279,6 +279,9 @@
     <ClCompile Include="landmark.cpp">
       <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
+    <ClCompile Include="landmarkpicker.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -556,6 +559,9 @@
     </ClInclude>
     <ClInclude Include="landmark.h">
       <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="landmarkpicker.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

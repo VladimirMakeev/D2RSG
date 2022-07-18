@@ -172,6 +172,7 @@
     <ClCompile Include="itempicker.cpp" />
     <ClCompile Include="knownspells.cpp" />
     <ClCompile Include="landmark.cpp" />
+    <ClCompile Include="landmarkpicker.cpp" />
     <ClCompile Include="lua\lapi.c" />
     <ClCompile Include="lua\lauxlib.c" />
     <ClCompile Include="lua\lbaselib.c" />
@@ -255,6 +256,7 @@
     <ClInclude Include="itempicker.h" />
     <ClInclude Include="knownspells.h" />
     <ClInclude Include="landmark.h" />
+    <ClInclude Include="landmarkpicker.h" />
     <ClInclude Include="mage.h" />
     <ClInclude Include="mapblock.h" />
     <ClInclude Include="mercenary.h" />
