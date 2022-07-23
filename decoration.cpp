@@ -377,6 +377,29 @@ bool CrystalDecoration::placeForests(std::set<Position>& area,
     return true;
 }
 
+bool CapturedCrystalDecoration::decorate(TemplateZone& zone,
+                                         MapGenerator& mapGenerator,
+                                         Map& map,
+                                         Rng& rand)
+{
+    if (!CrystalDecoration::decorate(zone, mapGenerator, map, rand)) {
+        return false;
+    }
+
+    // Change terrain under and around crystal to specified
+    auto& tile{map.getTile(crystal->getPosition())};
+    tile.setTerrainGround(terrain, tile.ground);
+
+    mapGenerator.foreachNeighbor(crystal->getPosition(),
+                                 [this, &mapGenerator, &map](Position& pos) {
+                                     if (mapGenerator.isFree(pos) || mapGenerator.isUsed(pos)) {
+                                         auto& tile{map.getTile(pos)};
+                                         tile.setTerrainGround(terrain, tile.ground);
+                                     }
+                                 });
+    return true;
+}
+
 const LandmarkFilterList& SiteDecoration::getLandmarkFilters()
 {
     // clang-format off

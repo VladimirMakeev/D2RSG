@@ -1777,14 +1777,18 @@ void TemplateZone::placeRuins()
 bool TemplateZone::placeMines()
 {
     const auto zoneHasOwner{ownerId != emptyId};
-    auto nativeResource{mapGenerator->map->getNativeResource(RaceType::Neutral)};
+    auto& map{mapGenerator->map};
+    auto nativeResource{map->getNativeResource(RaceType::Neutral)};
+
+    TerrainType crystalTerrain{TerrainType::Neutral};
 
     if (zoneHasOwner) {
-        auto player{mapGenerator->map->find<Player>(ownerId)};
+        auto player{map->find<Player>(ownerId)};
         assert(player != nullptr);
 
-        const auto ownerRace{mapGenerator->map->getRaceType(player->getRace())};
-        nativeResource = mapGenerator->map->getNativeResource(ownerRace);
+        const auto ownerRace{map->getRaceType(player->getRace())};
+        nativeResource = map->getNativeResource(ownerRace);
+        crystalTerrain = map->getRaceTerrain(ownerRace);
     }
 
     for (const auto& mineInfo : mines) {
@@ -1800,10 +1804,10 @@ bool TemplateZone::placeMines()
 
             // Only first gold mine and mana crystal are placed close
             // They are not guarded in player owned zones
-            // TODO: not just place them close, but change terrain under them
-            // if this is a starting zone
             if (i == 0 && (resourceType == nativeResource || resourceType == ResourceType::Gold)) {
-                addCloseObject(std::move(crystal), std::make_unique<CrystalDecoration>(crystalPtr),
+                addCloseObject(std::move(crystal),
+                               std::make_unique<CapturedCrystalDecoration>(crystalPtr,
+                                                                           crystalTerrain),
                                zoneHasOwner ? 0 : 500);
             } else {
                 addRequiredObject(std::move(crystal),

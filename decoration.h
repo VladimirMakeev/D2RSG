@@ -210,8 +210,23 @@ protected:
                       Map& map,
                       Rng& rand) override;
 
-private:
     Crystal* crystal;
+};
+
+class CapturedCrystalDecoration : public CrystalDecoration
+{
+public:
+    CapturedCrystalDecoration(Crystal* crystal, TerrainType terrain)
+        : CrystalDecoration(crystal)
+        , terrain{terrain}
+    { }
+
+    ~CapturedCrystalDecoration() override = default;
+
+    bool decorate(TemplateZone& zone, MapGenerator& mapGenerator, Map& map, Rng& rand) override;
+
+private:
+    TerrainType terrain;
 };
 
 class SiteDecoration : public Decoration
