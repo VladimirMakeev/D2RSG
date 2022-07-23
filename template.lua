@@ -281,7 +281,7 @@ template = {
 
 			neutralTowns = {
 				tier1 = 1,
-				tier2 = 1
+				tier5 = 1
 			},
 
 			stacks = {

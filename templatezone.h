@@ -2,6 +2,7 @@
 
 #include "bag.h"
 #include "crystal.h"
+#include "decoration.h"
 #include "fortification.h"
 #include "landmark.h"
 #include "objectinfo.h"
@@ -92,8 +93,12 @@ struct TemplateZone : public ZoneOptions
 
     ObjectPlacingResult tryToPlaceObjectAndConnectToPath(MapElement& mapElement,
                                                          const Position& position);
-    void addRequiredObject(ScenarioObjectPtr&& object, int guardStrength = 500);
-    void addCloseObject(ScenarioObjectPtr&& object, int guardStrength = 500);
+    void addRequiredObject(ScenarioObjectPtr&& object,
+                           DecorationPtr&& decoration = nullptr,
+                           int guardStrength = 500);
+    void addCloseObject(ScenarioObjectPtr&& object,
+                        DecorationPtr&& decoration = nullptr,
+                        int guardStrength = 500);
 
     void placeScenarioObject(ScenarioObjectPtr&& object, const Position& position);
 
@@ -166,6 +171,11 @@ struct TemplateZone : public ZoneOptions
     void createTreasures();
 
     bool findPlaceForObject(const MapElement& mapElement, int minDistance, Position& position);
+    bool findPlaceForObject(const std::set<Position>& area,
+                            const MapElement& mapElement,
+                            int minDistance,
+                            Position& position,
+                            bool findAccessible = true);
     bool isAccessibleFromSomewhere(const MapElement& mapElement, const Position& position) const;
     bool isEntranceAccessible(const MapElement& mapElement, const Position& position) const;
     Position getAccessibleOffset(const MapElement& mapElement, const Position& position) const;
@@ -199,16 +209,21 @@ private:
 
     // Template info
     TerrainType terrainType{TerrainType::Neutral};
-    std::vector<std::pair<ScenarioObjectPtr, int>> requiredObjects;
-    std::vector<std::pair<ScenarioObjectPtr, int>> closeObjects;
+
+    struct ObjectPlacement
+    {
+        ScenarioObjectPtr object;
+        DecorationPtr decoration;
+        int guardStrength{};
+    };
+
+    std::vector<ObjectPlacement> requiredObjects;
+    std::vector<ObjectPlacement> closeObjects;
     std::vector<int> neutralStacks;
-    std::vector<ObjectInfo> possibleObjects;
+    std::vector<DecorationPtr> decorations;
 
     std::map<ScenarioObject*, Position> requestedPositions;
     int minGuardedValue{0};
-
-    // Content info
-    // std::vector<ObjectInstance*> objects;
 
     // Placement info
     Position pos;

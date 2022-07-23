@@ -41,27 +41,22 @@ void TemplateZone::setCenter(const VPosition& value)
 
 void TemplateZone::initTowns()
 {
-    // Clear ring around forts to ensure crunchPath always hits it
-    auto cutPathAroundTown = [this](const Fortification& fort) {
+    // Clear town entrance
+    auto clearEntrance = [this](const Fortification& fort) {
         auto clearPosition = [this](const Position& position) {
             if (mapGenerator->isPossible(position)) {
                 mapGenerator->setOccupied(position, TileType::Free);
             }
         };
 
-        for (auto& blocked : fort.getBlockedPositions()) {
-            mapGenerator->foreachNeighbor(blocked, clearPosition);
-        }
-
-        // Clear town entrance
         mapGenerator->foreachNeighbor(fort.getEntrance() + Position(1, 1), clearPosition);
     };
 
     std::size_t citiesTotal{};
 
-    auto addCities = [this, &cutPathAroundTown, &citiesTotal](const CityInfo& cityInfo,
-                                                              const CMidgardID& ownerId,
-                                                              const CMidgardID& subraceId) {
+    auto addCities = [this, &clearEntrance, &citiesTotal](const CityInfo& cityInfo,
+                                                          const CMidgardID& ownerId,
+                                                          const CMidgardID& subraceId) {
         for (std::size_t tier = 0; tier < cityInfo.cities.size(); ++tier) {
             for (std::uint8_t i = 0; i < cityInfo.cities[tier]; ++i) {
                 auto villageId{mapGenerator->createId(CMidgardID::Type::Fortification)};
@@ -71,17 +66,22 @@ void TemplateZone::initTowns()
                 village->setSubrace(subraceId);
                 village->setTier(tier + 1);
 
+                auto villagePtr{village.get()};
+
                 // Place first city immediately
                 if (citiesTotal == 0) {
-                    auto villagePtr{village.get()};
                     placeObject(std::move(village), pos - villagePtr->getSize() / 2);
-                    cutPathAroundTown(*villagePtr);
+                    clearEntrance(*villagePtr);
                     // All roads lead to tile near central village entrance
                     setPosition(villagePtr->getEntrance() + Position(1, 1));
 
+                    // Add decoration
+                    decorations.push_back(std::make_unique<VillageDecoration>(villagePtr));
+
                     mapGenerator->registerZone(RaceType::Neutral);
                 } else {
-                    addRequiredObject(std::move(village));
+                    addRequiredObject(std::move(village),
+                                      std::make_unique<VillageDecoration>(villagePtr));
                 }
 
                 ++citiesTotal;
@@ -141,10 +141,13 @@ void TemplateZone::initTowns()
         fort->setSubrace(subraceId);
         stack->setSubrace(subraceId);
 
+        // Add capital decoration
+        decorations.push_back(std::make_unique<CapitalDecoration>(capital.get()));
+
         // Place capital at the center of the zone
         placeObject(std::move(capital), pos - fort->getSize() / 2,
                     mapGenerator->map->getRaceTerrain(playerRace));
-        cutPathAroundTown(*fort);
+        clearEntrance(*fort);
         // All roads lead to tile near capital entrance
         setPosition(fort->getEntrance() + Position(1, 1));
 
@@ -239,6 +242,14 @@ void TemplateZone::fill()
 
 void TemplateZone::createObstacles()
 {
+    // Place decorations first
+    for (const auto& decoration : decorations) {
+        decoration->decorate(*this, *mapGenerator, *mapGenerator->map,
+                             mapGenerator->randomGenerator);
+    }
+
+    decorations.clear();
+
     struct Mountain
     {
         int size{1};
@@ -409,14 +420,20 @@ ObjectPlacingResult TemplateZone::tryToPlaceObjectAndConnectToPath(MapElement& m
     return ObjectPlacingResult::Success;
 }
 
-void TemplateZone::addRequiredObject(ScenarioObjectPtr&& object, int guardStrength)
+void TemplateZone::addRequiredObject(ScenarioObjectPtr&& object,
+                                     DecorationPtr&& decoration,
+                                     int guardStrength)
 {
-    requiredObjects.push_back({std::move(object), guardStrength});
+    requiredObjects.push_back(
+        ObjectPlacement{std::move(object), std::move(decoration), guardStrength});
 }
 
-void TemplateZone::addCloseObject(ScenarioObjectPtr&& object, int guardStrength)
+void TemplateZone::addCloseObject(ScenarioObjectPtr&& object,
+                                  DecorationPtr&& decoration,
+                                  int guardStrength)
 {
-    closeObjects.push_back({std::move(object), guardStrength});
+    closeObjects.push_back(
+        ObjectPlacement{std::move(object), std::move(decoration), guardStrength});
 }
 
 // See:
@@ -809,20 +826,7 @@ bool TemplateZone::guardObject(const MapElement& mapElement, int guardStrength, 
         return false;
     }
 
-    // Do not place obstacles around unguarded object
     if (addStack(guardTile, guardStrength, false, zoneGuard)) {
-        for (const auto& tile : tiles) {
-            if (mapGenerator->isPossible(tile) && mapGenerator->getZoneId(tile) == id) {
-                mapGenerator->setOccupied(tile, TileType::Blocked);
-            }
-        }
-
-        mapGenerator->foreachNeighbor(guardTile, [this](Position& pos) {
-            if (mapGenerator->isPossible(pos) && mapGenerator->getZoneId(pos) == id) {
-                mapGenerator->setOccupied(pos, TileType::Free);
-            }
-        });
-
         mapGenerator->setOccupied(guardTile, TileType::Used);
     } else {
         // Allow no guard or other object in front of this object
@@ -1151,6 +1155,10 @@ bool TemplateZone::addStack(const Position& position,
                             bool clearSurroundingTiles,
                             bool zoneGuard)
 {
+    if (strength == 0) {
+        return false;
+    }
+
     auto stack{createStack(strength)};
 
     stack->setOwner(mapGenerator->getNeutralPlayerId());
@@ -1598,7 +1606,8 @@ void TemplateZone::placeMerchants()
             merchant->addItem(item.itemId, static_cast<std::uint32_t>(amount));
         }
 
-        addRequiredObject(std::move(merchant));
+        auto merchantPtr{merchant.get()};
+        addRequiredObject(std::move(merchant), std::make_unique<SiteDecoration>(merchantPtr));
     }
 }
 
@@ -1651,7 +1660,8 @@ void TemplateZone::placeMages()
             mage->addSpell(spell);
         }
 
-        addRequiredObject(std::move(mage));
+        auto sitePtr{mage.get()};
+        addRequiredObject(std::move(mage), std::make_unique<SiteDecoration>(sitePtr));
     }
 }
 
@@ -1706,7 +1716,8 @@ void TemplateZone::placeMercenaries()
             mercenary->addUnit(unit.unitId, unit.level, unit.unique);
         }
 
-        addRequiredObject(std::move(mercenary));
+        auto mercPtr{mercenary.get()};
+        addRequiredObject(std::move(mercenary), std::make_unique<SiteDecoration>(mercPtr));
     }
 }
 
@@ -1758,15 +1769,17 @@ void TemplateZone::placeRuins()
         unit->setHp(200);
         mapGenerator->insertObject(std::move(unit));
 
-        addRequiredObject(std::move(ruin));
+        auto ruinPtr{ruin.get()};
+        addRequiredObject(std::move(ruin), std::make_unique<RuinDecoration>(ruinPtr));
     }
 }
 
 bool TemplateZone::placeMines()
 {
+    const auto zoneHasOwner{ownerId != emptyId};
     auto nativeResource{mapGenerator->map->getNativeResource(RaceType::Neutral)};
 
-    if (ownerId != emptyId) {
+    if (zoneHasOwner) {
         auto player{mapGenerator->map->find<Player>(ownerId)};
         assert(player != nullptr);
 
@@ -1783,13 +1796,18 @@ bool TemplateZone::placeMines()
 
             crystal->setResourceType(resourceType);
 
+            auto crystalPtr{crystal.get()};
+
             // Only first gold mine and mana crystal are placed close
+            // They are not guarded in player owned zones
             // TODO: not just place them close, but change terrain under them
             // if this is a starting zone
             if (i == 0 && (resourceType == nativeResource || resourceType == ResourceType::Gold)) {
-                addCloseObject(std::move(crystal));
+                addCloseObject(std::move(crystal), std::make_unique<CrystalDecoration>(crystalPtr),
+                               zoneHasOwner ? 0 : 500);
             } else {
-                addRequiredObject(std::move(crystal));
+                addRequiredObject(std::move(crystal),
+                                  std::make_unique<CrystalDecoration>(crystalPtr));
             }
         }
     }
@@ -1862,7 +1880,7 @@ void TemplateZone::placeBags()
             currentValue += itemInfo->value;
         }
 
-        addRequiredObject(std::move(bag), bagValue);
+        addRequiredObject(std::move(bag), nullptr, bagValue);
     }
 }
 
@@ -1870,8 +1888,8 @@ bool TemplateZone::createRequiredObjects()
 {
     std::cout << "Creating required objects\n";
 
-    for (auto& pair : requiredObjects) {
-        auto& object{pair.first};
+    for (auto& requiredObject : requiredObjects) {
+        auto& object{requiredObject.object};
         Position position;
 
         auto mapElement{dynamic_cast<MapElement*>(object.get())};
@@ -1893,9 +1911,14 @@ bool TemplateZone::createRequiredObjects()
 
             if (tryToPlaceObjectAndConnectToPath(*mapElement, position)
                 == ObjectPlacingResult::Success) {
-
                 placeScenarioObject(std::move(object), position);
-                guardObject(*mapElement, pair.second);
+                guardObject(*mapElement, requiredObject.guardStrength);
+
+                if (requiredObject.decoration) {
+                    // If object has decoration, remember it
+                    decorations.push_back(std::move(requiredObject.decoration));
+                }
+
                 break;
             }
         }
@@ -1927,8 +1950,8 @@ bool TemplateZone::createRequiredObjects()
         }
     }
 
-    for (auto& pair : closeObjects) {
-        auto& object{pair.first};
+    for (auto& closeObject : closeObjects) {
+        auto& object{closeObject.object};
 
         auto mapElement{dynamic_cast<MapElement*>(object.get())};
         if (!mapElement) {
@@ -1999,7 +2022,11 @@ bool TemplateZone::createRequiredObjects()
                 auto result{tryToPlaceObjectAndConnectToPath(*mapElement, tile)};
                 if (result == ObjectPlacingResult::Success) {
                     placeScenarioObject(std::move(object), tile);
-                    guardObject(*mapElement, pair.second);
+                    guardObject(*mapElement, closeObject.guardStrength);
+
+                    if (closeObject.decoration) {
+                        decorations.push_back(std::move(closeObject.decoration));
+                    }
 
                     finished = true;
                     break;
@@ -2034,23 +2061,34 @@ bool TemplateZone::findPlaceForObject(const MapElement& mapElement,
                                       int minDistance,
                                       Position& position)
 {
+    return findPlaceForObject(tileInfo, mapElement, minDistance, position);
+}
+
+bool TemplateZone::findPlaceForObject(const std::set<Position>& area,
+                                      const MapElement& mapElement,
+                                      int minDistance,
+                                      Position& position,
+                                      bool findAccessible)
+{
     float bestDistance{0.f};
     bool result{};
 
     auto blockedOffsets{mapElement.getBlockedOffsets()};
 
-    for (const auto& tile : tileInfo) {
+    for (const auto& tile : area) {
         // Avoid borders
         if (mapGenerator->map->isAtTheBorder(mapElement, tile)) {
             continue;
         }
 
-        if (!isAccessibleFromSomewhere(mapElement, tile)) {
-            continue;
-        }
+        if (findAccessible) {
+            if (!isAccessibleFromSomewhere(mapElement, tile)) {
+                continue;
+            }
 
-        if (!isEntranceAccessible(mapElement, tile)) {
-            continue;
+            if (!isEntranceAccessible(mapElement, tile)) {
+                continue;
+            }
         }
 
         const auto& t = mapGenerator->getTile(tile);

@@ -530,10 +530,10 @@ static bool isNeutralLandmark(const CMidgardID& landmarkId)
         CMidgardID{"g000mg0070"},
         // skeletons, should we use them? looks like too frequent..
         CMidgardID{"g000mg0085"},
-        CMidgardID{"g000mg0086"},
-        CMidgardID{"g000mg0087"},
-        CMidgardID{"g000mg0088"},
-        CMidgardID{"g000mg0089"},
+        //CMidgardID{"g000mg0086"},
+        //CMidgardID{"g000mg0087"},
+        //CMidgardID{"g000mg0088"},
+        //CMidgardID{"g000mg0089"},
         CMidgardID{"g000mg0090"},
         // houses
         CMidgardID{"g000mg0091"},
