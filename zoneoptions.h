@@ -2,6 +2,7 @@
 
 #include "enums.h"
 #include "midgardid.h"
+#include "randomgenerator.h"
 #include "zoneid.h"
 #include <array>
 #include <cstdint>
@@ -12,13 +13,6 @@
 struct CityInfo
 {
     std::array<std::uint8_t, 5> cities{}; // City count for each tier
-};
-
-template <typename T>
-struct RandomValue
-{
-    T min{};
-    T max{};
 };
 
 struct RuinInfo

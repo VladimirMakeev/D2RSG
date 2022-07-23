@@ -8,6 +8,13 @@
 #include <thread>
 #include <vector>
 
+template <typename T>
+struct RandomValue
+{
+    T min{};
+    T max{};
+};
+
 using RandI64 = std::function<std::int64_t()>;
 using Rand = std::function<double()>;
 
