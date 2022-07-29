@@ -334,8 +334,11 @@ ASALocalRun/
 # Vim temporary files
 *.swp
 
-# Debug images
-*.png
-
 # Debug scenario files
 *.sg
+
+# Qt build files
+build-*/
+
+# Deploy folder
+deploy/
