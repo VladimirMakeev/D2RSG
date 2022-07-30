@@ -5,6 +5,7 @@
 #include "mapgenerator.h"
 #include "mapgeneratorthread.h"
 #include "image.h"
+#include "version.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QImage>
@@ -14,6 +15,10 @@ MapGeneratorApp::MapGeneratorApp(QWidget *parent) :
     ui(new Ui::MapGeneratorApp)
 {
     ui->setupUi(this);
+
+    ui->aboutLabel->setText(tr("v %1, by mak").arg(VER_PRODUCTVERSION_STR));
+
+    connect(&seedPlaceholderTimer, &QTimer::timeout, this, &MapGeneratorApp::seedPlaceholderUpdate);
 
     disableButtons();
 }
@@ -38,6 +43,12 @@ void MapGeneratorApp::onScenarioMapGenerated(Map *scenarioMap, const QString &er
     ui->saveScenarioButtom->setEnabled(true);
     // Update zone and contents images
     updatePreviewImages();
+}
+
+void MapGeneratorApp::seedPlaceholderUpdate()
+{
+    ui->seedEdit->setPlaceholderText(QString("%1").arg(std::time(nullptr)));
+
 }
 
 void MapGeneratorApp::on_gameFolderButton_clicked()
@@ -108,7 +119,9 @@ void MapGeneratorApp::disableButtons(bool forGeneration)
         ui->seedEdit->clear();
     }
 
+    seedPlaceholderTimer.stop();
     ui->seedEdit->setEnabled(false);
+
     ui->generateButton->setEnabled(false);
     disableRadioButtons(forGeneration);
 }
@@ -136,7 +149,10 @@ void MapGeneratorApp::enableButtons()
 {
     ui->gameFolderButton->setEnabled(true);
     ui->scenarioTemplateButton->setEnabled(true);
+
     ui->seedEdit->setEnabled(true);
+    seedPlaceholderTimer.start(seedPlaceholderUpdateTime);
+
     ui->generateButton->setEnabled(true);
     restoreRadioButtonStates();
 }
@@ -248,25 +264,38 @@ void MapGeneratorApp::updatePreviewImages()
 
             // clang-format off
             static const RgbColor colors[] = {
-                RgbColor{255, 0, 0}, // red
-                RgbColor{0, 255, 0}, // green
-                RgbColor{0, 0, 255}, // blue
-                RgbColor{255, 255, 255}, // white
-                RgbColor{0, 0, 0}, // black
-                RgbColor{127, 127, 127}, // gray
-                RgbColor{255, 255, 0}, // yellow
-                RgbColor{0, 255, 255}, // cyan
-                RgbColor{255, 0, 255}, // magenta
-                RgbColor{255, 153, 0}, // orange
-                RgbColor{0, 158, 10}, // dark green
-                RgbColor{0, 57, 158}, // dark blue
+                RgbColor{255, 0, 0},        // red
+                RgbColor{0, 255, 0},        // green
+                RgbColor{0, 0, 255},        // blue
+                RgbColor{255, 255, 255},    // white
+                RgbColor{0, 0, 0},          // black
+                RgbColor{127, 127, 127},    // gray
+                RgbColor{255, 255, 0},      // yellow
+                RgbColor{0, 255, 255},      // cyan
+                RgbColor{255, 0, 255},      // magenta
+                RgbColor{255, 153, 0},      // orange
+                RgbColor{127, 0, 0},        // dark red
+                RgbColor{0, 127, 0},        // dark green
+                RgbColor{0, 0, 127},        // dark blue
+                RgbColor{64, 64, 64},       // dark gray
+                RgbColor{127, 127, 0},      // dark yellow
+                RgbColor{0, 127, 127},      // dark cyan
+                RgbColor{127, 0, 127},      // violet
+                RgbColor{127, 64, 0},       // brown
             };
             // clang-format on
 
             const std::size_t index = i + width * j;
 
             const auto zoneId{generator->zoneColoring[generator->posToIndex(pos)]};
-            pixels[index] = colors[zoneId];
+
+            if (zoneId < std::size(colors)) {
+                pixels[index] = colors[zoneId];
+            }
+            else {
+                std::uint8_t c = 32 + 10 * (zoneId - std::size(colors));
+                pixels[index] = RgbColor(c, c, c);
+            }
 
             auto& tile{generator->tiles[generator->posToIndex(pos)]};
 
@@ -316,6 +345,9 @@ void MapGeneratorApp::on_scenarioTemplateButton_clicked()
     ui->scenarioTemplateEdit->setText(filepath);
     // Allow user to select generator seed
     ui->seedEdit->setEnabled(true);
+    // Update seedEdit placeholder text with seed of current time
+    seedPlaceholderTimer.start(seedPlaceholderUpdateTime);
+
     // Allow user to select scenario size
     updateRadioButtons();
     // Allow user to generate scenario

@@ -3,9 +3,10 @@
 
 #include "maptemplate.h"
 #include "mapgenerator.h"
-#include <QWidget>
 #include <filesystem>
 #include <memory>
+#include <QWidget>
+#include <QTimer>
 
 namespace Ui {
 class MapGeneratorApp;
@@ -21,6 +22,8 @@ public:
 
 public slots:
     void onScenarioMapGenerated(Map* scenarioMap, const QString& error);
+    void seedPlaceholderUpdate();
+
 
 private slots:
     void on_gameFolderButton_clicked();
@@ -54,6 +57,9 @@ private:
     void updatePreviewImages();
 
     Ui::MapGeneratorApp *ui;
+
+    QTimer seedPlaceholderTimer;
+    int seedPlaceholderUpdateTime{1000};
 
     using MapTemplatePtr = std::unique_ptr<MapTemplate>;
     MapTemplatePtr mapTemplate;
