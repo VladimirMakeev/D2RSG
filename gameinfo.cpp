@@ -172,6 +172,10 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
             continue;
         }
 
+        if (value == 0) {
+            continue;
+        }
+
         auto& pair{it->second};
 
         auto info{std::make_unique<UnitInfo>(unitId, level, value, unitType,
@@ -252,6 +256,11 @@ bool readItemsInfo(const std::filesystem::path& globalsFolderPath)
         int value{std::atoi(buf)};
 
         auto itemType{static_cast<ItemType>(type)};
+
+        if (itemType == ItemType::Talisman) {
+            // Talisman value is specified for a single charge, adjust it
+            value *= 5;
+        }
 
         auto info{std::make_unique<ItemInfo>(itemId, value, itemType)};
 
