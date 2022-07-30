@@ -39,6 +39,8 @@ private:
 
     Position coords(const VPosition& p) const;
 
+    float metric(const Position& a, const Position& b) const;
+
     float getDistance(float distance) const
     {
         return distance ? distance * distance : 1e-6f;
