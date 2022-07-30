@@ -358,9 +358,9 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     options->id = readValue(zone, "id", -1, 0);
     options->type = zone.get<TemplateZoneType>("type");
     options->size = readValue(zone, "size", 1, 1);
-    options->monsterStrength = zone.get<MonsterStrength>("monsters");
-    options->terrainTypes = zone.get<decltype(options->terrainTypes)>("terrains");
-    options->groundTypes = zone.get<decltype(options->groundTypes)>("grounds");
+    // options->monsterStrength = zone.get<MonsterStrength>("monsters");
+    // options->terrainTypes = zone.get<decltype(options->terrainTypes)>("terrains");
+    // options->groundTypes = zone.get<decltype(options->groundTypes)>("grounds");
 
     auto mines = zone.get<OptionalTable>("mines");
     if (mines.has_value()) {
