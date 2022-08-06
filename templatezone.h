@@ -95,10 +95,12 @@ struct TemplateZone : public ZoneOptions
                                                          const Position& position);
     void addRequiredObject(ScenarioObjectPtr&& object,
                            DecorationPtr&& decoration = nullptr,
-                           int guardStrength = 500);
+                           int guardStrength = 500,
+                           const Position& objectSize = Position{-1, -1});
     void addCloseObject(ScenarioObjectPtr&& object,
                         DecorationPtr&& decoration = nullptr,
-                        int guardStrength = 500);
+                        int guardStrength = 500,
+                        const Position& objectSize = Position{-1, -1});
 
     void placeScenarioObject(ScenarioObjectPtr&& object, const Position& position);
 
@@ -214,6 +216,7 @@ private:
     {
         ScenarioObjectPtr object;
         DecorationPtr decoration;
+        Position objectSize{-1, -1};
         int guardStrength{};
     };
 

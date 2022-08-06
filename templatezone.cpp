@@ -422,18 +422,20 @@ ObjectPlacingResult TemplateZone::tryToPlaceObjectAndConnectToPath(MapElement& m
 
 void TemplateZone::addRequiredObject(ScenarioObjectPtr&& object,
                                      DecorationPtr&& decoration,
-                                     int guardStrength)
+                                     int guardStrength,
+                                     const Position& objectSize)
 {
     requiredObjects.push_back(
-        ObjectPlacement{std::move(object), std::move(decoration), guardStrength});
+        ObjectPlacement{std::move(object), std::move(decoration), objectSize, guardStrength});
 }
 
 void TemplateZone::addCloseObject(ScenarioObjectPtr&& object,
                                   DecorationPtr&& decoration,
-                                  int guardStrength)
+                                  int guardStrength,
+                                  const Position& objectSize)
 {
     closeObjects.push_back(
-        ObjectPlacement{std::move(object), std::move(decoration), guardStrength});
+        ObjectPlacement{std::move(object), std::move(decoration), objectSize, guardStrength});
 }
 
 // See:
@@ -1802,16 +1804,20 @@ bool TemplateZone::placeMines()
 
             auto crystalPtr{crystal.get()};
 
+            // Place crystals so they have at least 1 tile between them and nearby obstacle,
+            // excluding decorations
+            const Position crystalSize{3, 3};
             // Only first gold mine and mana crystal are placed close
             // They are not guarded in player owned zones
             if (i == 0 && (resourceType == nativeResource || resourceType == ResourceType::Gold)) {
                 addCloseObject(std::move(crystal),
                                std::make_unique<CapturedCrystalDecoration>(crystalPtr,
                                                                            crystalTerrain),
-                               zoneHasOwner ? 0 : 500);
+                               zoneHasOwner ? 0 : 500, crystalSize);
             } else {
                 addRequiredObject(std::move(crystal),
-                                  std::make_unique<CrystalDecoration>(crystalPtr));
+                                  std::make_unique<CrystalDecoration>(crystalPtr), 500,
+                                  crystalSize);
             }
         }
     }
@@ -1907,10 +1913,18 @@ bool TemplateZone::createRequiredObjects()
             const auto sizeSquared{elementSize * elementSize};
             // TODO: move this setting into template for better object placement ?
             const auto minDistance{elementSize * 2};
+            // Find place for object using required object size
+            const auto& objectSize{requiredObject.objectSize};
 
-            if (!findPlaceForObject(*mapElement, minDistance, position)) {
+            if (!findPlaceForObject(objectSize.isValid() ? MapElement{objectSize} : *mapElement,
+                                    minDistance, position)) {
                 std::cerr << "Failed to fill zone " << id << " due to lack of space\n";
                 return false;
+            }
+
+            // If specific size was requested, place object at the center of found area
+            if (objectSize.isValid()) {
+                position += objectSize / 2;
             }
 
             if (tryToPlaceObjectAndConnectToPath(*mapElement, position)
@@ -1963,7 +1977,12 @@ bool TemplateZone::createRequiredObjects()
             return false;
         }
 
-        const auto tilesBlockedByObject{mapElement->getBlockedOffsets()};
+        // Find place for object using required object size
+        const auto& objectSize{closeObject.objectSize};
+        const MapElement requiredMapElement = objectSize.isValid() ? MapElement{objectSize}
+                                                                   : *mapElement;
+
+        const auto tilesBlockedByObject{requiredMapElement.getBlockedOffsets()};
 
         bool finished{};
         bool attempt{true};
@@ -1974,12 +1993,12 @@ bool TemplateZone::createRequiredObjects()
             // New tiles vector after each object has been placed,
             // OR misplaced area has been sealed off
 
-            auto eraseFunc = [this, mapElement](Position& tile) {
+            auto eraseFunc = [this, &requiredMapElement](Position& tile) {
                 // Object must be accessible from at least one surounding
                 // tile and must not be at the border of the map
                 return mapGenerator->map->isAtTheBorder(tile)
-                       || mapGenerator->map->isAtTheBorder(*mapElement, tile)
-                       || !isAccessibleFromSomewhere(*mapElement, tile);
+                       || mapGenerator->map->isAtTheBorder(requiredMapElement, tile)
+                       || !isAccessibleFromSomewhere(requiredMapElement, tile);
             };
 
             tiles.erase(std::remove_if(tiles.begin(), tiles.end(), eraseFunc), tiles.end());
@@ -2017,15 +2036,21 @@ bool TemplateZone::createRequiredObjects()
 
             for (const auto& tile : tiles) {
                 // Code partially adapted from findPlaceForObject()
-                if (!areAllTilesAvailable(*mapElement, tile, tilesBlockedByObject)) {
+                if (!areAllTilesAvailable(requiredMapElement, tile, tilesBlockedByObject)) {
                     continue;
                 }
 
                 attempt = true;
 
-                auto result{tryToPlaceObjectAndConnectToPath(*mapElement, tile)};
+                Position position = tile;
+                // If specific size was requested, place object at the center of found area
+                if (objectSize.isValid()) {
+                    position += objectSize / 2;
+                }
+
+                auto result{tryToPlaceObjectAndConnectToPath(*mapElement, position)};
                 if (result == ObjectPlacingResult::Success) {
-                    placeScenarioObject(std::move(object), tile);
+                    placeScenarioObject(std::move(object), position);
                     guardObject(*mapElement, closeObject.guardStrength);
 
                     if (closeObject.decoration) {
@@ -2110,11 +2135,6 @@ bool TemplateZone::findPlaceForObject(const std::set<Position>& area,
                 result = true;
             }
         }
-    }
-
-    // Block found tile
-    if (result) {
-        mapGenerator->setOccupied(position, TileType::Blocked);
     }
 
     return result;
