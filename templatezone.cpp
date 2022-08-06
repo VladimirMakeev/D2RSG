@@ -1375,6 +1375,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
     }
 
     stack->setMove(leaderInfo->move);
+    stack->setFacing((int)rand.getInt64Range(0, 7)());
 
     return std::move(stack);
 }
