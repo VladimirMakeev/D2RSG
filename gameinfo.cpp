@@ -1,8 +1,10 @@
 #include "gameinfo.h"
 #include "containers.h"
 #include "dbf.h"
+#include <cassert>
 #include <iostream>
 #include <set>
+#include <stdexcept>
 
 static UnitsInfo unitsInfo{};
 static UnitInfoArray leaders{};
@@ -20,6 +22,8 @@ static LandmarksInfo landmarksInfo;
 static std::map<LandmarkType, LandmarkInfoArray> landmarksByType;
 static std::map<RaceType, LandmarkInfoArray> landmarksByRace;
 static LandmarkInfoArray mountainLandmarks;
+
+static RacesInfo racesInfo;
 
 const UnitsInfo& getUnitsInfo()
 {
@@ -667,6 +671,99 @@ bool readLandmarksInfo(const std::filesystem::path& globalsFolderPath)
 
         landmarksByType[landmarkType].push_back(info.get());
         landmarksInfo[landmarkId] = std::move(info);
+    }
+
+    return true;
+}
+
+const RacesInfo& getRacesInfo()
+{
+    return racesInfo;
+}
+
+const RaceInfo& getRaceInfo(RaceType raceType)
+{
+    for (const auto& pair : racesInfo) {
+        if (pair.second->raceType == raceType) {
+            return *pair.second.get();
+        }
+    }
+
+    assert(false);
+    throw std::runtime_error("Could not find race info by race type");
+}
+
+bool readRacesInfo(const std::filesystem::path& globalsFolderPath)
+{
+    racesInfo.clear();
+
+    Dbf racesDb{globalsFolderPath / "Grace.dbf"};
+    if (!racesDb) {
+        std::cerr << "Could not open Grace.dbf\n";
+        return false;
+    }
+
+    auto readId = [](const Dbf::Record& record, const char* column, CMidgardID& id) {
+        std::string_view idString{};
+        if (!record.value(idString, column)) {
+            return false;
+        }
+
+        CMidgardID tmpId{idString.data()};
+        if (tmpId == invalidId) {
+            return false;
+        }
+
+        id = tmpId;
+        return true;
+    };
+
+    for (const auto& record : racesDb) {
+        if (record.deleted()) {
+            continue;
+        }
+
+        CMidgardID raceId;
+        if (!readId(record, "RACE_ID", raceId)) {
+            continue;
+        }
+
+        CMidgardID guardId;
+        if (!readId(record, "GUARDIAN", guardId)) {
+            continue;
+        }
+
+        CMidgardID nobleId;
+        if (!readId(record, "NOBLE", nobleId)) {
+            continue;
+        }
+
+        bool failed{};
+        std::array<CMidgardID, 4> leaderIds;
+        for (std::size_t i = 0; i < std::size(leaderIds); ++i) {
+            char name[9] = {'L', 'E', 'A', 'D', 'E', 'R', '_', '1' + (char)i, 0};
+
+            if (!readId(record, name, leaderIds[i])) {
+                failed = true;
+                break;
+            }
+        }
+
+        if (failed) {
+            continue;
+        }
+
+        int type;
+        if (!record.value(type, "RACE_TYPE")) {
+            continue;
+        }
+
+        const auto raceType{static_cast<RaceType>(type)};
+
+        auto raceInfo{std::make_unique<RaceInfo>(raceId, guardId, nobleId, raceType)};
+        raceInfo->leaderIds.swap(leaderIds);
+
+        racesInfo[raceId] = std::move(raceInfo);
     }
 
     return true;

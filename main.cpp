@@ -17,6 +17,10 @@ int main(int argc, char* argv[])
     const std::filesystem::path gameFolder{argv[2]};
     const auto globalsFolder{gameFolder / "Globals"};
 
+    if (!readRacesInfo(globalsFolder)) {
+        return 1;
+    }
+
     if (!readUnitsInfo(globalsFolder)) {
         return 1;
     }
@@ -33,7 +37,13 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    auto mapSeed{/*std::time(nullptr)*/ std::time_t(1656538751)};
+#if 0
+    std::time_t mapSeed{std::time(nullptr)};
+#else
+    // std::time_t(/*1656538751*/ 1659178091)
+    std::time_t mapSeed = std::time_t(/*1659202294*/ 1659802826);
+#endif
+
     const auto seedString{std::to_string(mapSeed)};
 
     MapGenOptions options;
@@ -79,6 +89,7 @@ int main(int argc, char* argv[])
                         RgbColor{255, 153, 0}, // orange
                         RgbColor{0, 158, 10}, // dark green
                         RgbColor{0, 57, 158}, // dark blue
+                        RgbColor{158, 57, 0}, // dark red
                     };
                     // clang-format on
 

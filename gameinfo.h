@@ -3,6 +3,7 @@
 #include "enums.h"
 #include "midgardid.h"
 #include "position.h"
+#include <array>
 #include <filesystem>
 #include <map>
 #include <memory>
@@ -150,3 +151,32 @@ const LandmarkInfoArray& getLandmarks(RaceType raceType);
 const LandmarkInfoArray& getMountainLandmarks();
 
 bool readLandmarksInfo(const std::filesystem::path& globalsFolderPath);
+
+struct RaceInfo
+{
+    RaceInfo(const CMidgardID& raceId,
+             const CMidgardID& guardianId,
+             const CMidgardID& nobleId,
+             RaceType raceType)
+        : raceId{raceId}
+        , guardianId{guardianId}
+        , nobleId{nobleId}
+        , raceType{raceType}
+    { }
+
+    CMidgardID raceId;
+    CMidgardID guardianId;
+    CMidgardID nobleId;
+    std::array<CMidgardID, 4> leaderIds;
+    RaceType raceType;
+};
+
+using RaceInfoPtr = std::unique_ptr<RaceInfo>;
+using RacesInfo = std::map<CMidgardID /* race id */, RaceInfoPtr>;
+
+// Returns all races known to map generator
+const RacesInfo& getRacesInfo();
+// Returns race info for specified race type
+const RaceInfo& getRaceInfo(RaceType raceType);
+
+bool readRacesInfo(const std::filesystem::path& globalsFolderPath);
