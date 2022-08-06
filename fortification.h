@@ -77,6 +77,16 @@ public:
         description = value;
     }
 
+    bool addUnit(const CMidgardID& unitId, std::size_t position, bool bigUnit = false)
+    {
+        return group.addUnit(unitId, position, bigUnit);
+    }
+
+    bool removeUnit(const CMidgardID& unitId, bool bigUnit = false)
+    {
+        return group.removeUnit(unitId, bigUnit);
+    }
+
 protected:
     Fortification(const CMidgardID& fortificationId, const Position& size)
         : ScenarioObject(fortificationId)
