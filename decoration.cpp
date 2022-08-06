@@ -330,7 +330,33 @@ std::set<Position> CrystalDecoration::getArea(TemplateZone& zone,
                                               Map& map,
                                               Rng& rand)
 {
-    return getMapElementArea(*crystal, 1, 1, zone, mapGenerator, map, rand);
+    const MapElement& mapElement{*crystal};
+    const int gapSizeX{1};
+    const int gapSizeY{1};
+
+    const auto& startPos{mapElement.getPosition()};
+    const auto& size{mapElement.getSize()};
+    const auto endPos{startPos + size};
+
+    auto blocked{mapElement.getBlockedPositions()};
+
+    std::set<Position> decorationsArea;
+    for (int x = startPos.x - gapSizeX; x < endPos.x + gapSizeX; ++x) {
+        for (int y = startPos.y - gapSizeY; y < endPos.y + gapSizeY; ++y) {
+            Position tile{x, y};
+            if (contains(blocked, tile)) {
+                continue;
+            }
+
+            if (!map.isInTheMap(tile) || !mapGenerator.isPossible(tile)) {
+                continue;
+            }
+
+            decorationsArea.insert(tile);
+        }
+    }
+
+    return decorationsArea;
 }
 
 RaceType CrystalDecoration::getLandmarksRace(TemplateZone&, MapGenerator&, Map&, Rng&)
