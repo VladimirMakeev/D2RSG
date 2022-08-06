@@ -384,22 +384,6 @@ int Map::getSubRaceBanner(SubRaceType subrace) const
     }
 }
 
-const CMidgardID& Map::getStartingLeaderImplId(RaceType race) const
-{
-    // clang-format off
-    static const std::array<CMidgardID, (size_t)RaceType::Total> leaderIds = {{
-            CMidgardID{"G000UU0019"},
-            CMidgardID{"G000UU0096"},
-            CMidgardID{"G000UU0070"},
-            CMidgardID{"G000UU0044"},
-            emptyId,
-            CMidgardID{"G000UU8009"},
-        }};
-    // clang-format on
-
-    return leaderIds[static_cast<std::size_t>(race)];
-}
-
 TerrainType Map::getRaceTerrain(RaceType race) const
 {
     switch (race) {

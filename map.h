@@ -113,8 +113,6 @@ public:
     SubRaceType getSubRaceType(RaceType race) const;
     // Returns banner for specified subrace
     int getSubRaceBanner(SubRaceType subrace) const;
-    // Returns leader implId for specified race
-    const CMidgardID& getStartingLeaderImplId(RaceType race) const;
     // Returns terrain type for specified race
     TerrainType getRaceTerrain(RaceType race) const;
     // Returns native (preferred) resource type for specified race

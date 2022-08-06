@@ -106,18 +106,36 @@ void TemplateZone::initTowns()
 
         auto playerRace{mapGenerator->getRaceType(ownerPlayer->getRace())};
 
+        const auto& raceInfo{getRaceInfo(playerRace)};
+        const auto& unitsInfo{getUnitsInfo()};
+        const auto* guardianInfo{unitsInfo.find(raceInfo.guardianId)->second.get()};
+        assert(guardianInfo);
+
+        // Add capital guardian
+        auto guardianId{mapGenerator->createId(CMidgardID::Type::Unit)};
+        auto guardian{std::make_unique<Unit>(guardianId)};
+        guardian->setImplId(guardianInfo->unitId);
+        guardian->setHp(guardianInfo->hitPoints);
+
+        mapGenerator->insertObject(std::move(guardian));
+        auto guardianAdded{fort->addUnit(guardianId, 3, guardianInfo->bigUnit)};
+        assert(guardianAdded);
+
+        const auto* leaderInfo{unitsInfo.find(raceInfo.leaderIds[0])->second.get()};
+        assert(leaderInfo);
+
         // Create starting leader unit
         auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
         auto leader{std::make_unique<Unit>(leaderId)};
-        leader->setImplId(mapGenerator->map->getStartingLeaderImplId(playerRace));
-        leader->setHp(150);
+        leader->setImplId(leaderInfo->unitId);
+        leader->setHp(leaderInfo->hitPoints);
         leader->setName("Leader");
         mapGenerator->insertObject(std::move(leader));
 
         // Create starting stack
         auto stackId{mapGenerator->createId(CMidgardID::Type::Stack)};
         auto stack{std::make_unique<Stack>(stackId)};
-        auto leaderAdded{stack->addLeader(leaderId, 2)};
+        auto leaderAdded{stack->addLeader(leaderId, 2, leaderInfo->bigUnit)};
         assert(leaderAdded);
         stack->setInside(capitalId);
         stack->setMove(20);
