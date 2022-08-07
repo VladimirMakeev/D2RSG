@@ -11,6 +11,9 @@ template = {
 	-- Percentage of road tiles covered with actual roads
 	roads = 45,
 
+	-- Starting players gold
+	startingGold = 500,
+
 	zones = {
 		{
 			-- Empire starting zone

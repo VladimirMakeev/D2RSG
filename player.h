@@ -63,6 +63,16 @@ public:
         lordId = id;
     }
 
+    Currency& getBank()
+    {
+        return bank;
+    }
+
+    const Currency& getBank() const
+    {
+        return bank;
+    }
+
     const char* rawName() const override
     {
         return ".?AVCMidPlayer@@";

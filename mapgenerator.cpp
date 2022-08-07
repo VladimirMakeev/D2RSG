@@ -21,6 +21,10 @@ std::pair<CMidgardID, CMidgardID> MapGenerator::createPlayer(RaceType race)
     player->setRace(getRaceId(race));
     player->setLord(getLordId(race));
 
+    if (race != RaceType::Neutral) {
+        player->getBank().set(Currency::Type::Gold, mapGenOptions.mapTemplate->startingGold);
+    }
+
     // Create fog, knownSpells and buildings.
     // They are necessary for each player
     auto fogId{createId(CMidgardID::Type::Fog)};
