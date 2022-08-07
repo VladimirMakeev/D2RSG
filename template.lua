@@ -3,10 +3,13 @@
 template = {
 	name = "Test template",
 	minSize = 48,
-	maxSize = 72,
+	maxSize = 120,
 	
 	-- Races available on this template
 	races = {Race.Human, Race.Undead},
+
+	-- Percentage of road tiles covered with actual roads
+	roads = 45,
 
 	zones = {
 		{

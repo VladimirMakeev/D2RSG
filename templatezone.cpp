@@ -361,6 +361,10 @@ void TemplateZone::createObstacles()
         }
     }
 
+    // TODO: this step can be changed, we can place forests here, for example
+    // Roads already have clear free paths for them,
+    // we can convert remaining possible tiles to forests
+
     // Cleanup, remove unused possible tiles to make space for roads
     for (auto& tile : tileInfo) {
         if (mapGenerator->isPossible(tile)) {
@@ -2301,23 +2305,9 @@ void TemplateZone::paintZoneTerrain(TerrainType terrain, GroundType ground)
     mapGenerator->paintTerrain(tiles, terrain, ground);
 }
 
-std::set<Position> TemplateZone::getRoads() const
+const std::vector<RoadInfo>& TemplateZone::getRoads() const
 {
-    std::set<Position> tiles;
-    for (const auto& tile : roads) {
-        if (mapGenerator->map->isInTheMap(tile)) {
-            tiles.insert(tile);
-        }
-    }
-
-    for (const auto& tile : roadNodes) {
-        // Mark roads for our nodes, but not for zone guards in other zones
-        if (mapGenerator->getZoneId(tile) == id) {
-            tiles.insert(tile);
-        }
-    }
-
-    return tiles;
+    return roads;
 }
 
 bool TemplateZone::createRoad(const Position& source, const Position& destination)
@@ -2342,6 +2332,10 @@ bool TemplateZone::createRoad(const Position& source, const Position& destinatio
     distances[source] = 0.f;
     // Cost from start along best known path
 
+    RoadInfo road;
+    road.source = source;
+    road.destination = destination;
+
     while (!queue.empty()) {
         auto node{queue.top()};
         queue.pop();
@@ -2355,11 +2349,12 @@ bool TemplateZone::createRoad(const Position& source, const Position& destinatio
             Position backtracking{currentNode};
             while (cameFrom[backtracking].isValid()) {
                 // Add node to path
-                roads.insert(backtracking);
+                road.path.push({backtracking, distances[backtracking]});
                 mapGenerator->setRoad(backtracking, true);
                 backtracking = cameFrom[backtracking];
             }
 
+            roads.push_back(road);
             return true;
         }
 

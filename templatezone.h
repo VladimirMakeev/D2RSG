@@ -24,6 +24,25 @@ enum class ObjectPlacingResult
     SealedOff,
 };
 
+// A* priority queue
+using Distance = std::pair<Position, float>;
+struct NodeComparer
+{
+    bool operator()(const Distance& a, const Distance& b) const
+    {
+        return b.second < a.second;
+    }
+};
+
+using PriorityQueue = std::priority_queue<Distance, std::vector<Distance>, NodeComparer>;
+
+struct RoadInfo
+{
+    PriorityQueue path; // Road tiles
+    Position source;
+    Position destination;
+};
+
 // Describes zone in a template
 struct TemplateZone : public ZoneOptions
 {
@@ -190,21 +209,9 @@ struct TemplateZone : public ZoneOptions
 
     void paintZoneTerrain(TerrainType terrain, GroundType ground);
 
-    std::set<Position> getRoads() const;
+    const std::vector<RoadInfo>& getRoads() const;
 
 private:
-    // A* priority queue
-    using Distance = std::pair<Position, float>;
-    struct NodeComparer
-    {
-        bool operator()(const Distance& a, const Distance& b) const
-        {
-            return b.second < a.second;
-        }
-    };
-
-    using PriorityQueue = std::priority_queue<Distance, std::vector<Distance>, NodeComparer>;
-
     bool createRoad(const Position& source, const Position& destination);
 
     MapGenerator* mapGenerator{};
@@ -235,6 +242,7 @@ private:
     std::set<Position> possibleTiles; // For treasure generation
     std::set<Position> freePaths;     // Paths of free tiles that all objects will be linked to
     std::set<Position> roadNodes;     // Tiles to be connected with roads
-    std::set<Position> roads;         // All tiles with roads
-    CMidgardID ownerId{emptyId};      // Player assigned to zone
+
+    std::vector<RoadInfo> roads; // All tiles with roads
+    CMidgardID ownerId{emptyId}; // Player assigned to zone
 };

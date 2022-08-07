@@ -8,6 +8,9 @@
 
 void ZonePlacer::placeZones(RandomGenerator* random)
 {
+    // TODO: Looks like this could help:
+    // https://gamedev.stackexchange.com/questions/101465/how-to-create-a-map-from-graph
+
     std::cout << "Starting zone placement\n";
 
     width = mapGenerator->mapGenOptions.size;

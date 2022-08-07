@@ -172,12 +172,7 @@ void MapGenerator::fillZones()
         it.second->connectRoads();
     }
 
-    std::set<Position> roads;
-    for (auto& it : zones) {
-        roads.merge(it.second->getRoads());
-    }
-
-    createRoads(roads);
+    createRoads();
 }
 
 void MapGenerator::createDirectConnections()
@@ -442,7 +437,80 @@ void MapGenerator::setNearestObjectDistance(const Position& position, float valu
     tiles[posToIndex(position)].setNearestObjectDistance(value);
 }
 
-void MapGenerator::createRoads(const std::set<Position>& roads)
+void MapGenerator::createRoads()
+{
+    const auto roadsPercentage{mapGenOptions.mapTemplate->roads};
+    if (roadsPercentage == 0) {
+        // No roads at all, nothing to do here
+        return;
+    }
+
+    for (const auto& it : zones) {
+        const auto& roads{it.second->getRoads()};
+
+        for (const auto& roadInfo : roads) {
+            std::vector<Position> road;
+            auto path{roadInfo.path};
+
+            if (roadsPercentage == 100) {
+                road.reserve(path.size());
+
+                // All road tiles contains roads
+                while (!path.empty()) {
+                    auto node{path.top()};
+                    path.pop();
+
+                    road.push_back(node.first);
+                }
+            } else {
+                // Create roads with gaps that looks nice.
+                // Split road into several parts and place gap tiles between each part.
+                // Choose sizes of road parts and gaps randomly.
+                const auto roadLength{roadInfo.path.size()};
+
+                const int roadTiles = roadLength * roadsPercentage / 100;
+                const int emptyTiles = roadLength - roadTiles;
+                // 1 gap in the road for each 10 tiles
+                const int gaps{std::max<int>(1, roadLength / 10)};
+
+                const auto gapSizes{constrainedSum(gaps, emptyTiles, randomGenerator)};
+                const auto partsSizes{constrainedSum(gaps + 1, roadTiles, randomGenerator)};
+
+                road.reserve(roadTiles);
+
+                std::size_t index{};
+
+                for (std::size_t i = 0; i < partsSizes.size() && !path.empty(); ++i) {
+                    const auto partSize{partsSizes[i]};
+                    // Remember road parts
+                    for (std::size_t j = 0; j < partSize; ++j) {
+                        auto node{path.top()};
+                        path.pop();
+
+                        road.push_back(node.first);
+                    }
+
+                    // Throw out gap tiles
+                    if (i < gapSizes.size()) {
+                        const auto gapSize{gapSizes[i]};
+
+                        for (std::size_t j = 0; j < gapSize; ++j) {
+                            auto node{path.top()};
+                            // Unmark tile, so createRoad() will not treat it
+                            // as road when picking road image
+                            setRoad(node.first, false);
+                            path.pop();
+                        }
+                    }
+                }
+            }
+
+            createRoad(road);
+        }
+    }
+}
+
+void MapGenerator::createRoad(const std::vector<Position>& roads)
 {
     for (const auto& tile : roads) {
         std::uint8_t index{};
