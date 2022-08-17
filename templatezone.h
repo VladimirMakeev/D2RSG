@@ -16,6 +16,7 @@
 #include <queue>
 
 class MapGenerator;
+struct UnitInfo;
 
 enum class ObjectPlacingResult
 {

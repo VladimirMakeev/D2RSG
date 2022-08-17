@@ -1179,11 +1179,15 @@ bool TemplateZone::addStack(const Position& position,
                             bool clearSurroundingTiles,
                             bool zoneGuard)
 {
-    if (strength == 0) {
+    // If total strength is too low, do not create stack at all
+    if (strength == 0 || strength < getMinLeaderValue()) {
         return false;
     }
 
     auto stack{createStack(strength)};
+    if (!stack) {
+        return false;
+    }
 
     stack->setOwner(mapGenerator->getNeutralPlayerId());
     stack->setSubrace(mapGenerator->getNeutralSubraceId());
@@ -1206,24 +1210,285 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
 {
     auto& rand{mapGenerator->randomGenerator};
 
-    auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
-    auto leader{std::make_unique<Unit>(leaderId)};
+    // Roll number of units
+    int soldiersStrength{strength - getMinLeaderValue()};
 
+    // Determine maximum possible soldier units in stack.
+    // Make sure we do not roll too many soldier units for stack with low strength
+    const int maxUnitsPossible = std::min(5, soldiersStrength / getMinSoldierValue());
+    // Pick how many soldier units will be in stack along with leader.
+    // This will affect leader pick and resulting stack contents
+    int soldiersTotal{(int)rand.getInt64Range(0, maxUnitsPossible)()};
+    // +1 because of leader
+    int unitsTotal = soldiersTotal + 1;
+
+    // do constrained sum to get unit values
+    auto unitValues = constrainedSum(unitsTotal, strength, rand);
+
+    // Positions in group that are free
+    std::set<int> positions{0, 1, 2, 3, 4, 5};
+
+    // pick leader
+    const UnitInfo* leaderInfo{nullptr};
+
+    std::size_t unusedValue{};
+    std::size_t i{};
+    for (; i < unitValues.size(); ++i) {
+        auto value = unitValues[i] + unusedValue;
+        auto minValue = value * 0.65f;
+
+        auto noWrongValue = [minValue, value](const UnitInfo* info) {
+            return info->value < minValue || info->value > value;
+        };
+
+        // TODO: if we have a single leader, do not pick support or ranged unit.
+        // summoners are still allowed
+        leaderInfo = pickLeader(rand, {noPlayableRaces, noWrongValue, noLore});
+        if (leaderInfo) {
+            // Accumulate unused value after picking a leader
+            unusedValue = value - leaderInfo->value;
+            break;
+        }
+
+        // Could not pick leader, try next value and accumulate unused one
+        unusedValue += value;
+    }
+
+    if (!leaderInfo) {
+        std::string msg{"Could not pick stack leader. Stack value: "};
+        msg += std::to_string(strength);
+        msg += ". Units total: ";
+        msg += std::to_string(unitsTotal);
+
+        throw std::runtime_error(msg);
+    }
+
+    std::size_t leaderPosition{2};
+
+    // Find place in group for leader
+    if (leaderInfo->bigUnit) {
+        // Big unit always at front line
+        positions.erase(leaderPosition);
+        positions.erase(leaderPosition + 1);
+    } else if (isSupport(*leaderInfo)) {
+        // Supports are always at back line
+        leaderPosition = 3;
+        positions.erase(leaderPosition);
+    } else if (leaderInfo->reach != ReachType::Adjacent) {
+        // Ranged units at back line
+        leaderPosition = 3;
+        positions.erase(leaderPosition);
+    } else {
+        // Averyone else at front line
+        positions.erase(leaderPosition);
+    }
+
+    const auto zoneHasOwner{ownerId != emptyId};
+    auto& map{mapGenerator->map};
+
+    SubRaceType zoneSubRace{SubRaceType::Neutral};
+
+    if (zoneHasOwner) {
+        auto player{map->find<Player>(ownerId)};
+        assert(player != nullptr);
+
+        zoneSubRace = map->getSubRaceType(map->getRaceType(player->getRace()));
+    }
+
+    std::array<const UnitInfo*, 6> soldiers = {
+        {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
+
+    // Pick soldier units 1 by 1, starting from value that was not used for leader
+    ++i;
+    for (; i < unitValues.size() && !positions.empty(); ++i) {
+        auto value = unitValues[i] + unusedValue;
+        auto minValue = value * 0.75f;
+
+        auto noWrongValue = [minValue, value](const UnitInfo* info) {
+            return info->value < minValue || info->value > value;
+        };
+
+        // Pick random position in group
+        auto position = getRandomItem(positions, rand);
+        // If front line, pick melee only
+        const auto frontline = position % 2 == 0;
+        // Second position in case of big unit
+        const auto secondPosition = frontline ? position + 1 : position - 1;
+        // We can place big unit if front and back line positions are free
+        const auto canPlaceBig = positions.count(position) && positions.count(secondPosition);
+
+        auto filter = [zoneSubRace, canPlaceBig, frontline](const UnitInfo* info) {
+            if (zoneSubRace != SubRaceType::Neutral) {
+                // Do not pick units with the same subrace as in starting zone
+                if (info->subrace == zoneSubRace) {
+                    return true;
+                }
+            }
+
+            if (!canPlaceBig && info->bigUnit) {
+                // Remove big units if we can not place them
+                return true;
+            }
+
+            // We don't care about front or back line and unit attack reach in case of big unit
+            if (canPlaceBig) {
+                return false;
+            }
+
+            if (frontline && info->reach != ReachType::Adjacent) {
+                // Remove ranged units from frontline
+                return true;
+            }
+
+            if (!frontline && info->reach == ReachType::Adjacent) {
+                // Remove melee units from backline
+                return true;
+            }
+
+            return false;
+        };
+
+        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noLore});
+        if (info) {
+            // We picked a unit, update unused value
+            unusedValue = value - info->value;
+
+            if (info->bigUnit) {
+                positions.erase(position);
+                soldiers[position] = info;
+
+                positions.erase(secondPosition);
+                soldiers[secondPosition] = info;
+            } else {
+                // We could have picked big unit, but got a small one.
+                // Check if unit's attack range is optimal for its placement.
+                // We can adjust unit position since second position is empty
+                if (canPlaceBig && frontline && info->reach != ReachType::Adjacent) {
+                    // Small soldier unit at frontline.
+                    position = secondPosition;
+                } else if (canPlaceBig && !frontline && info->reach == ReachType::Adjacent) {
+                    // Small melee unit at backline.
+                    position = secondPosition;
+                }
+
+                positions.erase(position);
+                soldiers[position] = info;
+            }
+        } else {
+            unusedValue += value;
+        }
+    }
+
+    // TODO: this is a code similar to the code above.
+    // Unify it as much as possible and make clean!!!
+
+    // Check if we still have unused value and free positions in group
+    // Tighten stack by rolling additional soldier units
+    // This should help with proper value usage
+    // and reduce number of stacks with single ranged or support leader
+
+    // Start with somewhat relaxed minimum value.
+    // Gradually decrease min value expectation as we struggle to pick units
+    float minValueCoeff{0.55f};
+    // How many times we failed to pick a unit
+    int failedAttempts{0};
+    // How many failed attemts considered as a stop
+    const int totalFails{5};
+    while (failedAttempts < totalFails && !positions.empty()
+           && unusedValue >= getMinSoldierValue()) {
+        auto value = unusedValue;
+
+        auto minValue = value * minValueCoeff;
+
+        auto noWrongValue = [minValue, value](const UnitInfo* info) {
+            return info->value < minValue || info->value > value;
+        };
+
+        auto position = getRandomItem(positions, rand);
+
+        const auto frontline = position % 2 == 0;
+        // Second position in case of big unit
+        const auto secondPosition = frontline ? position + 1 : position - 1;
+        // We can place big unit if front and back line positions are free
+        const auto canPlaceBig = positions.count(position) && positions.count(secondPosition);
+
+        auto filter = [zoneSubRace, canPlaceBig, frontline](const UnitInfo* info) {
+            if (zoneSubRace != SubRaceType::Neutral) {
+                // Do not pick units with the same subrace as in starting zone
+                if (info->subrace == zoneSubRace) {
+                    return true;
+                }
+            }
+
+            if (!canPlaceBig && info->bigUnit) {
+                // Remove big units if we can not place them
+                return true;
+            }
+
+            // We don't care about front or back line and unit attack reach in case of big unit
+            if (canPlaceBig) {
+                return false;
+            }
+
+            if (frontline && info->reach != ReachType::Adjacent) {
+                // Remove ranged units from frontline
+                return true;
+            }
+
+            if (!frontline && info->reach == ReachType::Adjacent) {
+                // Remove melee units from backline
+                return true;
+            }
+
+            return false;
+        };
+
+        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noLore});
+        if (info) {
+            // We picked a unit, update unused value
+            unusedValue = value - info->value;
+            // Reset failed attempts counter
+            failedAttempts = 0;
+
+            if (info->bigUnit) {
+                positions.erase(position);
+                soldiers[position] = info;
+
+                positions.erase(secondPosition);
+                soldiers[secondPosition] = info;
+            } else {
+                // We could have picked big unit, but got a small one.
+                // Check if unit's attack range is optimal for its placement.
+                // We can adjust unit position since second position is empty
+                if (canPlaceBig && frontline && info->reach != ReachType::Adjacent) {
+                    // Small soldier unit at frontline.
+                    position = secondPosition;
+                } else if (canPlaceBig && !frontline && info->reach == ReachType::Adjacent) {
+                    // Small melee unit at backline.
+                    position = secondPosition;
+                }
+
+                positions.erase(position);
+                soldiers[position] = info;
+            }
+        } else {
+            // Could not pick a unit, unused value remains the same
+            // Decrease minValue range, count how many times we failed to pick
+            minValueCoeff = std::max(0.f, minValueCoeff - 0.1f);
+            ++failedAttempts;
+        }
+    }
+
+    // Create stack
     auto stackId{mapGenerator->createId(CMidgardID::Type::Stack)};
     auto stack{std::make_unique<Stack>(stackId)};
 
-    // Roll random number of units in group
-    int unitsTotal{(int)rand.getInt64Range(1, 6)()};
-    // v - average value of 1 unit
-    double v{double(strength) / unitsTotal};
+    stack->setMove(leaderInfo->move);
+    stack->setFacing((int)rand.getInt64Range(0, 7)());
 
-    auto removeWrongValue = [min = v * 0.75, max = v * 1.25](const UnitInfo* info) {
-        return info->value < min || info->value > max;
-    };
-
-    // pick leader from [v * 0.75 : v * 1.25]
-    auto leaderInfo{pickLeader(rand, {noPlayableRaces, removeWrongValue})};
-    assert(leaderInfo != nullptr);
+    // Create leader unit
+    auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
+    auto leader{std::make_unique<Unit>(leaderId)};
 
     leader->setImplId(leaderInfo->unitId);
     leader->setHp(leaderInfo->hitPoints);
@@ -1231,155 +1496,45 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
 
     mapGenerator->insertObject(std::move(leader));
 
-    // If leader is summoner
-    if (leaderInfo->attackType == AttackType::Summon) {
-        // Place leader
-        const std::size_t leaderPosition = leaderInfo->bigUnit ? 2 : 3;
-        auto leaderAdded{stack->addLeader(leaderId, leaderPosition, leaderInfo->bigUnit)};
-        assert(leaderAdded);
+    const auto leaderAdded = stack->addLeader(leaderId, leaderPosition, leaderInfo->bigUnit);
+    assert(leaderAdded);
 
-        // Big summoner, really? Don't add defenders at all, or it will be ineffective
-        if (!leaderInfo->bigUnit) {
-            // Roll 1-2 defender units
-            unitsTotal = rand.chance(50) ? 2 : 1;
-            const bool backLine = unitsTotal == 2 && rand.chance(50);
-
-            // Reconsider single unit value
-            v = (double(strength) - leaderInfo->value) / unitsTotal;
-
-            auto notTooWeak = [v](const UnitInfo* info) {
-                return info->value < v * 0.5;
-            };
-
-            auto notTooStrong = [v](const UnitInfo* info) {
-                return info->value > v;
-            };
-
-            // Pick melee defender within recomputed value
-            auto unit1{
-                pickUnit(rand, {noPlayableRaces, noRanged, notTooWeak, notTooStrong, noBig})};
-
-            if (unit1) {
-                auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
-                auto unit{std::make_unique<Unit>(unitId)};
-                unit->setImplId(unit1->unitId);
-                unit->setHp(unit1->hitPoints);
-
-                // Always place one unit at the front line,
-                // at center if it is a single defender
-                const std::size_t unitPos = unitsTotal == 2 ? 0 : 2;
-
-                auto unitAdded{stack->addUnit(unitId, unitPos, unit1->bigUnit)};
-                assert(unitAdded);
-
-                mapGenerator->insertObject(std::move(unit));
-            }
-
-            // Place second
-            if (unitsTotal == 2) {
-                auto removeMelee = [](const UnitInfo* info) {
-                    return info->reach == ReachType::Adjacent;
-                };
-
-                auto filter = backLine ? noMelee : noRanged;
-                auto unit2{
-                    pickUnit(rand, {noPlayableRaces, filter, notTooWeak, notTooStrong, noBig})};
-
-                if (unit2) {
-                    auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
-                    auto unit{std::make_unique<Unit>(unitId)};
-                    unit->setImplId(unit2->unitId);
-                    unit->setHp(unit2->hitPoints);
-
-                    // Place second defender behind the first one, if backline
-                    // Otherwise, place both nearby at front line and leave room for big summons
-                    const std::size_t unitPos = backLine ? 1 : 2;
-
-                    auto unitAdded{stack->addUnit(unitId, unitPos, unit2->bigUnit)};
-                    assert(unitAdded);
-
-                    mapGenerator->insertObject(std::move(unit));
-                }
-            }
-        }
-    } else {
-        // Free unit positions in stack
-        std::set<std::size_t> positions{0, 1, 2, 3, 4, 5};
-
-        // Leader is not summoner
-        unitsTotal -= leaderInfo->bigUnit ? 2 : 1;
-
-        const int unitStrength{(int)v};
-
-        std::size_t leaderPos{2};
-        if (!leaderInfo->bigUnit && leaderInfo->reach != ReachType::Adjacent) {
-            // Place non-melee small leaders at back line
-            leaderPos = 3;
+    int createdValue = leaderInfo->value;
+    int unitsCreated{1};
+    for (std::size_t position = 0; position < soldiers.size(); ++position) {
+        const auto* unitInfo{soldiers[position]};
+        if (!unitInfo) {
+            continue;
         }
 
-        positions.erase(leaderPos);
-        if (leaderInfo->bigUnit) {
-            positions.erase(leaderPos + 1);
-        }
+        ++unitsCreated;
+        createdValue += unitInfo->value;
 
-        // add leader
-        auto leaderAdded{stack->addLeader(leaderId, leaderPos, leaderInfo->bigUnit)};
-        assert(leaderAdded);
+        // Create unit
+        auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
+        auto unit{std::make_unique<Unit>(unitId)};
+        unit->setImplId(unitInfo->unitId);
+        unit->setLevel(unitInfo->level);
+        unit->setHp(unitInfo->hitPoints);
 
-        // create units
-        for (int i = 0; i < unitsTotal;) {
-            // Leader is at position 2 or 3 or both,
-            // don't even consider these positions as suitable for another big unit
-            const auto allowBigUnits{positions.count(0) || positions.count(4)};
+        // Add it to scenario
+        mapGenerator->insertObject(std::move(unit));
 
-            auto notTooStrong = [unitStrength](const UnitInfo* info) {
-                return info->value > unitStrength;
-            };
+        // Add it to stack
+        auto unitAdded{stack->addUnit(unitId, position, unitInfo->bigUnit)};
+        assert(unitAdded);
 
-            const UnitInfo* unitInfo{allowBigUnits
-                                         ? pickUnit(rand, {noPlayableRaces, notTooStrong})
-                                         : pickUnit(rand, {noPlayableRaces, notTooStrong, noBig})};
-            assert(unitInfo != nullptr);
-
-            // pick position
-            std::size_t position{};
-            if (unitInfo->bigUnit) {
-                // Pick one of the remaining big unit positions
-                if (positions.count(0)) {
-                    position = 0;
-                }
-
-                if (positions.count(4)) {
-                    position = 4;
-                }
-
-                // Remove picked position and next one from available
-                positions.erase(position);
-                positions.erase(position + 1);
-            } else {
-                // pick first available position
-                auto it{positions.begin()};
-                position = *it;
-                // Remove picked position from available
-                positions.erase(it);
-            }
-
-            auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
-            auto unit{std::make_unique<Unit>(unitId)};
-            unit->setImplId(unitInfo->unitId);
-            unit->setHp(unitInfo->hitPoints);
-
-            auto unitAdded{stack->addUnit(unitId, position, unitInfo->bigUnit)};
-            assert(unitAdded);
-
-            mapGenerator->insertObject(std::move(unit));
-
-            i += unitInfo->bigUnit ? 2 : 1;
+        if (unitInfo->bigUnit) {
+            // Skip second part of big unit
+            ++position;
         }
     }
 
-    stack->setMove(leaderInfo->move);
-    stack->setFacing((int)rand.getInt64Range(0, 7)());
+#if 0
+    std::cout << "Stack value " << strength << ", created " << createdValue << ", unused "
+              << strength - createdValue << ". Units " << unitsTotal << ", created " << unitsCreated
+              << '\n';
+#endif
 
     return std::move(stack);
 }
