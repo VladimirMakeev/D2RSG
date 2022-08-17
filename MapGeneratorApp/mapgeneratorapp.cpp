@@ -85,7 +85,8 @@ bool MapGeneratorApp::readGameInfo(const std::filesystem::path &gameFolder)
         return false;
     }
 
-    return readUnitsInfo(globalsFolder)
+    return readRacesInfo(globalsFolder)
+           && readUnitsInfo(globalsFolder)
            && readItemsInfo(globalsFolder)
            && readSpellsInfo(globalsFolder)
            && readLandmarksInfo(globalsFolder);
