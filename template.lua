@@ -24,6 +24,7 @@ template = {
 
 			terrains = {Terrain.Neutral, Terrain.Human},
 			grounds = {Ground.Plain, Ground.Forest},
+
 			mines = {
 				gold = 1,
 				lifeMana = 1,
@@ -35,9 +36,9 @@ template = {
 
 			stacks = {
 				-- Total stacks value
-				value = { min = 1500, max = 2500 },
+				value = { min = 2000, max = 2500 },
 				-- Stacks count
-				count = 10,
+				count = 20,
 			},
 
 			merchants = {
@@ -71,6 +72,7 @@ template = {
 
 			terrains = {Terrain.Neutral, Terrain.Undead},
 			grounds = {Ground.Plain, Ground.Forest},
+
 			mines = {
 				gold = 1,
 				deathMana = 1,
@@ -83,9 +85,9 @@ template = {
 
 			stacks = {
 				-- Total stacks value
-				value = { min = 1500, max = 2500 },
+				value = { min = 2000, max = 2500 },
 				-- Stacks count
-				count = 10,
+				count = 20,
 			},
 
 			merchants = {
@@ -115,6 +117,7 @@ template = {
 
 			terrains = {Terrain.Neutral, Terrain.Undead},
 			grounds = {Ground.Plain, Ground.Forest},
+
 			mines = {
 				gold = 3,
 				infernalMana = 2,
@@ -242,6 +245,7 @@ template = {
 
 			terrains = {Terrain.Neutral, Terrain.Undead},
 			grounds = {Ground.Plain, Ground.Forest},
+
 			mines = {
 				gold = 2,
 				infernalMana = 0,
@@ -278,6 +282,7 @@ template = {
 
 			terrains = {Terrain.Neutral, Terrain.Undead},
 			grounds = {Ground.Plain, Ground.Forest},
+
 			mines = {
 				gold = 2,
 				infernalMana = 1,
