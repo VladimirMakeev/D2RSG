@@ -68,6 +68,8 @@ int getMinSoldierValue();
 // Returns maximal soldier unit value known to map generator
 int getMaxSoldierValue();
 
+bool isSupport(const UnitInfo& info);
+
 bool readUnitsInfo(const std::filesystem::path& globalsFolderPath);
 
 // Brief information about items from GItem and LmagItm.dbf

@@ -67,6 +67,28 @@ int getMaxSoldierValue()
     return maxSoldierValue;
 }
 
+bool isSupport(const UnitInfo& info)
+{
+    switch (info.attackType) {
+    case AttackType::BestowWards:
+    case AttackType::BoostDamage:
+    case AttackType::Cure:
+    case AttackType::DrainLevel:
+    case AttackType::Fear:
+    case AttackType::GiveAttack:
+    case AttackType::Heal:
+    case AttackType::LowerDamage:
+    case AttackType::LowerIni:
+    case AttackType::Paralyze:
+    case AttackType::Petrify:
+    case AttackType::Shatter:
+    case AttackType::TransformOther:
+        return true;
+    }
+
+    return false;
+}
+
 bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
 {
     unitsInfo.clear();
