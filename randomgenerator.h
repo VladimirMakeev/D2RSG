@@ -121,10 +121,20 @@ static inline std::vector<std::size_t> constrainedSum(std::size_t n, std::size_t
     std::vector<std::size_t> b = dividers;
     b.insert(b.begin(), 0);
 
-    std::vector<std::size_t> result(a.size());
+    std::vector<std::size_t> result;
     for (std::size_t i = 0; i < a.size(); ++i) {
         result.push_back(a[i] - b[i]);
     }
 
     return result;
+}
+
+template <typename T>
+static inline auto getRandomItem(const T& container, Rng& rand)
+{
+    std::vector<T::value_type> tmp;
+
+    std::sample(container.begin(), container.end(), std::back_inserter(tmp), 1, rand.getEngine());
+
+    return tmp[0];
 }
