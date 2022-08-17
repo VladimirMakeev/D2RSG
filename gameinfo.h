@@ -59,6 +59,14 @@ const UnitsInfo& getUnitsInfo();
 const UnitInfoArray& getLeaders();
 // Returns array of soldier units
 const UnitInfoArray& getSoldiers();
+// Returns minimal leader unit value known to map generator
+int getMinLeaderValue();
+// Returns maximal leader unit value known to map generator
+int getMaxLeaderValue();
+// Returns minimal soldier unit value known to map generator
+int getMinSoldierValue();
+// Returns maximal soldier unit value known to map generator
+int getMaxSoldierValue();
 
 bool readUnitsInfo(const std::filesystem::path& globalsFolderPath);
 

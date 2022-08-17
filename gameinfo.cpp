@@ -3,12 +3,19 @@
 #include "dbf.h"
 #include <cassert>
 #include <iostream>
+#include <limits>
 #include <set>
 #include <stdexcept>
 
 static UnitsInfo unitsInfo{};
 static UnitInfoArray leaders{};
 static UnitInfoArray soldiers{};
+
+static int minLeaderValue{};
+static int maxLeaderValue{};
+
+static int minSoldierValue{};
+static int maxSoldierValue{};
 
 static ItemsInfo itemsInfo;
 static ItemInfoArray allItems;
@@ -40,11 +47,37 @@ const UnitInfoArray& getSoldiers()
     return soldiers;
 }
 
+int getMinLeaderValue()
+{
+    return minLeaderValue;
+}
+
+int getMaxLeaderValue()
+{
+    return maxLeaderValue;
+}
+
+int getMinSoldierValue()
+{
+    return minSoldierValue;
+}
+
+int getMaxSoldierValue()
+{
+    return maxSoldierValue;
+}
+
 bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
 {
     unitsInfo.clear();
     leaders.clear();
     soldiers.clear();
+
+    minLeaderValue = std::numeric_limits<int>::max();
+    maxLeaderValue = std::numeric_limits<int>::min();
+
+    minSoldierValue = std::numeric_limits<int>::max();
+    maxSoldierValue = std::numeric_limits<int>::min();
 
     std::map<CMidgardID /* attack id */, std::pair<ReachType, AttackType>> attacks;
 
@@ -188,8 +221,25 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
 
         if (unitType == UnitType::Leader) {
             leaders.push_back(info.get());
+
+            if (value < minLeaderValue) {
+                minLeaderValue = value;
+            }
+
+            if (value > maxLeaderValue) {
+                maxLeaderValue = value;
+            }
+
         } else if (unitType == UnitType::Soldier) {
             soldiers.push_back(info.get());
+
+            if (value < minSoldierValue) {
+                minSoldierValue = value;
+            }
+
+            if (value > maxSoldierValue) {
+                maxSoldierValue = value;
+            }
         }
 
         unitsInfo[unitId] = std::move(info);
