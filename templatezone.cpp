@@ -2140,7 +2140,7 @@ bool TemplateZone::createRequiredObjects()
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
                 == ObjectPlacingResult::Success) {
-                addStack(position, value);
+                addStack(position, value, false);
                 break;
             }
         }
