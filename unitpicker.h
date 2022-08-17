@@ -18,6 +18,8 @@ UnitInfo* pickUnit(Rng& random, const UnitFilterList& filters);
 
 // These below are predefined filters
 
+// Remove lore-specific units from pick
+bool noLore(const UnitInfo* info);
 // Removes units of playable subraces from pick
 bool noPlayableRaces(const UnitInfo* info);
 // Removes big units
@@ -26,3 +28,5 @@ bool noBig(const UnitInfo* info);
 bool noRanged(const UnitInfo* info);
 // Removes melee units
 bool noMelee(const UnitInfo* info);
+// Removes non-attacking units
+bool noSupport(const UnitInfo* info);
