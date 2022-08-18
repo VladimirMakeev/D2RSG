@@ -4,6 +4,7 @@
 #include "crystal.h"
 #include "decoration.h"
 #include "fortification.h"
+#include "gameinfo.h"
 #include "landmark.h"
 #include "objectinfo.h"
 #include "position.h"
@@ -16,7 +17,6 @@
 #include <queue>
 
 class MapGenerator;
-struct UnitInfo;
 
 enum class ObjectPlacingResult
 {
@@ -176,7 +176,31 @@ struct TemplateZone : public ZoneOptions
                   int strength,
                   bool clearSurroundingTiles = true,
                   bool zoneGuard = false);
+    // Creates stack with specified strength
     std::unique_ptr<Stack> createStack(int strength);
+
+    // Creates stack with specified leader and soldier units
+    std::unique_ptr<Stack> createStack(const UnitInfo& leaderInfo,
+                                       std::size_t leaderPosition,
+                                       const GroupUnits& groupUnits);
+
+    // Picks stack leader using stack unit values
+    const UnitInfo* createStackLeader(std::size_t& unusedValue,
+                                      std::size_t& valuesConsumed,
+                                      const std::vector<std::size_t>& unitValues);
+
+    // Picks soldiers using specified values
+    void createGroup(std::size_t& unusedValue,
+                     std::set<int>& positions,
+                     GroupUnits& groupUnits,
+                     const std::vector<std::size_t>& unitValues,
+                     SubRaceType unitsSubRace);
+
+    // Tightens group by rolling additional soldier units
+    void tightenGroup(std::size_t& unusedValue,
+                      std::set<int>& positions,
+                      GroupUnits& groupUnits,
+                      SubRaceType unitsSubRace);
 
     void initTerrain();
     void addAllPossibleObjects();

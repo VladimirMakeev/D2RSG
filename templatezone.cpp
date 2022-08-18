@@ -2,7 +2,6 @@
 #include "capital.h"
 #include "containers.h"
 #include "crystal.h"
-#include "gameinfo.h"
 #include "item.h"
 #include "itempicker.h"
 #include "landmarkpicker.h"
@@ -844,7 +843,7 @@ bool TemplateZone::guardObject(const MapElement& mapElement, int guardStrength, 
     if (!tiles.empty()) {
         guardTile = getAccessibleOffset(mapElement, mapElement.getPosition());
 
-        std::cout << "Guard object at " << mapElement.getPosition() << '\n';
+        // std::cout << "Guard object at " << mapElement.getPosition() << '\n';
     } else {
         std::cerr << "Failed to guard object at " << mapElement.getPosition() << '\n';
         return false;
@@ -1225,35 +1224,11 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
     // do constrained sum to get unit values
     auto unitValues = constrainedSum(unitsTotal, strength, rand);
 
-    // Positions in group that are free
-    std::set<int> positions{0, 1, 2, 3, 4, 5};
-
-    // pick leader
-    const UnitInfo* leaderInfo{nullptr};
-
     std::size_t unusedValue{};
-    std::size_t i{};
-    for (; i < unitValues.size(); ++i) {
-        auto value = unitValues[i] + unusedValue;
-        auto minValue = value * 0.65f;
+    std::size_t valuesConsumed{};
 
-        auto noWrongValue = [minValue, value](const UnitInfo* info) {
-            return info->value < minValue || info->value > value;
-        };
-
-        // TODO: if we have a single leader, do not pick support or ranged unit.
-        // summoners are still allowed
-        leaderInfo = pickLeader(rand, {noPlayableRaces, noWrongValue, noLore});
-        if (leaderInfo) {
-            // Accumulate unused value after picking a leader
-            unusedValue = value - leaderInfo->value;
-            break;
-        }
-
-        // Could not pick leader, try next value and accumulate unused one
-        unusedValue += value;
-    }
-
+    // Pick leader
+    const UnitInfo* leaderInfo{createStackLeader(unusedValue, valuesConsumed, unitValues)};
     if (!leaderInfo) {
         std::string msg{"Could not pick stack leader. Stack value: "};
         msg += std::to_string(strength);
@@ -1263,11 +1238,14 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
         throw std::runtime_error(msg);
     }
 
+    // Positions in group that are free
+    std::set<int> positions{0, 1, 2, 3, 4, 5};
+    // Default leader position
     std::size_t leaderPosition{2};
 
     // Find place in group for leader
     if (leaderInfo->bigUnit) {
-        // Big unit always at front line
+        // Big units always at front line
         positions.erase(leaderPosition);
         positions.erase(leaderPosition + 1);
     } else if (isSupport(*leaderInfo)) {
@@ -1295,12 +1273,150 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
         zoneSubRace = map->getSubRaceType(map->getRaceType(player->getRace()));
     }
 
-    std::array<const UnitInfo*, 6> soldiers = {
-        {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
+    GroupUnits soldiers = {{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
 
     // Pick soldier units 1 by 1, starting from value that was not used for leader
-    ++i;
-    for (; i < unitValues.size() && !positions.empty(); ++i) {
+    if (valuesConsumed < unitValues.size()) {
+        std::vector<std::size_t> soldierValues(unitValues.begin() + valuesConsumed,
+                                               unitValues.end());
+
+        createGroup(unusedValue, positions, soldiers, soldierValues, zoneSubRace);
+    }
+
+    // Check if we still have unused value and free positions in group.
+    // This should help with better stack value usage
+    // and reduce number of stacks with single ranged or support leader
+    tightenGroup(unusedValue, positions, soldiers, zoneSubRace);
+
+    constexpr bool debugStackValues{true};
+
+    if constexpr (debugStackValues) {
+        // +1 because of leader
+        int unitsCreated{1};
+        int createdValue = leaderInfo->value;
+
+        for (std::size_t position = 0; position < soldiers.size(); ++position) {
+            const auto* unitInfo{soldiers[position]};
+            if (!unitInfo) {
+                continue;
+            }
+
+            ++unitsCreated;
+            createdValue += unitInfo->value;
+
+            if (unitInfo->bigUnit) {
+                // Skip second part of big unit
+                ++position;
+            }
+        }
+
+        std::cout << "Stack value " << strength << ", created " << createdValue << ", unused "
+                  << strength - createdValue << ". Units " << unitsTotal << ", created "
+                  << unitsCreated << '\n';
+    }
+
+    return createStack(*leaderInfo, leaderPosition, soldiers);
+}
+
+std::unique_ptr<Stack> TemplateZone::createStack(const UnitInfo& leaderInfo,
+                                                 std::size_t leaderPosition,
+                                                 const GroupUnits& groupUnits)
+{
+    auto& rand{mapGenerator->randomGenerator};
+
+    // Create stack
+    auto stackId{mapGenerator->createId(CMidgardID::Type::Stack)};
+    auto stack{std::make_unique<Stack>(stackId)};
+
+    stack->setMove(leaderInfo.move);
+    stack->setFacing((int)rand.getInt64Range(0, 7)());
+
+    // Create leader unit
+    auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
+    auto leader{std::make_unique<Unit>(leaderId)};
+
+    leader->setImplId(leaderInfo.unitId);
+    leader->setHp(leaderInfo.hitPoints);
+    leader->setName("Guard");
+
+    mapGenerator->insertObject(std::move(leader));
+
+    const auto leaderAdded = stack->addLeader(leaderId, leaderPosition, leaderInfo.bigUnit);
+    assert(leaderAdded);
+
+    for (std::size_t position = 0; position < groupUnits.size(); ++position) {
+        const auto* unitInfo{groupUnits[position]};
+        if (!unitInfo) {
+            continue;
+        }
+
+        // Create unit
+        auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
+        auto unit{std::make_unique<Unit>(unitId)};
+        unit->setImplId(unitInfo->unitId);
+        unit->setLevel(unitInfo->level);
+        unit->setHp(unitInfo->hitPoints);
+
+        // Add it to scenario
+        mapGenerator->insertObject(std::move(unit));
+
+        // Add it to stack
+        auto unitAdded{stack->addUnit(unitId, position, unitInfo->bigUnit)};
+        assert(unitAdded);
+
+        if (unitInfo->bigUnit) {
+            // Skip second part of big unit
+            ++position;
+        }
+    }
+
+    return std::move(stack);
+}
+
+const UnitInfo* TemplateZone::createStackLeader(std::size_t& unusedValue,
+                                                std::size_t& valuesConsumed,
+                                                const std::vector<std::size_t>& unitValues)
+{
+    auto& rand{mapGenerator->randomGenerator};
+
+    const UnitInfo* leaderInfo{nullptr};
+
+    std::size_t i{};
+    for (; i < unitValues.size(); ++i) {
+        auto value = unitValues[i] + unusedValue;
+        auto minValue = value * 0.65f;
+
+        auto noWrongValue = [minValue, value](const UnitInfo* info) {
+            return info->value < minValue || info->value > value;
+        };
+
+        // TODO: if we have a single leader, do not pick support or ranged unit.
+        // summoners are still allowed
+        leaderInfo = pickLeader(rand, {noPlayableRaces, noWrongValue, noLore});
+        if (leaderInfo) {
+            // Accumulate unused value after picking a leader
+            unusedValue = value - leaderInfo->value;
+            break;
+        }
+
+        // Could not pick leader, try next value and accumulate unused one
+        unusedValue += value;
+    }
+
+    valuesConsumed = i + 1;
+    return leaderInfo;
+}
+
+void TemplateZone::createGroup(std::size_t& unusedValue,
+                               std::set<int>& positions,
+                               GroupUnits& groupUnits,
+                               const std::vector<std::size_t>& unitValues,
+                               SubRaceType unitsSubRace)
+{
+    auto& rand{mapGenerator->randomGenerator};
+
+    // Pick soldier units 1 by 1, starting from value that was not used for leader
+    for (std::size_t i = 0; i < unitValues.size() && !positions.empty(); ++i) {
         auto value = unitValues[i] + unusedValue;
         auto minValue = value * 0.75f;
 
@@ -1317,10 +1433,10 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
         // We can place big unit if front and back line positions are free
         const auto canPlaceBig = positions.count(position) && positions.count(secondPosition);
 
-        auto filter = [zoneSubRace, canPlaceBig, frontline](const UnitInfo* info) {
-            if (zoneSubRace != SubRaceType::Neutral) {
+        auto filter = [unitsSubRace, canPlaceBig, frontline](const UnitInfo* info) {
+            if (unitsSubRace != SubRaceType::Neutral) {
                 // Do not pick units with the same subrace as in starting zone
-                if (info->subrace == zoneSubRace) {
+                if (info->subrace == unitsSubRace) {
                     return true;
                 }
             }
@@ -1355,10 +1471,10 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
 
             if (info->bigUnit) {
                 positions.erase(position);
-                soldiers[position] = info;
+                groupUnits[position] = info;
 
                 positions.erase(secondPosition);
-                soldiers[secondPosition] = info;
+                groupUnits[secondPosition] = info;
             } else {
                 // We could have picked big unit, but got a small one.
                 // Check if unit's attack range is optimal for its placement.
@@ -1372,20 +1488,20 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
                 }
 
                 positions.erase(position);
-                soldiers[position] = info;
+                groupUnits[position] = info;
             }
         } else {
             unusedValue += value;
         }
     }
+}
 
-    // TODO: this is a code similar to the code above.
-    // Unify it as much as possible and make clean!!!
-
-    // Check if we still have unused value and free positions in group
-    // Tighten stack by rolling additional soldier units
-    // This should help with proper value usage
-    // and reduce number of stacks with single ranged or support leader
+void TemplateZone::tightenGroup(std::size_t& unusedValue,
+                                std::set<int>& positions,
+                                GroupUnits& groupUnits,
+                                SubRaceType unitsSubRace)
+{
+    auto& rand{mapGenerator->randomGenerator};
 
     // Start with somewhat relaxed minimum value.
     // Gradually decrease min value expectation as we struggle to pick units
@@ -1394,10 +1510,10 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
     int failedAttempts{0};
     // How many failed attemts considered as a stop
     const int totalFails{5};
+
     while (failedAttempts < totalFails && !positions.empty()
            && unusedValue >= getMinSoldierValue()) {
         auto value = unusedValue;
-
         auto minValue = value * minValueCoeff;
 
         auto noWrongValue = [minValue, value](const UnitInfo* info) {
@@ -1412,10 +1528,10 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
         // We can place big unit if front and back line positions are free
         const auto canPlaceBig = positions.count(position) && positions.count(secondPosition);
 
-        auto filter = [zoneSubRace, canPlaceBig, frontline](const UnitInfo* info) {
-            if (zoneSubRace != SubRaceType::Neutral) {
+        auto filter = [unitsSubRace, canPlaceBig, frontline](const UnitInfo* info) {
+            if (unitsSubRace != SubRaceType::Neutral) {
                 // Do not pick units with the same subrace as in starting zone
-                if (info->subrace == zoneSubRace) {
+                if (info->subrace == unitsSubRace) {
                     return true;
                 }
             }
@@ -1452,10 +1568,10 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
 
             if (info->bigUnit) {
                 positions.erase(position);
-                soldiers[position] = info;
+                groupUnits[position] = info;
 
                 positions.erase(secondPosition);
-                soldiers[secondPosition] = info;
+                groupUnits[secondPosition] = info;
             } else {
                 // We could have picked big unit, but got a small one.
                 // Check if unit's attack range is optimal for its placement.
@@ -1469,7 +1585,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
                 }
 
                 positions.erase(position);
-                soldiers[position] = info;
+                groupUnits[position] = info;
             }
         } else {
             // Could not pick a unit, unused value remains the same
@@ -1478,65 +1594,6 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
             ++failedAttempts;
         }
     }
-
-    // Create stack
-    auto stackId{mapGenerator->createId(CMidgardID::Type::Stack)};
-    auto stack{std::make_unique<Stack>(stackId)};
-
-    stack->setMove(leaderInfo->move);
-    stack->setFacing((int)rand.getInt64Range(0, 7)());
-
-    // Create leader unit
-    auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
-    auto leader{std::make_unique<Unit>(leaderId)};
-
-    leader->setImplId(leaderInfo->unitId);
-    leader->setHp(leaderInfo->hitPoints);
-    leader->setName("Guard");
-
-    mapGenerator->insertObject(std::move(leader));
-
-    const auto leaderAdded = stack->addLeader(leaderId, leaderPosition, leaderInfo->bigUnit);
-    assert(leaderAdded);
-
-    int createdValue = leaderInfo->value;
-    int unitsCreated{1};
-    for (std::size_t position = 0; position < soldiers.size(); ++position) {
-        const auto* unitInfo{soldiers[position]};
-        if (!unitInfo) {
-            continue;
-        }
-
-        ++unitsCreated;
-        createdValue += unitInfo->value;
-
-        // Create unit
-        auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
-        auto unit{std::make_unique<Unit>(unitId)};
-        unit->setImplId(unitInfo->unitId);
-        unit->setLevel(unitInfo->level);
-        unit->setHp(unitInfo->hitPoints);
-
-        // Add it to scenario
-        mapGenerator->insertObject(std::move(unit));
-
-        // Add it to stack
-        auto unitAdded{stack->addUnit(unitId, position, unitInfo->bigUnit)};
-        assert(unitAdded);
-
-        if (unitInfo->bigUnit) {
-            // Skip second part of big unit
-            ++position;
-        }
-    }
-
-#if 0
-    std::cout << "Stack value " << strength << ", created " << createdValue << ", unused "
-              << strength - createdValue << ". Units " << unitsTotal << ", created " << unitsCreated
-              << '\n';
-#endif
-
-    return std::move(stack);
 }
 
 void TemplateZone::initTerrain()

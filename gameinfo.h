@@ -53,6 +53,8 @@ using UnitInfoArray = std::vector<UnitInfo*>;
 
 using UnitsInfo = std::map<CMidgardID /* unit id */, UnitInfoPtr>;
 
+using GroupUnits = std::array<const UnitInfo*, 6>;
+
 // Returns all units known to map generator
 const UnitsInfo& getUnitsInfo();
 // Returns array of leader units, excluding nobles
