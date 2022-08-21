@@ -86,6 +86,16 @@ public:
         facing = value;
     }
 
+    const Group& getGroup() const
+    {
+        return group;
+    }
+
+    Group& getGroup()
+    {
+        return group;
+    }
+
 private:
     Group group;
     Inventory inventory;

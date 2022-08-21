@@ -76,6 +76,16 @@ public:
         looterId = value;
     }
 
+    const Group& getGroup() const
+    {
+        return group;
+    }
+
+    Group& getGroup()
+    {
+        return group;
+    }
+
 private:
     Group group;
     std::string title;

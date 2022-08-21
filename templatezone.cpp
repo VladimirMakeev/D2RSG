@@ -1344,31 +1344,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(const UnitInfo& leaderInfo,
     const auto leaderAdded = stack->addLeader(leaderId, leaderPosition, leaderInfo.bigUnit);
     assert(leaderAdded);
 
-    for (std::size_t position = 0; position < groupUnits.size(); ++position) {
-        const auto* unitInfo{groupUnits[position]};
-        if (!unitInfo) {
-            continue;
-        }
-
-        // Create unit
-        auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
-        auto unit{std::make_unique<Unit>(unitId)};
-        unit->setImplId(unitInfo->unitId);
-        unit->setLevel(unitInfo->level);
-        unit->setHp(unitInfo->hitPoints);
-
-        // Add it to scenario
-        mapGenerator->insertObject(std::move(unit));
-
-        // Add it to stack
-        auto unitAdded{stack->addUnit(unitId, position, unitInfo->bigUnit)};
-        assert(unitAdded);
-
-        if (unitInfo->bigUnit) {
-            // Skip second part of big unit
-            ++position;
-        }
-    }
+    createGroupUnits(stack->getGroup(), groupUnits);
 
     return std::move(stack);
 }
@@ -1592,6 +1568,35 @@ void TemplateZone::tightenGroup(std::size_t& unusedValue,
             // Decrease minValue range, count how many times we failed to pick
             minValueCoeff = std::max(0.f, minValueCoeff - 0.1f);
             ++failedAttempts;
+        }
+    }
+}
+
+void TemplateZone::createGroupUnits(Group& group, const GroupUnits& groupUnits)
+{
+    for (std::size_t position = 0; position < groupUnits.size(); ++position) {
+        const auto* unitInfo{groupUnits[position]};
+        if (!unitInfo) {
+            continue;
+        }
+
+        // Create unit
+        auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
+        auto unit{std::make_unique<Unit>(unitId)};
+        unit->setImplId(unitInfo->unitId);
+        unit->setLevel(unitInfo->level);
+        unit->setHp(unitInfo->hitPoints);
+
+        // Add it to scenario
+        mapGenerator->insertObject(std::move(unit));
+
+        // Add it to group
+        auto unitAdded{group.addUnit(unitId, position, unitInfo->bigUnit)};
+        assert(unitAdded);
+
+        if (unitInfo->bigUnit) {
+            // Skip second part of big unit
+            ++position;
         }
     }
 }

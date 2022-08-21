@@ -87,6 +87,16 @@ public:
         return group.removeUnit(unitId, bigUnit);
     }
 
+    const Group& getGroup() const
+    {
+        return group;
+    }
+
+    Group& getGroup()
+    {
+        return group;
+    }
+
 protected:
     Fortification(const CMidgardID& fortificationId, const Position& size)
         : ScenarioObject(fortificationId)

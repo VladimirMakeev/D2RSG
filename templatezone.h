@@ -202,6 +202,8 @@ struct TemplateZone : public ZoneOptions
                       GroupUnits& groupUnits,
                       SubRaceType unitsSubRace);
 
+    void createGroupUnits(Group& group, const GroupUnits& groupUnits);
+
     void initTerrain();
     void addAllPossibleObjects();
     void connectLater();
