@@ -198,103 +198,170 @@ static void readMines(ZoneOptions& options, const sol::table& mines)
     }
 }
 
-static void readTowns(CityInfo& cityInfo, const sol::table& cities)
+static void readRequiredItem(RequiredItemInfo& item, const sol::table& table)
 {
-    for (std::size_t tier = 0; tier < cityInfo.cities.size(); ++tier) {
-        char tierName[10] = {0};
-        std::snprintf(tierName, sizeof(tierName) - 1, "tier%d", tier + 1);
+    readId(item.itemId, table, "id");
+    readRandomValue<std::uint8_t>(item.amount, table, 1, 1);
+}
 
-        cityInfo.cities[tier] = readValue(cities, tierName, 0, 0);
+static void readLoot(LootInfo& loot, const sol::table& table)
+{
+    auto itemTypes = table.get<sol::optional<decltype(loot.itemTypes)>>("itemTypes");
+    if (itemTypes) {
+        loot.itemTypes = itemTypes.value();
+    }
+
+    auto value = table.get<OptionalTable>("value");
+    if (value.has_value()) {
+        readRandomValue<std::uint32_t>(loot.value, value.value(), 0, 0);
+    }
+
+    auto items = table.get<OptionalTableArray>("items");
+    if (items.has_value()) {
+        loot.requiredItems.reserve(items.value().size());
+
+        for (const auto& item : items.value()) {
+            RequiredItemInfo info{};
+            readRequiredItem(info, item);
+
+            loot.requiredItems.push_back(info);
+        }
     }
 }
 
-static void readRuins(ZoneOptions& options, const std::vector<sol::table>& ruins)
+static void readGroup(GroupInfo& group, const sol::table& table)
 {
-    for (auto& ruin : ruins) {
+    auto subraceTypes = table.get<sol::optional<decltype(group.subraceTypes)>>("subraceTypes");
+    if (subraceTypes.has_value()) {
+        group.subraceTypes = subraceTypes.value();
+    }
+
+    auto value = table.get<OptionalTable>("value");
+    if (value.has_value()) {
+        readRandomValue<std::uint32_t>(group.value, value.value(), 0, 0);
+    }
+
+    auto loot = table.get<OptionalTable>("loot");
+    if (loot.has_value()) {
+        readLoot(group.loot, loot.value());
+    }
+}
+
+static void readCity(CityInfo& city, const sol::table& table)
+{
+    auto garrison = table.get<OptionalTable>("garrison");
+    if (garrison.has_value()) {
+        readGroup(city.garrison, garrison.value());
+    }
+
+    auto stack = table.get<OptionalTable>("stack");
+    if (stack.has_value()) {
+        readGroup(city.stack, stack.value());
+    }
+
+    city.tier = readValue(table, "tier", 1, 1, 5);
+}
+
+static void readCities(std::vector<CityInfo>& cities, const std::vector<sol::table>& tables)
+{
+    cities.reserve(tables.size());
+
+    for (auto& table : tables) {
+        CityInfo info{};
+        readCity(info, table);
+
+        cities.push_back(info);
+    }
+}
+
+static void readRuin(RuinInfo& ruin, const sol::table& table)
+{
+    auto guard = table.get<OptionalTable>("guard");
+    if (guard.has_value()) {
+        readGroup(ruin.guard, guard.value());
+    }
+
+    auto gold = table.get<OptionalTable>("gold");
+    if (gold.has_value()) {
+        readRandomValue<std::uint16_t>(ruin.gold, gold.value(), 0, 0, 9999);
+    }
+}
+
+static void readRuins(std::vector<RuinInfo>& ruins, const std::vector<sol::table>& tables)
+{
+    ruins.reserve(tables.size());
+
+    for (auto& table : tables) {
         RuinInfo info{};
+        readRuin(info, table);
 
-        auto cash = ruin.get<OptionalTable>("cash");
-        if (cash.has_value()) {
-            readRandomValue<std::uint16_t>(info.cash, cash.value(), 0, 0, 9999);
-        }
-
-        auto item = ruin.get<OptionalTable>("item");
-        if (item.has_value()) {
-            readRandomValue<std::uint16_t>(info.item, item.value(), 0, 0, 9999);
-        }
-
-        readId(info.itemId, ruin, "itemId");
-
-        options.ruins.push_back(info);
+        ruins.push_back(info);
     }
 }
 
-static void readMerchantItems(std::vector<MerchantItemInfo>& merchantItems,
-                              const std::vector<sol::table>& items)
+static void readMerchant(MerchantInfo& merchant, const sol::table& table)
 {
-    for (const auto& item : items) {
-        MerchantItemInfo info{};
-
-        readId(info.itemId, item, "id");
-        readRandomValue<std::uint8_t>(info.amount, item, 1, 1);
-
-        merchantItems.push_back(info);
+    auto guard = table.get<OptionalTable>("guard");
+    if (guard.has_value()) {
+        readGroup(merchant.guard, guard.value());
     }
+
+    readLoot(merchant.items, table);
 }
 
-static void readMerchants(ZoneOptions& options, const std::vector<sol::table>& merchants)
+static void readMerchants(std::vector<MerchantInfo>& merchants,
+                          const std::vector<sol::table>& tables)
 {
-    for (const auto& merchant : merchants) {
+    merchants.reserve(tables.size());
+
+    for (const auto& table : tables) {
         MerchantInfo info{};
+        readMerchant(info, table);
 
-        auto itemTypes = merchant.get<sol::optional<decltype(info.itemTypes)>>("itemTypes");
-        if (itemTypes.has_value()) {
-            info.itemTypes = itemTypes.value();
-        }
-
-        auto cash = merchant.get<OptionalTable>("cash");
-        if (cash.has_value()) {
-            readRandomValue<std::uint32_t>(info.cash, cash.value(), 0, 0);
-        }
-
-        auto items = merchant.get<OptionalTableArray>("items");
-        if (items.has_value()) {
-            readMerchantItems(info.requiredItems, items.value());
-        }
-
-        options.merchants.push_back(info);
+        merchants.push_back(info);
     }
 }
 
-static void readMages(ZoneOptions& options, const std::vector<sol::table>& mages)
+static void readMage(MageInfo& mage, const sol::table& table)
 {
-    for (const auto& mage : mages) {
-        MageInfo info{};
+    auto guard = table.get<OptionalTable>("guard");
+    if (guard.has_value()) {
+        readGroup(mage.guard, guard.value());
+    }
 
-        auto spellTypes = mage.get<sol::optional<decltype(info.spellTypes)>>("spellTypes");
-        if (spellTypes.has_value()) {
-            info.spellTypes = spellTypes.value();
-        }
+    auto spellTypes = table.get<sol::optional<decltype(mage.spellTypes)>>("spellTypes");
+    if (spellTypes.has_value()) {
+        mage.spellTypes = spellTypes.value();
+    }
 
-        auto cash = mage.get<OptionalTable>("cash");
-        if (cash.has_value()) {
-            readRandomValue<std::uint32_t>(info.cash, cash.value(), 0, 0);
-        }
+    auto value = table.get<OptionalTable>("value");
+    if (value.has_value()) {
+        readRandomValue<std::uint32_t>(mage.value, value.value(), 0, 0);
+    }
 
-        auto spells = mage.get<sol::optional<std::set<std::string>>>("spells");
-        if (spells.has_value()) {
-            for (const auto& spell : spells.value()) {
-                CMidgardID spellId(spell.c_str());
+    auto spells = table.get<sol::optional<std::set<std::string>>>("spells");
+    if (spells.has_value()) {
+        for (const auto& spell : spells.value()) {
+            CMidgardID spellId(spell.c_str());
 
-                if (spellId == invalidId || spellId == emptyId) {
-                    continue;
-                }
-
-                info.requiredSpells.insert(spellId);
+            if (spellId == invalidId || spellId == emptyId) {
+                continue;
             }
-        }
 
-        options.mages.push_back(info);
+            mage.requiredSpells.insert(spellId);
+        }
+    }
+}
+
+static void readMages(std::vector<MageInfo>& mages, const std::vector<sol::table>& tables)
+{
+    mages.reserve(tables.size());
+
+    for (const auto& table : tables) {
+        MageInfo info{};
+        readMage(info, table);
+
+        mages.push_back(info);
     }
 }
 
@@ -304,7 +371,9 @@ static void readMercenaryUnits(std::vector<MercenaryUnitInfo>& mercenaryUnits,
     for (const auto& unit : units) {
         MercenaryUnitInfo info{};
 
+        // TODO: check if unit with specified id exists
         readId(info.unitId, unit, "id");
+        // TODO: make sure minimal unit level is correct, use UnitInfo for this
         info.level = readValue(unit, "level", 1, 1, 99);
         info.unique = readValue(unit, "unique", false);
 
@@ -312,36 +381,65 @@ static void readMercenaryUnits(std::vector<MercenaryUnitInfo>& mercenaryUnits,
     }
 }
 
-static void readMercenaries(ZoneOptions& options, const std::vector<sol::table>& mercenaries)
+static void readMercenary(MercenaryInfo& mercenary, const sol::table& table)
 {
-    for (const auto& mercenary : mercenaries) {
-        MercenaryInfo info{};
+    auto subraceTypes = table.get<sol::optional<decltype(mercenary.subraceTypes)>>("subraceTypes");
+    if (subraceTypes.has_value()) {
+        mercenary.subraceTypes = subraceTypes.value();
+    }
 
-        auto subraceTypes = mercenary.get<sol::optional<decltype(info.subraceTypes)>>(
-            "subraceTypes");
-        if (subraceTypes.has_value()) {
-            info.subraceTypes = subraceTypes.value();
-        }
+    auto value = table.get<OptionalTable>("value");
+    if (value.has_value()) {
+        readRandomValue<std::uint32_t>(mercenary.value, value.value(), 0, 0);
+    }
 
-        auto cash = mercenary.get<OptionalTable>("cash");
-        if (cash.has_value()) {
-            readRandomValue<std::uint32_t>(info.cash, cash.value(), 0, 0);
-        }
+    auto units = table.get<OptionalTableArray>("units");
+    if (units.has_value()) {
+        readMercenaryUnits(mercenary.requiredUnits, units.value());
+    }
 
-        auto units = mercenary.get<OptionalTableArray>("units");
-        if (units.has_value()) {
-            readMercenaryUnits(info.requiredUnits, units.value());
-        }
-
-        options.mercenaries.push_back(info);
+    auto guard = table.get<OptionalTable>("guard");
+    if (guard.has_value()) {
+        readGroup(mercenary.guard, guard.value());
     }
 }
 
-static void readStacks(StackInfo& stackInfo, const sol::table& stacks)
+static void readMercenaries(std::vector<MercenaryInfo>& mercenaries,
+                            const std::vector<sol::table>& tables)
 {
-    auto value = stacks.get<sol::table>("value");
-    readRandomValue<std::uint32_t>(stackInfo.value, value, 0, 0);
-    stackInfo.count = readValue(stacks, "count", 0, 0);
+    mercenaries.reserve(tables.size());
+
+    for (const auto& table : tables) {
+        MercenaryInfo info{};
+        readMercenary(info, table);
+
+        mercenaries.push_back(info);
+    }
+}
+
+static void readStacks(StacksInfo& stacks, const sol::table& table)
+{
+    auto value = table.get<sol::table>("value");
+    readRandomValue<std::uint32_t>(stacks.value, value, 0, 0);
+
+    stacks.count = readValue(table, "count", 0, 0);
+
+    auto loot = table.get<OptionalTable>("loot");
+    if (loot.has_value()) {
+        readLoot(stacks.loot, loot.value());
+    }
+
+    auto required = table.get<OptionalTableArray>("required");
+    if (required.has_value()) {
+        stacks.requiredStacks.reserve(required.value().size());
+
+        for (auto& stack : required.value()) {
+            GroupInfo info{};
+            readGroup(info, stack);
+
+            stacks.requiredStacks.push_back(info);
+        }
+    }
 }
 
 static void readBags(BagInfo& bagInfo, const sol::table& bags)
@@ -358,43 +456,35 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     options->id = readValue(zone, "id", -1, 0);
     options->type = zone.get<TemplateZoneType>("type");
     options->size = readValue(zone, "size", 1, 1);
-    // options->monsterStrength = zone.get<MonsterStrength>("monsters");
-    // options->terrainTypes = zone.get<decltype(options->terrainTypes)>("terrains");
-    // options->groundTypes = zone.get<decltype(options->groundTypes)>("grounds");
 
     auto mines = zone.get<OptionalTable>("mines");
     if (mines.has_value()) {
         readMines(*options, mines.value());
     }
 
-    auto playerTowns = zone.get<OptionalTable>("playerTowns");
-    if (playerTowns.has_value()) {
-        readTowns(options->playerCities, playerTowns.value());
-    }
-
-    auto neutralTowns = zone.get<OptionalTable>("neutralTowns");
-    if (neutralTowns.has_value()) {
-        readTowns(options->neutralCities, neutralTowns.value());
+    auto cities = zone.get<OptionalTableArray>("towns");
+    if (cities.has_value()) {
+        readCities(options->neutralCities, cities.value());
     }
 
     auto ruins = zone.get<OptionalTableArray>("ruins");
     if (ruins.has_value()) {
-        readRuins(*options, ruins.value());
+        readRuins(options->ruins, ruins.value());
     }
 
     auto merchants = zone.get<OptionalTableArray>("merchants");
     if (merchants.has_value()) {
-        readMerchants(*options, merchants.value());
+        readMerchants(options->merchants, merchants.value());
     }
 
     auto mages = zone.get<OptionalTableArray>("mages");
     if (mages.has_value()) {
-        readMages(*options, mages.value());
+        readMages(options->mages, mages.value());
     }
 
     auto mercenaries = zone.get<OptionalTableArray>("mercenaries");
     if (mercenaries.has_value()) {
-        readMercenaries(*options, mercenaries.value());
+        readMercenaries(options->mercenaries, mercenaries.value());
     }
 
     auto stacks = zone.get<OptionalTable>("stacks");

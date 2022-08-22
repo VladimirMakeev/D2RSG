@@ -10,42 +10,67 @@
 #include <set>
 #include <vector>
 
-struct CityInfo
-{
-    std::array<std::uint8_t, 5> cities{}; // City count for each tier
-};
-
-struct RuinInfo
-{
-    RandomValue<std::uint16_t> cash{}; // Reward in gold
-    RandomValue<std::uint16_t> item{}; // Item value, when itemId is empty
-    CMidgardID itemId;                 // Item that must be generated as a reward
-};
-
-struct MerchantItemInfo
+struct RequiredItemInfo
 {
     CMidgardID itemId;
     RandomValue<std::uint8_t> amount;
 };
 
+struct LootInfo
+{
+    // Types of items that are allowed
+    std::set<ItemType> itemTypes;
+    // Items that must be generated
+    std::vector<RequiredItemInfo> requiredItems;
+    // Total loot value, excluding required items
+    RandomValue<std::uint32_t> value{};
+};
+
+struct GroupInfo
+{
+    // Subraces of units allowed in group
+    std::set<SubRaceType> subraceTypes;
+    // Group loot
+    LootInfo loot;
+    // Group units value
+    RandomValue<std::uint32_t> value{};
+};
+
+struct CityInfo
+{
+    // City garrison defenders and items
+    GroupInfo garrison;
+    // Stack that is visiting the city
+    GroupInfo stack;
+    // City tier
+    std::uint8_t tier{1};
+};
+
+struct RuinInfo
+{
+    // Group inside the ruin, group loot contains ruin's item reward
+    GroupInfo guard;
+    RandomValue<std::uint16_t> gold{}; // Reward in gold
+};
+
 struct MerchantInfo
 {
-    // Types of items merchant is allowed to sell
-    std::set<ItemType> itemTypes;
-    // Items that merchant must sell, regardless of itemTypes and cash
-    std::vector<MerchantItemInfo> requiredItems;
-    // Total value of merchant tradable items, excluding requiredItems
-    RandomValue<std::uint32_t> cash{};
+    // Stack that is guarding the merchant
+    GroupInfo guard;
+    // Merchant items
+    LootInfo items;
 };
 
 struct MageInfo
 {
+    // Stack that is guarding the mage
+    GroupInfo guard;
     // Types of spells merchant is allowed to sell
     std::set<SpellType> spellTypes;
     // Spells that merchant must sell, regardless of spellTypes and cash
     std::set<CMidgardID> requiredSpells;
     // Total value of merchant tradable spells, excluding requiredSpells
-    RandomValue<std::uint32_t> cash{};
+    RandomValue<std::uint32_t> value{};
 };
 
 struct MercenaryUnitInfo
@@ -57,17 +82,25 @@ struct MercenaryUnitInfo
 
 struct MercenaryInfo
 {
+    // Stack that is guarding the mercenary camp
+    GroupInfo guard;
     // Subraces of units allowed for hire
     std::set<SubRaceType> subraceTypes;
     // Units that must be generated
     std::vector<MercenaryUnitInfo> requiredUnits;
     // Total value of units, excluding requiredUnits
-    RandomValue<std::uint32_t> cash{};
+    RandomValue<std::uint32_t> value{};
 };
 
-struct StackInfo
+struct StacksInfo
 {
+    // Total loot of stacks
+    LootInfo loot;
+    // Stacks that must be created
+    std::vector<GroupInfo> requiredStacks;
+    // Total value of stacks, excluding required
     RandomValue<std::uint32_t> value{};
+    // Number of stacks to create
     std::uint32_t count{};
 };
 
@@ -84,13 +117,12 @@ struct ZoneOptions
     std::set<GroundType> groundTypes;           // Ground types allowed in zone
     std::map<ResourceType, std::uint8_t> mines; // Mines and their count in zone
     std::vector<TemplateZoneId> connections;    // Adjacent zones
-    CityInfo playerCities;                      // Cities assigned to player
-    CityInfo neutralCities;                     // Neutral cities
+    std::vector<CityInfo> neutralCities;        // Neutral cities
     std::vector<RuinInfo> ruins;                // Ruins in the zone
     std::vector<MerchantInfo> merchants;        // Merchants
     std::vector<MageInfo> mages;                // Mage towers
     std::vector<MercenaryInfo> mercenaries;     // Mercenary camps
-    StackInfo stacks;                           // Neutral stacks
+    StacksInfo stacks;                          // Neutral stacks
     BagInfo bags;                               // Bags with treasures
     TemplateZoneId id{0};
     TemplateZoneType type{TemplateZoneType::PlayerStart};
