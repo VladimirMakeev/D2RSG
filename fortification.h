@@ -97,6 +97,16 @@ public:
         return group;
     }
 
+    const Inventory& getInventory() const
+    {
+        return inventory;
+    }
+
+    Inventory& getInventory()
+    {
+        return inventory;
+    }
+
 protected:
     Fortification(const CMidgardID& fortificationId, const Position& size)
         : ScenarioObject(fortificationId)

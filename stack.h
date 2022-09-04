@@ -96,6 +96,16 @@ public:
         return group;
     }
 
+    const Inventory& getInventory() const
+    {
+        return inventory;
+    }
+
+    Inventory& getInventory()
+    {
+        return inventory;
+    }
+
 private:
     Group group;
     Inventory inventory;
