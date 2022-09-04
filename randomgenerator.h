@@ -14,6 +14,16 @@ struct RandomValue
 {
     T min{};
     T max{};
+
+    operator bool() const
+    {
+        return min != T{0} && max != T{0};
+    }
+
+    operator bool()
+    {
+        return min != T{0} && max != T{0};
+    }
 };
 
 using RandI64 = std::function<std::int64_t()>;
