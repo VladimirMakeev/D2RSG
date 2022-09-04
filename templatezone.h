@@ -104,6 +104,8 @@ struct TemplateZone : public ZoneOptions
         ownerId = id;
     }
 
+    void clearEntrance(const Fortification& fort);
+
     void initTowns();
     void initFreeTiles();
     void createBorder();
@@ -204,10 +206,20 @@ struct TemplateZone : public ZoneOptions
 
     void createGroupUnits(Group& group, const GroupUnits& groupUnits);
 
+    Village* placeCity(const Position& position,
+                       const CityInfo& cityInfo,
+                       const CMidgardID& ownerId,
+                       const CMidgardID& subraceId);
+
+    Site* placeMerchant(const Position& position, const MerchantInfo& merchantInfo);
+    Site* placeMage(const Position& position, const MageInfo& mageInfo);
+
+    std::vector<std::pair<CMidgardID, int>> createLoot(const LootInfo& loot);
+
     void initTerrain();
-    void addAllPossibleObjects();
-    void connectLater();
     void fractalize();
+    void placeCapital();
+    void placeCities();
     void placeMerchants();
     void placeMages();
     void placeMercenaries();

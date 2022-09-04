@@ -38,147 +38,40 @@ void TemplateZone::setCenter(const VPosition& value)
     }
 }
 
-void TemplateZone::initTowns()
+void TemplateZone::clearEntrance(const Fortification& fort)
 {
-    // Clear town entrance
-    auto clearEntrance = [this](const Fortification& fort) {
-        auto clearPosition = [this](const Position& position) {
-            if (mapGenerator->isPossible(position)) {
-                mapGenerator->setOccupied(position, TileType::Free);
-            }
-        };
-
-        mapGenerator->foreachNeighbor(fort.getEntrance() + Position(1, 1), clearPosition);
-    };
-
-    std::size_t citiesTotal{};
-
-    auto addCities = [this, &clearEntrance, &citiesTotal](const CityInfo& cityInfo,
-                                                          const CMidgardID& ownerId,
-                                                          const CMidgardID& subraceId) {
-        for (std::size_t tier = 0; tier < cityInfo.cities.size(); ++tier) {
-            for (std::uint8_t i = 0; i < cityInfo.cities[tier]; ++i) {
-                auto villageId{mapGenerator->createId(CMidgardID::Type::Fortification)};
-                auto village{std::make_unique<Village>(villageId)};
-
-                village->setOwner(ownerId);
-                village->setSubrace(subraceId);
-                village->setTier(tier + 1);
-
-                auto villagePtr{village.get()};
-
-                // Place first city immediately
-                if (citiesTotal == 0) {
-                    placeObject(std::move(village), pos - villagePtr->getSize() / 2);
-                    clearEntrance(*villagePtr);
-                    // All roads lead to tile near central village entrance
-                    setPosition(villagePtr->getEntrance() + Position(1, 1));
-
-                    // Add decoration
-                    decorations.push_back(std::make_unique<VillageDecoration>(villagePtr));
-
-                    mapGenerator->registerZone(RaceType::Neutral);
-                } else {
-                    addRequiredObject(std::move(village),
-                                      std::make_unique<VillageDecoration>(villagePtr));
-                }
-
-                ++citiesTotal;
-            }
+    auto clearPosition = [this](const Position& position) {
+        if (mapGenerator->isPossible(position)) {
+            mapGenerator->setOccupied(position, TileType::Free);
         }
     };
 
+    mapGenerator->foreachNeighbor(fort.getEntrance() + Position(1, 1), clearPosition);
+}
+
+void TemplateZone::initTowns()
+{
+    if (type == TemplateZoneType::Water) {
+        return;
+    }
+
+    // Create first neutral city or player capital at the center of the zone.
+    // Rest of neutral cities will be created later
     if (type == TemplateZoneType::PlayerStart || type == TemplateZoneType::AiStart) {
         std::cout << "Preparing player zone\n";
 
-        // Create capital id
-        auto capitalId{mapGenerator->createId(CMidgardID::Type::Fortification)};
-        // Create capital object
-        auto capital{std::make_unique<Capital>(capitalId)};
-        auto fort{capital.get()};
+        placeCapital();
+        return;
+    }
 
-        assert(ownerId != emptyId);
-        fort->setOwner(ownerId);
+    if (!neutralCities.empty()) {
+        auto village = placeCity(pos - Position(2, 2), neutralCities[0],
+                                 mapGenerator->getNeutralPlayerId(),
+                                 mapGenerator->getNeutralSubraceId());
+        // All roads lead to tile near central village entrance
+        setPosition(village->getEntrance() + Position(1, 1));
 
-        auto ownerPlayer{mapGenerator->map->find<Player>(ownerId)};
-        assert(ownerPlayer != nullptr);
-
-        auto playerRace{mapGenerator->getRaceType(ownerPlayer->getRace())};
-
-        const auto& raceInfo{getRaceInfo(playerRace)};
-        const auto& unitsInfo{getUnitsInfo()};
-        const auto* guardianInfo{unitsInfo.find(raceInfo.guardianId)->second.get()};
-        assert(guardianInfo);
-
-        // Add capital guardian
-        auto guardianId{mapGenerator->createId(CMidgardID::Type::Unit)};
-        auto guardian{std::make_unique<Unit>(guardianId)};
-        guardian->setImplId(guardianInfo->unitId);
-        guardian->setHp(guardianInfo->hitPoints);
-
-        mapGenerator->insertObject(std::move(guardian));
-        auto guardianAdded{fort->addUnit(guardianId, 3, guardianInfo->bigUnit)};
-        assert(guardianAdded);
-
-        const auto* leaderInfo{unitsInfo.find(raceInfo.leaderIds[0])->second.get()};
-        assert(leaderInfo);
-
-        // Create starting leader unit
-        auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
-        auto leader{std::make_unique<Unit>(leaderId)};
-        leader->setImplId(leaderInfo->unitId);
-        leader->setHp(leaderInfo->hitPoints);
-        leader->setName("Leader");
-        mapGenerator->insertObject(std::move(leader));
-
-        // Create starting stack
-        auto stackId{mapGenerator->createId(CMidgardID::Type::Stack)};
-        auto stack{std::make_unique<Stack>(stackId)};
-        auto leaderAdded{stack->addLeader(leaderId, 2, leaderInfo->bigUnit)};
-        assert(leaderAdded);
-        stack->setInside(capitalId);
-        stack->setMove(20);
-        stack->setOwner(ownerId);
-
-        fort->setStack(stackId);
-
-        auto subraceType{mapGenerator->map->getSubRaceType(playerRace)};
-
-        CMidgardID subraceId;
-        mapGenerator->map->visit(CMidgardID::Type::SubRace,
-                                 [this, subraceType, &subraceId](const ScenarioObject* object) {
-                                     auto subrace{dynamic_cast<const SubRace*>(object)};
-
-                                     if (subrace->getType() == subraceType) {
-                                         assert(subrace->getPlayerId() == ownerId);
-                                         subraceId = subrace->getId();
-                                     }
-                                 });
-
-        fort->setSubrace(subraceId);
-        stack->setSubrace(subraceId);
-
-        // Add capital decoration
-        decorations.push_back(std::make_unique<CapitalDecoration>(capital.get()));
-
-        // Place capital at the center of the zone
-        placeObject(std::move(capital), pos - fort->getSize() / 2,
-                    mapGenerator->map->getRaceTerrain(playerRace));
-        clearEntrance(*fort);
-        // All roads lead to tile near capital entrance
-        setPosition(fort->getEntrance() + Position(1, 1));
-
-        mapGenerator->registerZone(playerRace);
-
-        placeObject(std::move(stack), fort->getPosition());
-        ++citiesTotal;
-
-        addCities(playerCities, ownerId, subraceId);
-        addCities(neutralCities, mapGenerator->getNeutralPlayerId(),
-                  mapGenerator->getNeutralSubraceId());
-    } else if (type != TemplateZoneType::Water) {
-        addCities(neutralCities, mapGenerator->getNeutralPlayerId(),
-                  mapGenerator->getNeutralSubraceId());
+        mapGenerator->registerZone(RaceType::Neutral);
     }
 }
 
@@ -239,11 +132,10 @@ void TemplateZone::fill()
 {
     initTerrain();
 
-    addAllPossibleObjects();
     // Zone center should be always clear to allow other tiles to connect
     initFreeTiles();
-    connectLater();
     fractalize();
+    placeCities();
     placeMerchants();
     placeMages();
     placeMercenaries();
@@ -1601,6 +1493,275 @@ void TemplateZone::createGroupUnits(Group& group, const GroupUnits& groupUnits)
     }
 }
 
+Village* TemplateZone::placeCity(const Position& position,
+                                 const CityInfo& cityInfo,
+                                 const CMidgardID& ownerId,
+                                 const CMidgardID& subraceId)
+{
+    auto& rand{mapGenerator->randomGenerator};
+
+    // Create city of specified tier, assign position, owner, subrace
+    auto villageId{mapGenerator->createId(CMidgardID::Type::Fortification)};
+    auto village{std::make_unique<Village>(villageId)};
+
+    village->setOwner(ownerId);
+    village->setSubrace(subraceId);
+    village->setTier(cityInfo.tier);
+
+    auto villagePtr{village.get()};
+
+    placeObject(std::move(village), position);
+    clearEntrance(*villagePtr);
+
+    // Create garrison and loot
+    const auto& garrisonValue{cityInfo.garrison.value};
+    if (garrisonValue) {
+        std::size_t unusedValue{};
+        std::set<int> positions;
+        GroupUnits units = {{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
+
+        auto value{(std::size_t)rand.getInt64Range(garrisonValue.min, garrisonValue.max)()};
+        auto values{constrainedSum(cityInfo.tier, value, rand)};
+
+        switch (cityInfo.tier) {
+        case 1:
+            // Tier 1 city will always have melee defender in center
+            positions.insert(2);
+            break;
+
+        case 2: {
+            // Tier 2 city will have center frontline position and one random
+            positions.insert(2);
+
+            const std::set<int> possiblePositions = {0, 1, 3, 4, 5};
+            positions.insert(getRandomItem(possiblePositions, rand));
+            break;
+        }
+        case 3: {
+            // Tier 3 city will have center frontline position and two random
+            positions.insert(2);
+
+            std::set<int> possiblePositions = {0, 1, 3, 4, 5};
+            auto pos = getRandomItem(possiblePositions, rand);
+            possiblePositions.erase(pos);
+
+            positions.insert(pos);
+            positions.insert(getRandomItem(possiblePositions, rand));
+            break;
+        }
+        default: {
+            // Tier 4 and 5 cities will have random positions excluded
+            std::set<int> possiblePositions = {0, 1, 2, 3, 4, 5};
+            for (std::uint8_t i = cityInfo.tier; i < 6; ++i) {
+                auto pos = getRandomItem(possiblePositions, rand);
+                possiblePositions.erase(pos);
+            }
+
+            positions.swap(possiblePositions);
+            break;
+        }
+        }
+
+        createGroup(unusedValue, positions, units, values, SubRaceType::Neutral);
+        createGroupUnits(villagePtr->getGroup(), units);
+    }
+
+    auto loot{createLoot(cityInfo.garrison.loot)};
+    auto& inventory{villagePtr->getInventory()};
+
+    for (const auto& [id, amount] : loot) {
+        for (int i = 0; i < amount; ++i) {
+            auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
+            auto item{std::make_unique<Item>(itemId)};
+            item->setItemType(id);
+
+            mapGenerator->insertObject(std::move(item));
+            inventory.add(itemId);
+        }
+    }
+
+    const auto& stackValue{cityInfo.stack.value};
+    if (stackValue) {
+        // Create visitor stack and its loot
+        int value = (int)rand.getInt64Range(stackValue.min, stackValue.max)();
+        // TODO: restrict stack units subraces according to cityInfo
+        auto stack{createStack(value)};
+
+        // Make sure visitor stack is inside the city
+        villagePtr->setStack(stack->getId());
+        stack->setInside(villageId);
+
+        stack->setOwner(ownerId);
+        stack->setSubrace(subraceId);
+
+        auto stackLoot{createLoot(cityInfo.stack.loot)};
+        auto& stackInventory{stack->getInventory()};
+
+        for (const auto& [id, amount] : stackLoot) {
+            for (int i = 0; i < amount; ++i) {
+                auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
+                auto item{std::make_unique<Item>(itemId)};
+                item->setItemType(id);
+
+                mapGenerator->insertObject(std::move(item));
+                stackInventory.add(itemId);
+            }
+        }
+
+        placeObject(std::move(stack), position);
+    }
+
+    return villagePtr;
+}
+
+Site* TemplateZone::placeMerchant(const Position& position, const MerchantInfo& merchantInfo)
+{
+    /*
+    Vanilla merchant images:
+    0 - windmill
+    1 - tower
+    2 - house dark wood
+    3 - house bright wood
+    4 - tower on the left and big tent-house
+    5 - tower on the right and L-shaped house on the left
+    6 - tents and ruined building on the left
+    7 - inn
+    */
+    static const int merchantImages[] = {0, 1, 2, 3, 4, 5, 6, 7};
+    auto& rand{mapGenerator->randomGenerator};
+
+    auto merchantId{mapGenerator->createId(CMidgardID::Type::Site)};
+    auto merchant{std::make_unique<Merchant>(merchantId)};
+    merchant->setTitle("Merchant");
+    merchant->setDescription("Merchant description");
+
+    // Pick random merchant image
+    int image{(int)rand.getInt64Range(0, std::size(merchantImages) - 1)()};
+    merchant->setImgIso(image);
+
+    // Create merchant items
+    const auto items{createLoot(merchantInfo.items)};
+    for (const auto& [id, amount] : items) {
+        merchant->addItem(id, amount);
+    }
+
+    auto merchantPtr{merchant.get()};
+    placeObject(std::move(merchant), position);
+
+    const auto& guard{merchantInfo.guard};
+    if (guard.value) {
+        const auto guardValue{(int)rand.getInt64Range(guard.value.min, guard.value.max)()};
+
+        guardObject(*merchantPtr, guardValue);
+    }
+
+    return merchantPtr;
+}
+
+Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo)
+{
+    /*
+    Vanilla mage tower images:
+    0
+    1
+    2
+    3
+    */
+    static const int mageImages[] = {0, 1, 2, 3};
+
+    auto& rand{mapGenerator->randomGenerator};
+
+    auto mageId{mapGenerator->createId(CMidgardID::Type::Site)};
+    auto mage{std::make_unique<Mage>(mageId)};
+    mage->setTitle("Mage tower");
+    mage->setDescription("Mage tower description");
+
+    int image{(int)rand.getInt64Range(0, std::size(mageImages) - 1)()};
+    mage->setImgIso(image);
+
+    // Generate random spells of specified types
+    if (!mageInfo.spellTypes.empty() && mageInfo.value) {
+        const auto& value{mageInfo.value};
+        int desiredValue{(int)rand.getInt64Range(value.min, value.max)()};
+        int currentValue{};
+
+        auto noWrongType = [types = &mageInfo.spellTypes](const SpellInfo* info) {
+            // Remove spells of types that mage is not allowed to sell
+            return types->find(info->spellType) == types->end();
+        };
+
+        while (currentValue <= desiredValue) {
+            auto spell{pickSpell(rand, {noWrongType})};
+            if (!spell) {
+                // Could not pick anything, stop
+                break;
+            }
+
+            currentValue += spell->value;
+            mage->addSpell(spell->spellId);
+        }
+    }
+
+    for (const auto& spell : mageInfo.requiredSpells) {
+        mage->addSpell(spell);
+    }
+
+    auto sitePtr{mage.get()};
+    placeObject(std::move(mage), position);
+
+    const auto& guard{mageInfo.guard};
+    if (guard.value) {
+        const auto guardValue{(int)rand.getInt64Range(guard.value.min, guard.value.max)()};
+
+        guardObject(*sitePtr, guardValue);
+    }
+
+    return sitePtr;
+}
+
+std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo& loot)
+{
+    auto& rand{mapGenerator->randomGenerator};
+
+    std::vector<std::pair<CMidgardID, int>> items;
+
+    // Create required items
+    for (const auto& item : loot.requiredItems) {
+        if (item.itemId == emptyId) {
+            continue;
+        }
+
+        auto amount{(int)rand.getInt64Range(item.amount.min, item.amount.max)()};
+
+        items.push_back({item.itemId, amount});
+    }
+
+    // Create random items of specified types and value
+    const auto& value{loot.value};
+    if (value) {
+        int desiredValue{(int)rand.getInt64Range(value.min, value.max)()};
+        int currentValue{};
+
+        auto noWrongType = [types = &loot.itemTypes](const ItemInfo* info) {
+            // Remove items of types that is not allowed
+            return types->find(info->itemType) == types->end();
+        };
+
+        while (currentValue <= desiredValue) {
+            auto item{pickItem(rand, {noWrongType})};
+            if (!item) {
+                // Could not pick anything, stop
+                break;
+            }
+
+            currentValue += item->value;
+            items.push_back({item->itemId, 1});
+        }
+    }
+
+    return items;
+}
+
 void TemplateZone::initTerrain()
 {
     if (type == TemplateZoneType::Water) {
@@ -1612,29 +1773,6 @@ void TemplateZone::initTerrain()
     // excluding playable races in scenario
     // paintZoneTerrain(TerrainType::Neutral, GroundType::Plain);
 }
-
-void TemplateZone::addAllPossibleObjects()
-{
-    // VCMI populates vector of possible objects with small structures
-    // describing rmg values, probability, maximum per zone and creation functor
-    // It adds:
-    // limited quantity:
-    // non-static objects (what ?)
-    // prisons
-
-    // unlimited quantity:
-    // dwellings
-    // spell scrolls
-    // pandoras boxes
-    // seer huts and their rewards
-
-    // What should I add here ?
-    // Disciples have not too many objects,
-    // we can list them all and their quantity & probability in map template
-}
-
-void TemplateZone::connectLater()
-{ }
 
 void TemplateZone::fractalize()
 {
@@ -1788,127 +1926,178 @@ void TemplateZone::fractalize()
     }
 }
 
+void TemplateZone::placeCapital()
+{
+    // Create capital id
+    auto capitalId{mapGenerator->createId(CMidgardID::Type::Fortification)};
+    // Create capital object
+    auto capital{std::make_unique<Capital>(capitalId)};
+    auto fort{capital.get()};
+
+    assert(ownerId != emptyId);
+    fort->setOwner(ownerId);
+
+    auto ownerPlayer{mapGenerator->map->find<Player>(ownerId)};
+    assert(ownerPlayer != nullptr);
+
+    auto playerRace{mapGenerator->getRaceType(ownerPlayer->getRace())};
+
+    const auto& raceInfo{getRaceInfo(playerRace)};
+    const auto& unitsInfo{getUnitsInfo()};
+    const auto* guardianInfo{unitsInfo.find(raceInfo.guardianId)->second.get()};
+    assert(guardianInfo);
+
+    // Add capital guardian
+    auto guardianId{mapGenerator->createId(CMidgardID::Type::Unit)};
+    auto guardian{std::make_unique<Unit>(guardianId)};
+    guardian->setImplId(guardianInfo->unitId);
+    guardian->setHp(guardianInfo->hitPoints);
+
+    mapGenerator->insertObject(std::move(guardian));
+    auto guardianAdded{fort->addUnit(guardianId, 3, guardianInfo->bigUnit)};
+    assert(guardianAdded);
+
+    const auto* leaderInfo{unitsInfo.find(raceInfo.leaderIds[0])->second.get()};
+    assert(leaderInfo);
+
+    // Create starting leader unit
+    auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
+    auto leader{std::make_unique<Unit>(leaderId)};
+    leader->setImplId(leaderInfo->unitId);
+    leader->setHp(leaderInfo->hitPoints);
+    leader->setName("Leader");
+    mapGenerator->insertObject(std::move(leader));
+
+    // Create starting stack
+    auto stackId{mapGenerator->createId(CMidgardID::Type::Stack)};
+    auto stack{std::make_unique<Stack>(stackId)};
+    auto leaderAdded{stack->addLeader(leaderId, 2, leaderInfo->bigUnit)};
+    assert(leaderAdded);
+    stack->setInside(capitalId);
+    stack->setMove(20);
+    stack->setOwner(ownerId);
+
+    fort->setStack(stackId);
+
+    auto subraceType{mapGenerator->map->getSubRaceType(playerRace)};
+
+    CMidgardID subraceId;
+    mapGenerator->map->visit(CMidgardID::Type::SubRace,
+                             [this, subraceType, &subraceId](const ScenarioObject* object) {
+                                 auto subrace{dynamic_cast<const SubRace*>(object)};
+
+                                 if (subrace->getType() == subraceType) {
+                                     assert(subrace->getPlayerId() == ownerId);
+                                     subraceId = subrace->getId();
+                                 }
+                             });
+
+    fort->setSubrace(subraceId);
+    stack->setSubrace(subraceId);
+
+    // Add capital decoration
+    decorations.push_back(std::make_unique<CapitalDecoration>(capital.get()));
+
+    // Place capital at the center of the zone
+    placeObject(std::move(capital), pos - fort->getSize() / 2,
+                mapGenerator->map->getRaceTerrain(playerRace));
+    clearEntrance(*fort);
+    // All roads lead to tile near capital entrance
+    setPosition(fort->getEntrance() + Position(1, 1));
+
+    mapGenerator->registerZone(playerRace);
+
+    placeObject(std::move(stack), fort->getPosition());
+}
+
+void TemplateZone::placeCities()
+{
+    std::cout << "Creating villages\n";
+
+    // Non-starting zones already have first city placed
+    std::size_t i = (type == TemplateZoneType::PlayerStart || type == TemplateZoneType::AiStart)
+                        ? 0
+                        : 1;
+
+    auto& cityOwnerId = mapGenerator->getNeutralPlayerId();
+    auto& citySubraceId = mapGenerator->getNeutralSubraceId();
+
+    for (; i < neutralCities.size(); ++i) {
+        MapElement mapElement{Position{4, 4}};
+        Position position;
+
+        const int minDistance{mapElement.getSize().x * 2};
+        while (true) {
+            if (!findPlaceForObject(mapElement, minDistance, position)) {
+                std::cerr << "Failed to place city in zone " << id << " due to lack of space\n";
+                // Nothing to do here, other cities could not fit either
+                return;
+            }
+
+            if (tryToPlaceObjectAndConnectToPath(mapElement, position)
+                == ObjectPlacingResult::Success) {
+                std::cout << "Create city at " << position << '\n';
+                auto city = placeCity(position, neutralCities[i], cityOwnerId, citySubraceId);
+                decorations.push_back(std::make_unique<VillageDecoration>(city));
+                break;
+            }
+        }
+    }
+}
+
 void TemplateZone::placeMerchants()
 {
-    /*
-    Vanilla merchant images:
-    0 - windmill
-    1 - tower
-    2 - house dark wood
-    3 - house bright wood
-    4 - tower on the left and big tent-house
-    5 - tower on the right and L-shaped house on the left
-    6 - tents and ruined building on the left
-    7 - inn
-    */
-    static const int merchantImages[] = {0, 1, 2, 3, 4, 5, 6, 7};
-
-    auto& rand{mapGenerator->randomGenerator};
-
     for (const auto& merchantInfo : merchants) {
-        auto merchantId{mapGenerator->createId(CMidgardID::Type::Site)};
-        auto merchant{std::make_unique<Merchant>(merchantId)};
-        merchant->setTitle("Merchant");
-        merchant->setDescription("Merchant description");
+        MapElement mapElement{Position{3, 3}};
+        Position position;
 
-        // Pick random merchant image
-        int image{(int)rand.getInt64Range(0, std::size(merchantImages) - 1)()};
-        merchant->setImgIso(image);
-
-        // Generate random merchant items of specified types
-        if (!merchantInfo.itemTypes.empty() && merchantInfo.cash.max) {
-            const auto& cash{merchantInfo.cash};
-            int desiredValue{(int)rand.getInt64Range(cash.min, cash.max)()};
-            int currentValue{};
-
-            auto noWrongType = [types = &merchantInfo.itemTypes](const ItemInfo* info) {
-                // Remove items of types that merchant is not allowed to sell
-                return types->find(info->itemType) == types->end();
-            };
-
-            while (currentValue <= desiredValue) {
-                auto item{pickItem(rand, {noWrongType})};
-                if (!item) {
-                    // Could not pick anything, stop
-                    break;
-                }
-
-                currentValue += item->value;
-                merchant->addItem(item->itemId);
-            }
-        }
-
-        // Add required items
-        for (const auto& item : merchantInfo.requiredItems) {
-            if (item.itemId == emptyId) {
-                continue;
+        const int minDistance{mapElement.getSize().x * 2};
+        while (true) {
+            if (!findPlaceForObject(mapElement, minDistance, position)) {
+                std::cerr << "Failed to place merchant in zone " << id << " due to lack of space\n";
+                // Nothing to do here, other merchants could not fit either
+                return;
             }
 
-            auto amount{rand.getInt64Range(item.amount.min, item.amount.max)()};
-            merchant->addItem(item.itemId, static_cast<std::uint32_t>(amount));
+            if (tryToPlaceObjectAndConnectToPath(mapElement, position)
+                == ObjectPlacingResult::Success) {
+                std::cout << "Create merchant at " << position << '\n';
+                auto merchant = placeMerchant(position, merchantInfo);
+                decorations.push_back(std::make_unique<SiteDecoration>(merchant));
+                break;
+            }
         }
-
-        auto merchantPtr{merchant.get()};
-        addRequiredObject(std::move(merchant), std::make_unique<SiteDecoration>(merchantPtr));
     }
 }
 
 void TemplateZone::placeMages()
 {
-    /*
-    Vanilla mage tower images:
-    0
-    1
-    2
-    3
-    */
-    static const int mageImages[] = {0, 1, 2, 3};
-
-    auto& rand{mapGenerator->randomGenerator};
-
     for (const auto& mageInfo : mages) {
-        auto mageId{mapGenerator->createId(CMidgardID::Type::Site)};
-        auto mage{std::make_unique<Mage>(mageId)};
-        mage->setTitle("Mage tower");
-        mage->setDescription("Mage tower description");
+        MapElement mapElement{Position{3, 3}};
+        Position position;
 
-        int image{(int)rand.getInt64Range(0, std::size(mageImages) - 1)()};
-        mage->setImgIso(image);
+        const int minDistance{mapElement.getSize().x * 2};
+        while (true) {
+            if (!findPlaceForObject(mapElement, minDistance, position)) {
+                std::cerr << "Failed to place mage in zone " << id << " due to lack of space\n";
+                // Nothing to do here, other mages could not fit either
+                return;
+            }
 
-        // Generate random spells of specified types
-        if (!mageInfo.spellTypes.empty() && mageInfo.cash.max) {
-            const auto& cash{mageInfo.cash};
-            int desiredValue{(int)rand.getInt64Range(cash.min, cash.max)()};
-            int currentValue{};
-
-            auto noWrongType = [types = &mageInfo.spellTypes](const SpellInfo* info) {
-                // Remove spells of types that mage is not allowed to sell
-                return types->find(info->spellType) == types->end();
-            };
-
-            while (currentValue <= desiredValue) {
-                auto spell{pickSpell(rand, {noWrongType})};
-                if (!spell) {
-                    // Could not pick anything, stop
-                    break;
-                }
-
-                currentValue += spell->value;
-                mage->addSpell(spell->spellId);
+            if (tryToPlaceObjectAndConnectToPath(mapElement, position)
+                == ObjectPlacingResult::Success) {
+                std::cout << "Create mage at " << position << '\n';
+                auto mage = placeMage(position, mageInfo);
+                decorations.push_back(std::make_unique<SiteDecoration>(mage));
+                break;
             }
         }
-
-        for (const auto& spell : mageInfo.requiredSpells) {
-            mage->addSpell(spell);
-        }
-
-        auto sitePtr{mage.get()};
-        addRequiredObject(std::move(mage), std::make_unique<SiteDecoration>(sitePtr));
     }
 }
 
 void TemplateZone::placeMercenaries()
 {
+#if 0
     /*
     Vanilla mercenary images:
     0
@@ -1961,10 +2150,12 @@ void TemplateZone::placeMercenaries()
         auto mercPtr{mercenary.get()};
         addRequiredObject(std::move(mercenary), std::make_unique<SiteDecoration>(mercPtr));
     }
+#endif
 }
 
 void TemplateZone::placeRuins()
 {
+#if 0
     /*
     Vanilla ruin images:
     0 - ambar
@@ -2014,6 +2205,7 @@ void TemplateZone::placeRuins()
         auto ruinPtr{ruin.get()};
         addRequiredObject(std::move(ruin), std::make_unique<RuinDecoration>(ruinPtr));
     }
+#endif
 }
 
 bool TemplateZone::placeMines()
