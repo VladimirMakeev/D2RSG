@@ -213,6 +213,7 @@ struct TemplateZone : public ZoneOptions
 
     Site* placeMerchant(const Position& position, const MerchantInfo& merchantInfo);
     Site* placeMage(const Position& position, const MageInfo& mageInfo);
+    Site* placeMercenary(const Position& position, const MercenaryInfo& mercInfo);
 
     std::vector<std::pair<CMidgardID, int>> createLoot(const LootInfo& loot);
 

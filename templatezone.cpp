@@ -1726,6 +1726,74 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
     return sitePtr;
 }
 
+Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo& mercInfo)
+{
+    /*
+    Vanilla mercenary images:
+    0
+    1
+    2
+    3
+    4
+    */
+    static const int mercenaryImages[] = {0, 1, 2, 3, 4};
+
+    auto& rand{mapGenerator->randomGenerator};
+
+    auto mercenaryId{mapGenerator->createId(CMidgardID::Type::Site)};
+    auto mercenary{std::make_unique<Mercenary>(mercenaryId)};
+    mercenary->setTitle("Mercenaries camp");
+    mercenary->setDescription("Mercenaries camp description");
+
+    int image{(int)rand.getInt64Range(0, std::size(mercenaryImages) - 1)()};
+    mercenary->setImgIso(image);
+
+    // Generate random mercenary units of specified subraces
+    if (mercInfo.value) {
+        const auto& value{mercInfo.value};
+        int desiredValue{(int)rand.getInt64Range(value.min, value.max)()};
+        int currentValue{};
+
+        auto noWrongType = [types = &mercInfo.subraceTypes](const UnitInfo* info) {
+            if (types->empty()) {
+                // No types specified, allow all units
+                return false;
+            }
+
+            // Remove units of subraces that mercenary is not allowed to sell
+            return types->find(info->subrace) == types->end();
+        };
+
+        while (currentValue <= desiredValue) {
+            auto unit{pickUnit(rand, {noWrongType})};
+            if (!unit) {
+                // Could not pick anything, stop
+                break;
+            }
+
+            currentValue += unit->value;
+            mercenary->addUnit(unit->unitId, unit->level, true);
+        }
+    }
+
+    // Add required units
+    for (const auto& unit : mercInfo.requiredUnits) {
+        mercenary->addUnit(unit.unitId, unit.level, unit.unique);
+    }
+
+    auto mercPtr{mercenary.get()};
+    placeObject(std::move(mercenary), position);
+
+    const auto& guard{mercInfo.guard};
+    if (guard.value) {
+        const auto guardValue{(int)rand.getInt64Range(guard.value.min, guard.value.max)()};
+
+        guardObject(*mercPtr, guardValue);
+    }
+
+    return mercPtr;
+}
+
 std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo& loot)
 {
     auto& rand{mapGenerator->randomGenerator};
@@ -2104,60 +2172,28 @@ void TemplateZone::placeMages()
 
 void TemplateZone::placeMercenaries()
 {
-#if 0
-    /*
-    Vanilla mercenary images:
-    0
-    1
-    2
-    3
-    4
-    */
-    static const int mercenaryImages[] = {0, 1, 2, 3, 4};
+    for (const auto& mercInfo : mercenaries) {
+        MapElement mapElement{Position{3, 3}};
+        Position position;
 
-    auto& rand{mapGenerator->randomGenerator};
+        const int minDistance{mapElement.getSize().x * 2};
+        while (true) {
+            if (!findPlaceForObject(mapElement, minDistance, position)) {
+                std::cerr << "Failed to place mercenary in zone " << id
+                          << " due to lack of space\n";
+                // Nothing to do here, other mercenaries could not fit either
+                return;
+            }
 
-    for (const auto& info : mercenaries) {
-        auto mercenaryId{mapGenerator->createId(CMidgardID::Type::Site)};
-        auto mercenary{std::make_unique<Mercenary>(mercenaryId)};
-        mercenary->setTitle("Mercenaries camp");
-        mercenary->setDescription("Mercenaries camp description");
-
-        int image{(int)rand.getInt64Range(0, std::size(mercenaryImages) - 1)()};
-        mercenary->setImgIso(image);
-
-        // Generate random mercenary units of specified subraces
-        if (!info.subraceTypes.empty() && info.cash.max) {
-            const auto& cash{info.cash};
-            int desiredValue{(int)rand.getInt64Range(cash.min, cash.max)()};
-            int currentValue{};
-
-            auto noWrongType = [types = &info.subraceTypes](const UnitInfo* info) {
-                // Remove units of subraces that mercenary is not allowed to sell
-                return types->find(info->subrace) == types->end();
-            };
-
-            while (currentValue <= desiredValue) {
-                auto unit{pickUnit(rand, {noWrongType})};
-                if (!unit) {
-                    // Could not pick anything, stop
-                    break;
-                }
-
-                currentValue += unit->value;
-                mercenary->addUnit(unit->unitId, unit->level, true);
+            if (tryToPlaceObjectAndConnectToPath(mapElement, position)
+                == ObjectPlacingResult::Success) {
+                std::cout << "Create mercenary at " << position << '\n';
+                auto merc = placeMercenary(position, mercInfo);
+                decorations.push_back(std::make_unique<SiteDecoration>(merc));
+                break;
             }
         }
-
-        // Add required units
-        for (const auto& unit : info.requiredUnits) {
-            mercenary->addUnit(unit.unitId, unit.level, unit.unique);
-        }
-
-        auto mercPtr{mercenary.get()};
-        addRequiredObject(std::move(mercenary), std::make_unique<SiteDecoration>(mercPtr));
     }
-#endif
 }
 
 void TemplateZone::placeRuins()
