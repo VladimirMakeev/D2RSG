@@ -310,12 +310,11 @@ ObjectPlacingResult TemplateZone::tryToPlaceObjectAndConnectToPath(MapElement& m
                                                                    const Position& position)
 {
     mapElement.setPosition(position);
-    mapGenerator->setOccupied(mapElement.getEntrance(), TileType::Blocked);
 
-    for (const auto& tile : mapElement.getBlockedPositions()) {
-        if (mapGenerator->map->isInTheMap(tile)) {
-            mapGenerator->setOccupied(tile, TileType::Blocked);
-        }
+    const auto tiles{getAccessibleTiles(mapElement)};
+    if (tiles.empty()) {
+        std::cerr << "Can not access required object at position " << position << ", retrying\n";
+        return ObjectPlacingResult::CannotFit;
     }
 
     const auto accessibleOffset{getAccessibleOffset(mapElement, position)};
@@ -328,6 +327,14 @@ ObjectPlacingResult TemplateZone::tryToPlaceObjectAndConnectToPath(MapElement& m
         std::cerr << "Failed to create path to required object at position " << position
                   << ", retrying\n";
         return ObjectPlacingResult::SealedOff;
+    }
+
+    mapGenerator->setOccupied(mapElement.getEntrance(), TileType::Blocked);
+
+    for (const auto& tile : mapElement.getBlockedPositions()) {
+        if (mapGenerator->map->isInTheMap(tile)) {
+            mapGenerator->setOccupied(tile, TileType::Blocked);
+        }
     }
 
     return ObjectPlacingResult::Success;
