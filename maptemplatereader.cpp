@@ -285,6 +285,11 @@ static void readRuin(RuinInfo& ruin, const sol::table& table)
     if (gold.has_value()) {
         readRandomValue<std::uint16_t>(ruin.gold, gold.value(), 0, 0, 9999);
     }
+
+    auto loot = table.get<OptionalTable>("loot");
+    if (loot.has_value()) {
+        readLoot(ruin.loot, loot.value());
+    }
 }
 
 static void readRuins(std::vector<RuinInfo>& ruins, const std::vector<sol::table>& tables)

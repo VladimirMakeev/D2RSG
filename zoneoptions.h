@@ -48,8 +48,10 @@ struct CityInfo
 
 struct RuinInfo
 {
-    // Group inside the ruin, group loot contains ruin's item reward
+    // Group inside the ruin, group loot ignored
     GroupInfo guard;
+    // Item reward. If specified, first required item is picked
+    LootInfo loot;
     RandomValue<std::uint16_t> gold{}; // Reward in gold
 };
 

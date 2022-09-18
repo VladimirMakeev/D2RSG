@@ -1794,6 +1794,64 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
     return mercPtr;
 }
 
+Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo)
+{
+    /*
+    Vanilla ruin images:
+    0 - ambar
+    1 - small castle ruins
+    2 - farm ruins
+    3 - squared with colonnade
+    4 - tower
+    5 - squared with red roof
+    6 - tower in mountains
+    7 - circular panteon
+    8 - mountain clans style
+    9 - water temple
+    10 - elven cottage
+    */
+    static const int ruinImages[] = {0, 1, 2, 3, 4, 5, 6, 7};
+
+    auto& rand{mapGenerator->randomGenerator};
+
+    auto ruinId{mapGenerator->createId(CMidgardID::Type::Ruin)};
+    auto ruin{std::make_unique<Ruin>(ruinId)};
+    ruin->setTitle("Ruin");
+
+    const auto& guardValue{ruinInfo.guard.value};
+    if (guardValue) {
+        constexpr std::size_t maxRuinUnits{6};
+
+        std::size_t unusedValue{};
+        std::set<int> positions = {0, 1, 2, 3, 4, 5};
+        GroupUnits units = {{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
+
+        auto value{(std::size_t)rand.getInt64Range(guardValue.min, guardValue.max)()};
+        auto values{constrainedSum(maxRuinUnits, value, rand)};
+
+        createGroup(unusedValue, positions, units, values, SubRaceType::Neutral);
+        tightenGroup(unusedValue, positions, units, SubRaceType::Neutral);
+
+        createGroupUnits(ruin->getGroup(), units);
+    }
+
+    const auto& gold{ruinInfo.gold};
+    if (gold) {
+        const auto goldValue{(int)rand.getInt64Range(gold.min, gold.max)()};
+
+        Currency cash;
+        cash.set(Currency::Type::Gold, goldValue);
+        ruin->setCash(cash);
+    }
+
+    ruin->setItem(createRuinLoot(ruinInfo.loot));
+
+    auto ruinPtr{ruin.get()};
+    placeObject(std::move(ruin), position);
+
+    return ruinPtr;
+}
+
 std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo& loot)
 {
     auto& rand{mapGenerator->randomGenerator};
@@ -1835,6 +1893,43 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
     }
 
     return items;
+}
+
+CMidgardID TemplateZone::createRuinLoot(const LootInfo& loot)
+{
+    // If we have specific items return the first one.
+    // Ruins don't care about amout
+    if (!loot.requiredItems.empty()) {
+        return loot.requiredItems[0].itemId;
+    }
+
+    // Otherwise, pick a single item from specified value range with respect to item types
+    const auto& value{loot.value};
+    if (!value) {
+        return emptyId;
+    }
+
+    auto noWrongType = [types = &loot.itemTypes](const ItemInfo* info) {
+        if (types->empty()) {
+            return false;
+        }
+
+        // Remove items of types that is not allowed
+        return types->find(info->itemType) == types->end();
+    };
+
+    auto noWrongValue = [&value](const ItemInfo* info) {
+        return info->value < value.min || info->value > value.max;
+    };
+
+    auto& rand{mapGenerator->randomGenerator};
+
+    auto item{pickItem(rand, {noWrongType, noWrongValue})};
+    if (!item) {
+        return emptyId;
+    }
+
+    return item->itemId;
 }
 
 void TemplateZone::initTerrain()
@@ -2198,57 +2293,27 @@ void TemplateZone::placeMercenaries()
 
 void TemplateZone::placeRuins()
 {
-#if 0
-    /*
-    Vanilla ruin images:
-    0 - ambar
-    1 - small castle ruins
-    2 - farm ruins
-    3 - squared with colonnade
-    4 - tower
-    5 - squared with red roof
-    6 - tower in mountains
-    7 - circular panteon
-    8 - mountain clans style
-    9 - water temple
-    10 - elven cottage
-    */
-    static const int ruinImages[] = {0, 1, 2, 3, 4, 5, 6, 7};
-
-    auto& rand{mapGenerator->randomGenerator};
-
     for (const auto& ruinInfo : ruins) {
-        auto ruinId{mapGenerator->createId(CMidgardID::Type::Ruin)};
-        auto ruin{std::make_unique<Ruin>(ruinId)};
+        MapElement mapElement{Position{3, 3}};
+        Position position;
 
-        const auto cashGold{rand.getInt64Range(ruinInfo.cash.min, ruinInfo.cash.max)()};
-        Currency cash;
-        cash.set(Currency::Type::Gold, static_cast<std::uint16_t>(cashGold));
+        const int minDistance{mapElement.getSize().x * 2};
+        while (true) {
+            if (!findPlaceForObject(mapElement, minDistance, position)) {
+                std::cerr << "Failed to place ruin in zone " << id << " due to lack of space\n";
+                // Nothing to do here, other ruins could not fit either
+                return;
+            }
 
-        ruin->setCash(cash);
-        ruin->setTitle("Ruin");
-        int ruinImage = (int)rand.getInt64Range(0, std::size(ruinImages) - 1)();
-        ruin->setImage(ruinImage);
-
-        // TODO: create reward item if itemId is empty and item value is set
-        if (ruinInfo.itemId != emptyId) {
-            ruin->setItem(ruinInfo.itemId);
+            if (tryToPlaceObjectAndConnectToPath(mapElement, position)
+                == ObjectPlacingResult::Success) {
+                std::cout << "Create ruin at " << position << '\n';
+                auto ruin = placeRuin(position, ruinInfo);
+                decorations.push_back(std::make_unique<RuinDecoration>(ruin));
+                break;
+            }
         }
-
-        const auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
-        auto unitAdded{ruin->addUnit(unitId, 2)};
-        assert(unitAdded);
-
-        auto unit{std::make_unique<Unit>(unitId)};
-        // Use non-leader Ork for testing
-        unit->setImplId(CMidgardID("g000uu5013"));
-        unit->setHp(200);
-        mapGenerator->insertObject(std::move(unit));
-
-        auto ruinPtr{ruin.get()};
-        addRequiredObject(std::move(ruin), std::make_unique<RuinDecoration>(ruinPtr));
     }
-#endif
 }
 
 bool TemplateZone::placeMines()

@@ -214,8 +214,10 @@ struct TemplateZone : public ZoneOptions
     Site* placeMerchant(const Position& position, const MerchantInfo& merchantInfo);
     Site* placeMage(const Position& position, const MageInfo& mageInfo);
     Site* placeMercenary(const Position& position, const MercenaryInfo& mercInfo);
+    Ruin* placeRuin(const Position& position, const RuinInfo& ruinInfo);
 
     std::vector<std::pair<CMidgardID, int>> createLoot(const LootInfo& loot);
+    CMidgardID createRuinLoot(const LootInfo& loot);
 
     void initTerrain();
     void fractalize();
