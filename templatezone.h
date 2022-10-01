@@ -178,8 +178,9 @@ struct TemplateZone : public ZoneOptions
                   int strength,
                   bool clearSurroundingTiles = true,
                   bool zoneGuard = false);
-    // Creates stack with specified strength
-    std::unique_ptr<Stack> createStack(int strength);
+    // Creates stack with specified strength, leader and units are picked from allowed subraces
+    // If allowedSubraces empty, every unit can be picked
+    std::unique_ptr<Stack> createStack(int strength, const std::set<SubRaceType>& allowedSubraces);
 
     // Creates stack with specified leader and soldier units
     std::unique_ptr<Stack> createStack(const UnitInfo& leaderInfo,
@@ -189,20 +190,21 @@ struct TemplateZone : public ZoneOptions
     // Picks stack leader using stack unit values
     const UnitInfo* createStackLeader(std::size_t& unusedValue,
                                       std::size_t& valuesConsumed,
-                                      const std::vector<std::size_t>& unitValues);
+                                      const std::vector<std::size_t>& unitValues,
+                                      const std::set<SubRaceType>& allowedSubraces);
 
     // Picks soldiers using specified values
     void createGroup(std::size_t& unusedValue,
                      std::set<int>& positions,
                      GroupUnits& groupUnits,
                      const std::vector<std::size_t>& unitValues,
-                     SubRaceType unitsSubRace);
+                     const std::set<SubRaceType>& allowedSubraces);
 
     // Tightens group by rolling additional soldier units
     void tightenGroup(std::size_t& unusedValue,
                       std::set<int>& positions,
                       GroupUnits& groupUnits,
-                      SubRaceType unitsSubRace);
+                      const std::set<SubRaceType>& allowedSubraces);
 
     void createGroupUnits(Group& group, const GroupUnits& groupUnits);
 

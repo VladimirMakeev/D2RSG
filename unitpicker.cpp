@@ -1,4 +1,5 @@
 #include "unitpicker.h"
+#include "containers.h"
 #include "gameinfo.h"
 #include "randomgenerator.h"
 #include <algorithm>
@@ -76,7 +77,7 @@ bool noLore(const UnitInfo* info)
     };
     // clang-format on
 
-    return loreUnits.find(info->unitId) != loreUnits.end();
+    return contains(loreUnits, info->unitId);
 }
 
 bool noPlayableRaces(const UnitInfo* info)

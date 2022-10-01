@@ -1082,7 +1082,7 @@ bool TemplateZone::addStack(const Position& position,
         return false;
     }
 
-    auto stack{createStack(strength)};
+    auto stack{createStack(strength, {SubRaceType::Neutral})};
     if (!stack) {
         return false;
     }
@@ -1104,7 +1104,8 @@ bool TemplateZone::addStack(const Position& position,
     return true;
 }
 
-std::unique_ptr<Stack> TemplateZone::createStack(int strength)
+std::unique_ptr<Stack> TemplateZone::createStack(int strength,
+                                                 const std::set<SubRaceType>& allowedSubraces)
 {
     auto& rand{mapGenerator->randomGenerator};
 
@@ -1127,7 +1128,8 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
     std::size_t valuesConsumed{};
 
     // Pick leader
-    const UnitInfo* leaderInfo{createStackLeader(unusedValue, valuesConsumed, unitValues)};
+    const UnitInfo* leaderInfo{
+        createStackLeader(unusedValue, valuesConsumed, unitValues, allowedSubraces)};
     if (!leaderInfo) {
         std::string msg{"Could not pick stack leader. Stack value: "};
         msg += std::to_string(strength);
@@ -1160,18 +1162,6 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
         positions.erase(leaderPosition);
     }
 
-    const auto zoneHasOwner{ownerId != emptyId};
-    auto& map{mapGenerator->map};
-
-    SubRaceType zoneSubRace{SubRaceType::Neutral};
-
-    if (zoneHasOwner) {
-        auto player{map->find<Player>(ownerId)};
-        assert(player != nullptr);
-
-        zoneSubRace = map->getSubRaceType(map->getRaceType(player->getRace()));
-    }
-
     GroupUnits soldiers = {{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
 
     // Pick soldier units 1 by 1, starting from value that was not used for leader
@@ -1179,13 +1169,13 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength)
         std::vector<std::size_t> soldierValues(unitValues.begin() + valuesConsumed,
                                                unitValues.end());
 
-        createGroup(unusedValue, positions, soldiers, soldierValues, zoneSubRace);
+        createGroup(unusedValue, positions, soldiers, soldierValues, allowedSubraces);
     }
 
     // Check if we still have unused value and free positions in group.
     // This should help with better stack value usage
     // and reduce number of stacks with single ranged or support leader
-    tightenGroup(unusedValue, positions, soldiers, zoneSubRace);
+    tightenGroup(unusedValue, positions, soldiers, allowedSubraces);
 
     constexpr bool debugStackValues{true};
 
@@ -1250,7 +1240,8 @@ std::unique_ptr<Stack> TemplateZone::createStack(const UnitInfo& leaderInfo,
 
 const UnitInfo* TemplateZone::createStackLeader(std::size_t& unusedValue,
                                                 std::size_t& valuesConsumed,
-                                                const std::vector<std::size_t>& unitValues)
+                                                const std::vector<std::size_t>& unitValues,
+                                                const std::set<SubRaceType>& allowedSubraces)
 {
     auto& rand{mapGenerator->randomGenerator};
 
@@ -1261,13 +1252,19 @@ const UnitInfo* TemplateZone::createStackLeader(std::size_t& unusedValue,
         auto value = unitValues[i] + unusedValue;
         auto minValue = value * 0.65f;
 
-        auto noWrongValue = [minValue, value](const UnitInfo* info) {
+        auto filter = [allowedSubraces, minValue, value](const UnitInfo* info) {
+            if (!allowedSubraces.empty()) {
+                if (!contains(allowedSubraces, info->subrace)) {
+                    return true;
+                }
+            }
+
             return info->value < minValue || info->value > value;
         };
 
         // TODO: if we have a single leader, do not pick support or ranged unit.
         // summoners are still allowed
-        leaderInfo = pickLeader(rand, {noPlayableRaces, noWrongValue, noLore});
+        leaderInfo = pickLeader(rand, {filter, noLore});
         if (leaderInfo) {
             // Accumulate unused value after picking a leader
             unusedValue = value - leaderInfo->value;
@@ -1286,7 +1283,7 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
                                std::set<int>& positions,
                                GroupUnits& groupUnits,
                                const std::vector<std::size_t>& unitValues,
-                               SubRaceType unitsSubRace)
+                               const std::set<SubRaceType>& allowedSubraces)
 {
     auto& rand{mapGenerator->randomGenerator};
 
@@ -1308,10 +1305,10 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
         // We can place big unit if front and back line positions are free
         const auto canPlaceBig = positions.count(position) && positions.count(secondPosition);
 
-        auto filter = [unitsSubRace, canPlaceBig, frontline](const UnitInfo* info) {
-            if (unitsSubRace != SubRaceType::Neutral) {
-                // Do not pick units with the same subrace as in starting zone
-                if (info->subrace == unitsSubRace) {
+        auto filter = [allowedSubraces, canPlaceBig, frontline](const UnitInfo* info) {
+            if (!allowedSubraces.empty()) {
+                if (allowedSubraces.find(info->subrace) == allowedSubraces.end()) {
+                    // Remove units of subraces that are not allowed
                     return true;
                 }
             }
@@ -1374,7 +1371,7 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
 void TemplateZone::tightenGroup(std::size_t& unusedValue,
                                 std::set<int>& positions,
                                 GroupUnits& groupUnits,
-                                SubRaceType unitsSubRace)
+                                const std::set<SubRaceType>& allowedSubraces)
 {
     auto& rand{mapGenerator->randomGenerator};
 
@@ -1403,10 +1400,10 @@ void TemplateZone::tightenGroup(std::size_t& unusedValue,
         // We can place big unit if front and back line positions are free
         const auto canPlaceBig = positions.count(position) && positions.count(secondPosition);
 
-        auto filter = [unitsSubRace, canPlaceBig, frontline](const UnitInfo* info) {
-            if (unitsSubRace != SubRaceType::Neutral) {
-                // Do not pick units with the same subrace as in starting zone
-                if (info->subrace == unitsSubRace) {
+        auto filter = [allowedSubraces, canPlaceBig, frontline](const UnitInfo* info) {
+            if (!allowedSubraces.empty()) {
+                if (allowedSubraces.find(info->subrace) == allowedSubraces.end()) {
+                    // Remove units of subraces that are not allowed
                     return true;
                 }
             }
@@ -1569,7 +1566,8 @@ Village* TemplateZone::placeCity(const Position& position,
         }
         }
 
-        createGroup(unusedValue, positions, units, values, SubRaceType::Neutral);
+        createGroup(unusedValue, positions, units, values, cityInfo.garrison.subraceTypes);
+        tightenGroup(unusedValue, positions, units, cityInfo.garrison.subraceTypes);
         createGroupUnits(villagePtr->getGroup(), units);
     }
 
@@ -1591,8 +1589,8 @@ Village* TemplateZone::placeCity(const Position& position,
     if (stackValue) {
         // Create visitor stack and its loot
         int value = (int)rand.getInt64Range(stackValue.min, stackValue.max)();
-        // TODO: restrict stack units subraces according to cityInfo
-        auto stack{createStack(value)};
+
+        auto stack{createStack(value, cityInfo.stack.subraceTypes)};
 
         // Make sure visitor stack is inside the city
         villagePtr->setStack(stack->getId());
@@ -1829,8 +1827,8 @@ Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo
         auto value{(std::size_t)rand.getInt64Range(guardValue.min, guardValue.max)()};
         auto values{constrainedSum(maxRuinUnits, value, rand)};
 
-        createGroup(unusedValue, positions, units, values, SubRaceType::Neutral);
-        tightenGroup(unusedValue, positions, units, SubRaceType::Neutral);
+        createGroup(unusedValue, positions, units, values, ruinInfo.guard.subraceTypes);
+        tightenGroup(unusedValue, positions, units, ruinInfo.guard.subraceTypes);
 
         createGroupUnits(ruin->getGroup(), units);
     }
