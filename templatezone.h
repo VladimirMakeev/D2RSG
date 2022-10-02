@@ -151,7 +151,7 @@ struct TemplateZone : public ZoneOptions
 
     void placeMountain(const Position& position, const Position& size, int image);
 
-    bool guardObject(const MapElement& mapElement, int guardStrength, bool zoneGuard = false);
+    bool guardObject(const MapElement& mapElement, const GroupInfo& guardInfo);
 
     void updateDistances(const Position& position);
 
@@ -173,14 +173,8 @@ struct TemplateZone : public ZoneOptions
 
     bool connectPath(const Position& source, bool onlyStraight);
 
-    // Creates stack that guards zone entrances or treasures
-    bool addStack(const Position& position,
-                  int strength,
-                  bool clearSurroundingTiles = true,
-                  bool zoneGuard = false);
-    // Creates stack with specified strength, leader and units are picked from allowed subraces
-    // If allowedSubraces empty, every unit can be picked
-    std::unique_ptr<Stack> createStack(int strength, const std::set<SubRaceType>& allowedSubraces);
+    // Creates stack with loot from specified group information
+    std::unique_ptr<Stack> createStack(const GroupInfo& stackInfo);
 
     // Creates stack with specified leader and soldier units
     std::unique_ptr<Stack> createStack(const UnitInfo& leaderInfo,

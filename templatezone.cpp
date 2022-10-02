@@ -734,7 +734,7 @@ void TemplateZone::placeMountain(const Position& position, const Position& size,
     mapGenerator->map->addMountain(position, size, image);
 }
 
-bool TemplateZone::guardObject(const MapElement& mapElement, int guardStrength, bool zoneGuard)
+bool TemplateZone::guardObject(const MapElement& mapElement, const GroupInfo& guardInfo)
 {
     const auto tiles{getAccessibleTiles(mapElement)};
     Position guardTile{-1, -1};
@@ -748,16 +748,22 @@ bool TemplateZone::guardObject(const MapElement& mapElement, int guardStrength, 
         return false;
     }
 
-    if (addStack(guardTile, guardStrength, false, zoneGuard)) {
-        mapGenerator->setOccupied(guardTile, TileType::Used);
-    } else {
+    auto stack{createStack(guardInfo)};
+    if (!stack) {
         // Allow no guard or other object in front of this object
         for (const auto& tile : tiles) {
             if (mapGenerator->isPossible(tile)) {
                 mapGenerator->setOccupied(tile, TileType::Free);
             }
         }
+
+        return true;
     }
+
+    stack->setOwner(mapGenerator->getNeutralPlayerId());
+    stack->setSubrace(mapGenerator->getNeutralSubraceId());
+
+    placeObject(std::move(stack), guardTile);
 
     return true;
 }
@@ -1071,7 +1077,7 @@ bool TemplateZone::connectPath(const Position& source, bool onlyStraight)
 
     return false;
 }
-
+/*
 bool TemplateZone::addStack(const Position& position,
                             int strength,
                             bool clearSurroundingTiles,
@@ -1103,11 +1109,17 @@ bool TemplateZone::addStack(const Position& position,
 
     return true;
 }
-
-std::unique_ptr<Stack> TemplateZone::createStack(int strength,
-                                                 const std::set<SubRaceType>& allowedSubraces)
+*/
+std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
 {
+    const auto& stackValue{stackInfo.value};
+    if (!stackValue) {
+        return nullptr;
+    }
+
     auto& rand{mapGenerator->randomGenerator};
+
+    int strength = (int)rand.getInt64Range(stackValue.min, stackValue.max)();
 
     // Roll number of units
     int soldiersStrength{strength - getMinLeaderValue()};
@@ -1129,7 +1141,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength,
 
     // Pick leader
     const UnitInfo* leaderInfo{
-        createStackLeader(unusedValue, valuesConsumed, unitValues, allowedSubraces)};
+        createStackLeader(unusedValue, valuesConsumed, unitValues, stackInfo.subraceTypes)};
     if (!leaderInfo) {
         std::string msg{"Could not pick stack leader. Stack value: "};
         msg += std::to_string(strength);
@@ -1169,13 +1181,13 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength,
         std::vector<std::size_t> soldierValues(unitValues.begin() + valuesConsumed,
                                                unitValues.end());
 
-        createGroup(unusedValue, positions, soldiers, soldierValues, allowedSubraces);
+        createGroup(unusedValue, positions, soldiers, soldierValues, stackInfo.subraceTypes);
     }
 
     // Check if we still have unused value and free positions in group.
     // This should help with better stack value usage
     // and reduce number of stacks with single ranged or support leader
-    tightenGroup(unusedValue, positions, soldiers, allowedSubraces);
+    tightenGroup(unusedValue, positions, soldiers, stackInfo.subraceTypes);
 
     constexpr bool debugStackValues{true};
 
@@ -1204,7 +1216,23 @@ std::unique_ptr<Stack> TemplateZone::createStack(int strength,
                   << unitsCreated << '\n';
     }
 
-    return createStack(*leaderInfo, leaderPosition, soldiers);
+    auto stack{createStack(*leaderInfo, leaderPosition, soldiers)};
+
+    auto stackLoot{createLoot(stackInfo.loot)};
+    auto& stackInventory{stack->getInventory()};
+
+    for (const auto& [id, amount] : stackLoot) {
+        for (int i = 0; i < amount; ++i) {
+            auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
+            auto item{std::make_unique<Item>(itemId)};
+            item->setItemType(id);
+
+            mapGenerator->insertObject(std::move(item));
+            stackInventory.add(itemId);
+        }
+    }
+
+    return stack;
 }
 
 std::unique_ptr<Stack> TemplateZone::createStack(const UnitInfo& leaderInfo,
@@ -1585,33 +1613,15 @@ Village* TemplateZone::placeCity(const Position& position,
         }
     }
 
-    const auto& stackValue{cityInfo.stack.value};
-    if (stackValue) {
-        // Create visitor stack and its loot
-        int value = (int)rand.getInt64Range(stackValue.min, stackValue.max)();
-
-        auto stack{createStack(value, cityInfo.stack.subraceTypes)};
-
+    // Create visitor stack and its loot
+    auto stack{createStack(cityInfo.stack)};
+    if (stack) {
         // Make sure visitor stack is inside the city
         villagePtr->setStack(stack->getId());
         stack->setInside(villageId);
 
         stack->setOwner(ownerId);
         stack->setSubrace(subraceId);
-
-        auto stackLoot{createLoot(cityInfo.stack.loot)};
-        auto& stackInventory{stack->getInventory()};
-
-        for (const auto& [id, amount] : stackLoot) {
-            for (int i = 0; i < amount; ++i) {
-                auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
-                auto item{std::make_unique<Item>(itemId)};
-                item->setItemType(id);
-
-                mapGenerator->insertObject(std::move(item));
-                stackInventory.add(itemId);
-            }
-        }
 
         placeObject(std::move(stack), position);
     }
@@ -1652,13 +1662,7 @@ Site* TemplateZone::placeMerchant(const Position& position, const MerchantInfo& 
 
     auto merchantPtr{merchant.get()};
     placeObject(std::move(merchant), position);
-
-    const auto& guard{merchantInfo.guard};
-    if (guard.value) {
-        const auto guardValue{(int)rand.getInt64Range(guard.value.min, guard.value.max)()};
-
-        guardObject(*merchantPtr, guardValue);
-    }
+    guardObject(*merchantPtr, merchantInfo.guard);
 
     return merchantPtr;
 }
@@ -1713,13 +1717,7 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
 
     auto sitePtr{mage.get()};
     placeObject(std::move(mage), position);
-
-    const auto& guard{mageInfo.guard};
-    if (guard.value) {
-        const auto guardValue{(int)rand.getInt64Range(guard.value.min, guard.value.max)()};
-
-        guardObject(*sitePtr, guardValue);
-    }
+    guardObject(*sitePtr, mageInfo.guard);
 
     return sitePtr;
 }
@@ -1781,13 +1779,7 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
 
     auto mercPtr{mercenary.get()};
     placeObject(std::move(mercenary), position);
-
-    const auto& guard{mercInfo.guard};
-    if (guard.value) {
-        const auto guardValue{(int)rand.getInt64Range(guard.value.min, guard.value.max)()};
-
-        guardObject(*mercPtr, guardValue);
-    }
+    guardObject(*mercPtr, mercInfo.guard);
 
     return mercPtr;
 }
@@ -1857,27 +1849,13 @@ Stack* TemplateZone::placeZoneGuard(const Position& position, const GroupInfo& g
         return nullptr;
     }
 
-    auto& rand{mapGenerator->randomGenerator};
-
-    int value = (int)rand.getInt64Range(guardInfo.value.min, guardInfo.value.max)();
-    auto stack{createStack(value, guardInfo.subraceTypes)};
+    auto stack{createStack(guardInfo)};
+    if (!stack) {
+        return nullptr;
+    }
 
     stack->setOwner(mapGenerator->getNeutralPlayerId());
     stack->setSubrace(mapGenerator->getNeutralSubraceId());
-
-    auto stackLoot{createLoot(guardInfo.loot)};
-    auto& stackInventory{stack->getInventory()};
-
-    for (const auto& [id, amount] : stackLoot) {
-        for (int i = 0; i < amount; ++i) {
-            auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
-            auto item{std::make_unique<Item>(itemId)};
-            item->setItemType(id);
-
-            mapGenerator->insertObject(std::move(item));
-            stackInventory.add(itemId);
-        }
-    }
 
     Stack* stackPtr{stack.get()};
     placeObject(std::move(stack), position);
@@ -2503,7 +2481,7 @@ bool TemplateZone::createRequiredObjects()
             if (tryToPlaceObjectAndConnectToPath(*mapElement, position)
                 == ObjectPlacingResult::Success) {
                 placeScenarioObject(std::move(object), position);
-                guardObject(*mapElement, requiredObject.guardStrength);
+                // guardObject(*mapElement, requiredObject.guardStrength);
 
                 if (requiredObject.decoration) {
                     // If object has decoration, remember it
@@ -2515,6 +2493,7 @@ bool TemplateZone::createRequiredObjects()
         }
     }
 
+#if 0
     // Place neutral guardian stacks, they are for xp only and does not guard anything
     // TODO: adjust their strength according to distance from capital in starting zones?
     // TODO: unify with code above
@@ -2540,6 +2519,7 @@ bool TemplateZone::createRequiredObjects()
             }
         }
     }
+#endif
 
     for (auto& closeObject : closeObjects) {
         auto& object{closeObject.object};
@@ -2624,7 +2604,7 @@ bool TemplateZone::createRequiredObjects()
                 auto result{tryToPlaceObjectAndConnectToPath(*mapElement, position)};
                 if (result == ObjectPlacingResult::Success) {
                     placeScenarioObject(std::move(object), position);
-                    guardObject(*mapElement, closeObject.guardStrength);
+                    // guardObject(*mapElement, closeObject.guardStrength);
 
                     if (closeObject.decoration) {
                         decorations.push_back(std::move(closeObject.decoration));
