@@ -1,6 +1,5 @@
 #pragma once
 
-#include "zoneconnection.h"
 #include "zoneoptions.h"
 #include <array>
 #include <memory>

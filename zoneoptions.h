@@ -112,6 +112,14 @@ struct BagInfo
     std::uint32_t count{};
 };
 
+// Connection between two zones in template
+struct ZoneConnection
+{
+    GroupInfo guard;
+    TemplateZoneId zoneFrom{0};
+    TemplateZoneId zoneTo{0};
+};
+
 // Template zone settings
 struct ZoneOptions
 {

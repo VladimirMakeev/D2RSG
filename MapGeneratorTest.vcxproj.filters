@@ -407,9 +407,6 @@
     <ClInclude Include="vposition.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="zoneconnection.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="zoneid.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>

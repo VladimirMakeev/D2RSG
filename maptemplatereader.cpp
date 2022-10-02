@@ -1,4 +1,5 @@
 #include "maptemplatereader.h"
+#include "containers.h"
 #include "maptemplate.h"
 #include <fstream>
 #include <iostream>
@@ -507,14 +508,20 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
 
 static ZoneConnection createZoneConnection(const sol::table& table, const MapTemplate::Zones& zones)
 {
-    auto a{readValue(table, "a", -1, 0)};
-    auto b{readValue(table, "b", -1, 0)};
-    auto guard{readValue(table, "guard", 0, 0)};
+    ZoneConnection connection;
 
-    assert(zones.find(a) != zones.end());
-    assert(zones.find(b) != zones.end());
+    connection.zoneFrom = readValue(table, "from", -1, 0);
+    connection.zoneTo = readValue(table, "to", -1, 0);
 
-    return ZoneConnection{a, b, guard};
+    assert(zones.find(connection.zoneFrom) != zones.end());
+    assert(zones.find(connection.zoneTo) != zones.end());
+
+    auto guard = table.get<OptionalTable>("guard");
+    if (guard.has_value()) {
+        readGroup(connection.guard, guard.value());
+    }
+
+    return connection;
 }
 
 static MapTemplate* createMapTemplate(sol::state& lua)
@@ -559,17 +566,17 @@ static MapTemplate* createMapTemplate(sol::state& lua)
 
     // Populate zone connections
     for (auto& connection : map->connections) {
-        const auto zoneAId{connection.zoneA};
-        const auto zoneBId{connection.zoneB};
+        const auto zoneFromId{connection.zoneFrom};
+        const auto zoneToId{connection.zoneTo};
 
-        auto zoneA = map->zones.find(zoneAId);
-        assert(zoneA != map->zones.end());
+        auto zoneFrom = map->zones.find(zoneFromId);
+        assert(zoneFrom != map->zones.end());
 
-        auto zoneB = map->zones.find(zoneBId);
-        assert(zoneB != map->zones.end());
+        auto zoneTo = map->zones.find(zoneToId);
+        assert(zoneTo != map->zones.end());
 
-        zoneA->second->connections.push_back(zoneBId);
-        zoneB->second->connections.push_back(zoneAId);
+        zoneFrom->second->connections.push_back(zoneToId);
+        zoneTo->second->connections.push_back(zoneFromId);
     }
 
     return map;

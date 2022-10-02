@@ -182,8 +182,8 @@ void MapGenerator::fillZones()
 void MapGenerator::createDirectConnections()
 {
     for (auto& connection : mapGenOptions.mapTemplate->connections) {
-        auto zoneA{zones[connection.zoneA]};
-        auto zoneB{zones[connection.zoneB]};
+        auto zoneA{zones[connection.zoneFrom]};
+        auto zoneB{zones[connection.zoneTo]};
 
         const auto zoneBId{zoneB->id};
         Position guardPos{-1, -1};
@@ -230,12 +230,12 @@ void MapGenerator::createDirectConnections()
                 zoneA->connectWithCenter(guardPos, true, true);
                 zoneB->connectWithCenter(guardPos, true, true);
 
-                const auto exists{zoneA->addStack(guardPos, connection.guardStrength, false, true)};
+                const Stack* guard{zoneA->placeZoneGuard(guardPos, connection.guard)};
                 // Place next objects away from guard in both zones
                 zoneB->updateDistances(guardPos);
 
                 // Set free tile only after connection is made to the center of the zone
-                if (!exists) {
+                if (!guard) {
                     // Strength is too weak for guard to spawn
                     setOccupied(guardPos, TileType::Free);
                 }

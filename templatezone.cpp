@@ -1850,6 +1850,41 @@ Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo
     return ruinPtr;
 }
 
+Stack* TemplateZone::placeZoneGuard(const Position& position, const GroupInfo& guardInfo)
+{
+    if (!guardInfo.value) {
+        // No guard at all
+        return nullptr;
+    }
+
+    auto& rand{mapGenerator->randomGenerator};
+
+    int value = (int)rand.getInt64Range(guardInfo.value.min, guardInfo.value.max)();
+    auto stack{createStack(value, guardInfo.subraceTypes)};
+
+    stack->setOwner(mapGenerator->getNeutralPlayerId());
+    stack->setSubrace(mapGenerator->getNeutralSubraceId());
+
+    auto stackLoot{createLoot(guardInfo.loot)};
+    auto& stackInventory{stack->getInventory()};
+
+    for (const auto& [id, amount] : stackLoot) {
+        for (int i = 0; i < amount; ++i) {
+            auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
+            auto item{std::make_unique<Item>(itemId)};
+            item->setItemType(id);
+
+            mapGenerator->insertObject(std::move(item));
+            stackInventory.add(itemId);
+        }
+    }
+
+    Stack* stackPtr{stack.get()};
+    placeObject(std::move(stack), position);
+
+    return stackPtr;
+}
+
 std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo& loot)
 {
     auto& rand{mapGenerator->randomGenerator};
