@@ -10,8 +10,12 @@ void Unit::serialize(Serializer& serializer, const Map& scenario) const
 
     CMidgardID::String idString{};
     objectId.toString(idString);
-    // Modifiers
-    serializer.serialize(idString.data(), 0);
+
+    serializer.serialize(idString.data(), static_cast<std::uint32_t>(modifiers.size()));
+
+    for (const auto& id : modifiers) {
+        serializer.serialize("MODIF_ID", id);
+    }
 
     serializer.serialize("CREATION", creation);
     serializer.serialize("NAME_TXT", name.c_str());

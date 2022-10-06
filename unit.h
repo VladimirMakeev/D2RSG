@@ -2,6 +2,7 @@
 
 #include "scenarioobject.h"
 #include <string>
+#include <vector>
 
 class Unit : public ScenarioObject
 {
@@ -54,7 +55,13 @@ public:
         level = value;
     }
 
+    void addModifier(const CMidgardID& modifierId)
+    {
+        modifiers.push_back(modifierId);
+    }
+
 private:
+    std::vector<CMidgardID> modifiers;
     std::string name;
     CMidgardID implId;
     int level{1};

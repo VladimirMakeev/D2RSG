@@ -218,8 +218,13 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
         }
 
         int move{};
+        int leadership{};
         if (unitType == UnitType::Leader) {
             if (!record.value(move, "MOVE")) {
+                continue;
+            }
+
+            if (!record.value(leadership, "LEADERSHIP")) {
                 continue;
             }
         }
@@ -239,7 +244,7 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
 
         auto info{std::make_unique<UnitInfo>(unitId, level, value, unitType,
                                              static_cast<SubRaceType>(subrace), pair.first,
-                                             pair.second, hp, move, !smallUnit)};
+                                             pair.second, hp, move, leadership, !smallUnit)};
 
         if (unitType == UnitType::Leader) {
             leaders.push_back(info.get());

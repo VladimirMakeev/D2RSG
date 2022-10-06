@@ -1218,6 +1218,33 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
 
     auto stack{createStack(*leaderInfo, leaderPosition, soldiers)};
 
+    // Make sure we create leader with correct leadership value
+    int leadershipRequired = leaderInfo->bigUnit ? 2 : 1;
+
+    for (std::size_t position = 0; position < soldiers.size(); ++position) {
+        const auto* unitInfo{soldiers[position]};
+        if (!unitInfo) {
+            continue;
+        }
+
+        ++leadershipRequired;
+
+        if (unitInfo->bigUnit) {
+            ++leadershipRequired;
+            // Skip second part of big unit
+            ++position;
+        }
+    }
+
+    if (leaderInfo->leadership < leadershipRequired) {
+        const int diff = leadershipRequired - leaderInfo->leadership;
+        Unit* leaderUnit = mapGenerator->map->find<Unit>(stack->getLeader());
+
+        for (int i = 0; i < diff; ++i) {
+            leaderUnit->addModifier(CMidgardID("G000UM9031")); // +1 Leadership
+        }
+    }
+
     auto stackLoot{createLoot(stackInfo.loot)};
     auto& stackInventory{stack->getInventory()};
 

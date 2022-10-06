@@ -23,6 +23,7 @@ struct UnitInfo
              AttackType attackType,
              int hp,
              int move,
+             int leadership,
              bool bigUnit)
         : unitId{unitId}
         , level{level}
@@ -33,6 +34,7 @@ struct UnitInfo
         , attackType{attackType}
         , hitPoints{hp}
         , move{move}
+        , leadership{leadership}
         , bigUnit{bigUnit}
     { }
 
@@ -45,6 +47,7 @@ struct UnitInfo
     AttackType attackType{AttackType ::Damage};
     int hitPoints{};
     int move{};
+    int leadership{};
     bool bigUnit{};
 };
 
