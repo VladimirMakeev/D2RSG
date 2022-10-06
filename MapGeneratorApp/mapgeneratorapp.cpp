@@ -89,7 +89,8 @@ bool MapGeneratorApp::readGameInfo(const std::filesystem::path &gameFolder)
            && readUnitsInfo(globalsFolder)
            && readItemsInfo(globalsFolder)
            && readSpellsInfo(globalsFolder)
-           && readLandmarksInfo(globalsFolder);
+           && readLandmarksInfo(globalsFolder)
+           && readGlobalTexts(globalsFolder);
 }
 
 bool MapGeneratorApp::readTemplate(const std::filesystem::path& templatePath)

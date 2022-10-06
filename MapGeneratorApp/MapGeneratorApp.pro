@@ -112,6 +112,8 @@ SOURCES += \
         ../subrace.cpp \
         ../talismancharges.cpp \
         ../templatezone.cpp \
+        ../textconvert.cpp \
+        ../texts.cpp \
         ../turnsummary.cpp \
         ../unit.cpp \
         ../unitpicker.cpp \
@@ -206,6 +208,8 @@ HEADERS += \
         ../subrace.h \
         ../talismancharges.h \
         ../templatezone.h \
+        ../textconvert.h \
+        ../texts.h \
         ../tileinfo.h \
         ../turnsummary.h \
         ../unit.h \
