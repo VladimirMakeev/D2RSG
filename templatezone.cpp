@@ -1077,39 +1077,7 @@ bool TemplateZone::connectPath(const Position& source, bool onlyStraight)
 
     return false;
 }
-/*
-bool TemplateZone::addStack(const Position& position,
-                            int strength,
-                            bool clearSurroundingTiles,
-                            bool zoneGuard)
-{
-    // If total strength is too low, do not create stack at all
-    if (strength == 0 || strength < getMinLeaderValue()) {
-        return false;
-    }
 
-    auto stack{createStack(strength, {SubRaceType::Neutral})};
-    if (!stack) {
-        return false;
-    }
-
-    stack->setOwner(mapGenerator->getNeutralPlayerId());
-    stack->setSubrace(mapGenerator->getNeutralSubraceId());
-
-    placeObject(std::move(stack), position);
-
-    if (clearSurroundingTiles) {
-        // Do not spawn anything near stack
-        mapGenerator->foreachNeighbor(position, [this](Position& tile) {
-            if (mapGenerator->isPossible(tile)) {
-                mapGenerator->setOccupied(tile, TileType::Free);
-            }
-        });
-    }
-
-    return true;
-}
-*/
 std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
 {
     const auto& stackValue{stackInfo.value};
@@ -2405,18 +2373,103 @@ bool TemplateZone::placeMines()
 
 void TemplateZone::placeStacks()
 {
-    if (!stacks.count) {
-        return;
+    // Compute how many stacks (random + required) we have in total
+    const std::size_t stacksTotal = stacks.count + stacks.requiredStacks.size();
+    std::vector<Position> positions(stacksTotal);
+
+    // Find position for each of them
+    for (std::size_t i = 0; i < stacksTotal; ++i) {
+        Position position;
+
+        MapElement mapElement{Position{1, 1}};
+        const int minDistance{2};
+
+        while (true) {
+            if (!findPlaceForObject(mapElement, minDistance, position)) {
+                std::cerr << "Failed to place stacks in zone " << id << " due to lack of space\n";
+                return;
+            }
+
+            if (tryToPlaceObjectAndConnectToPath(mapElement, position)
+                == ObjectPlacingResult::Success) {
+                positions[i] = position;
+                // We need to update distance now so findPlaceForObject could search properly
+                // Actual stack placement will be done later
+                updateDistances(position);
+                break;
+            }
+        }
     }
 
     auto& rand{mapGenerator->randomGenerator};
-    // Roll actual stacks value in the zone
-    auto totalValue{(int)rand.getInt64Range(stacks.value.min, stacks.value.max)()};
 
-    const auto stackValue{totalValue / stacks.count};
+    // Make sure random and required stacks are mixed on the map
+    randomShuffle(positions, rand);
 
-    for (std::uint32_t i = 0; i < stacks.count; ++i) {
-        neutralStacks.push_back(stackValue);
+    std::vector<Stack*> randomStacks(stacks.count);
+    std::size_t stackIndex{0};
+    // Generate and place all random stacks, value is split evenly
+    GroupInfo randomStackInfo;
+
+    if (stacks.count) {
+        randomStackInfo.value = RandomValue{stacks.value / stacks.count};
+    }
+
+    for (; stackIndex < stacks.count; ++stackIndex) {
+        auto stack{createStack(randomStackInfo)};
+        if (!stack) {
+            continue;
+        }
+
+        stack->setOwner(mapGenerator->getNeutralPlayerId());
+        stack->setSubrace(mapGenerator->getNeutralSubraceId());
+
+        randomStacks[stackIndex] = stack.get();
+        placeObject(std::move(stack), positions[stackIndex]);
+    }
+
+    // Generate loot and then split items among the stacks
+    auto stacksLoot{createLoot(stacks.loot)};
+    std::vector<CMidgardID> items;
+
+    for (const auto& [id, amount] : stacksLoot) {
+        items.insert(items.end(), amount, id);
+    }
+
+    // Make sure random and required items are randomly distributed
+    randomShuffle(items, rand);
+
+    std::size_t j{0};
+    for (const auto& id : items) {
+        const std::size_t index = j % randomStacks.size();
+
+        if (!randomStacks[index]) {
+            ++j;
+            continue;
+        }
+
+        auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
+        auto item{std::make_unique<Item>(itemId)};
+        item->setItemType(id);
+
+        mapGenerator->insertObject(std::move(item));
+
+        Inventory& inventory{randomStacks[index]->getInventory()};
+        inventory.add(itemId);
+        ++j;
+    }
+
+    // Generate and place all required stacks
+    for (const auto& stackInfo : stacks.requiredStacks) {
+        auto stack{createStack(stackInfo)};
+        if (!stack) {
+            continue;
+        }
+
+        stack->setOwner(mapGenerator->getNeutralPlayerId());
+        stack->setSubrace(mapGenerator->getNeutralSubraceId());
+
+        placeObject(std::move(stack), positions[stackIndex++]);
     }
 }
 
@@ -2519,34 +2572,6 @@ bool TemplateZone::createRequiredObjects()
             }
         }
     }
-
-#if 0
-    // Place neutral guardian stacks, they are for xp only and does not guard anything
-    // TODO: adjust their strength according to distance from capital in starting zones?
-    // TODO: unify with code above
-    for (auto& value : neutralStacks) {
-        Position position;
-
-        MapElement mapElement(Position{1, 1});
-        while (true) {
-            const auto elementSize{mapElement.getSize().x};
-            const auto sizeSquared{elementSize * elementSize};
-            // TODO: move this setting into template for better object placement ?
-            const auto minDistance{elementSize * 2};
-
-            if (!findPlaceForObject(mapElement, minDistance, position)) {
-                std::cerr << "Failed to fill zone " << id << " due to lack of space\n";
-                return false;
-            }
-
-            if (tryToPlaceObjectAndConnectToPath(mapElement, position)
-                == ObjectPlacingResult::Success) {
-                addStack(position, value, false);
-                break;
-            }
-        }
-    }
-#endif
 
     for (auto& closeObject : closeObjects) {
         auto& object{closeObject.object};
@@ -2658,7 +2683,6 @@ bool TemplateZone::createRequiredObjects()
 
     requiredObjects.clear();
     closeObjects.clear();
-    neutralStacks.clear();
 
     return true;
 }

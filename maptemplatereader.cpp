@@ -435,7 +435,7 @@ static void readStacks(StacksInfo& stacks, const sol::table& table)
         readLoot(stacks.loot, loot.value());
     }
 
-    auto required = table.get<OptionalTableArray>("required");
+    auto required = table.get<OptionalTableArray>("predefined");
     if (required.has_value()) {
         stacks.requiredStacks.reserve(required.value().size());
 

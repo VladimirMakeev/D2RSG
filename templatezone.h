@@ -115,6 +115,7 @@ struct TemplateZone : public ZoneOptions
 
     ObjectPlacingResult tryToPlaceObjectAndConnectToPath(MapElement& mapElement,
                                                          const Position& position);
+
     void addRequiredObject(ScenarioObjectPtr&& object,
                            DecorationPtr&& decoration = nullptr,
                            int guardStrength = 500,
@@ -268,7 +269,6 @@ private:
 
     std::vector<ObjectPlacement> requiredObjects;
     std::vector<ObjectPlacement> closeObjects;
-    std::vector<int> neutralStacks;
     std::vector<DecorationPtr> decorations;
 
     std::map<ScenarioObject*, Position> requestedPositions;

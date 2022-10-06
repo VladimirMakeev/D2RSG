@@ -24,6 +24,11 @@ struct RandomValue
     {
         return min != T{0} && max != T{0};
     }
+
+    RandomValue operator/(T value) const
+    {
+        return RandomValue{min / value, max / value};
+    }
 };
 
 using RandI64 = std::function<std::int64_t()>;
