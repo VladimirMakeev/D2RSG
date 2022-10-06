@@ -15,29 +15,9 @@ int main(int argc, char* argv[])
     assert(argc == 4);
 
     const std::filesystem::path gameFolder{argv[2]};
-    const auto globalsFolder{gameFolder / "Globals"};
 
-    if (!readRacesInfo(globalsFolder)) {
-        return 1;
-    }
-
-    if (!readUnitsInfo(globalsFolder)) {
-        return 1;
-    }
-
-    if (!readItemsInfo(globalsFolder)) {
-        return 1;
-    }
-
-    if (!readSpellsInfo(globalsFolder)) {
-        return 1;
-    }
-
-    if (!readLandmarksInfo(globalsFolder)) {
-        return 1;
-    }
-
-    if (!readGlobalTexts(globalsFolder)) {
+    if (!readGameInfo(gameFolder)) {
+        std::cerr << "Could not read game info\n";
         return 1;
     }
 

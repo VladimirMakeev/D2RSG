@@ -34,6 +34,7 @@ static LandmarkInfoArray mountainLandmarks;
 static RacesInfo racesInfo;
 
 static TextsInfo globalTexts;
+static CityNames cityNames;
 
 const UnitsInfo& getUnitsInfo()
 {
@@ -979,4 +980,48 @@ bool readGlobalTexts(const std::filesystem::path& globalsFolderPath)
     }
 
     return true;
+}
+
+const CityNames& getCityNames()
+{
+    return cityNames;
+}
+
+bool readCityNames(const std::filesystem::path& scenDataFolderPath)
+{
+    cityNames.clear();
+
+    Dbf namesDb{scenDataFolderPath / "Cityname.dbf"};
+    if (!namesDb) {
+        std::cerr << "Could not open Cityname.dbf\n";
+        return false;
+    }
+
+    const auto textLength = namesDb.column("NAME")->length;
+
+    for (const auto& record : namesDb) {
+        if (record.deleted()) {
+            continue;
+        }
+
+        std::string_view nameView{};
+        if (!record.value(nameView, "NAME")) {
+            continue;
+        }
+
+        cityNames.push_back(translate(nameView, textLength));
+    }
+
+    return true;
+}
+
+bool readGameInfo(const std::filesystem::path& gameFolderPath)
+{
+    const std::filesystem::path globalsFolder{gameFolderPath / "Globals"};
+    const std::filesystem::path scenDataFolder{gameFolderPath / "ScenData"};
+
+    return readRacesInfo(globalsFolder) && readUnitsInfo(globalsFolder)
+           && readItemsInfo(globalsFolder) && readSpellsInfo(globalsFolder)
+           && readLandmarksInfo(globalsFolder) && readGlobalTexts(globalsFolder)
+           && readCityNames(scenDataFolder);
 }

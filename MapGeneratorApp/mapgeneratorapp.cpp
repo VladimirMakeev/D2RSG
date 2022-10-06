@@ -80,17 +80,7 @@ bool MapGeneratorApp::readGameInfo(const std::filesystem::path &gameFolder)
         return false;
     }
 
-    const auto globalsFolder{gameFolder / "Globals"};
-    if (!std::filesystem::exists(globalsFolder)) {
-        return false;
-    }
-
-    return readRacesInfo(globalsFolder)
-           && readUnitsInfo(globalsFolder)
-           && readItemsInfo(globalsFolder)
-           && readSpellsInfo(globalsFolder)
-           && readLandmarksInfo(globalsFolder)
-           && readGlobalTexts(globalsFolder);
+    return ::readGameInfo(gameFolder);
 }
 
 bool MapGeneratorApp::readTemplate(const std::filesystem::path& templatePath)

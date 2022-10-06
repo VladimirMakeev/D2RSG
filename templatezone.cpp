@@ -1535,6 +1535,7 @@ Village* TemplateZone::placeCity(const Position& position,
     village->setOwner(ownerId);
     village->setSubrace(subraceId);
     village->setTier(cityInfo.tier);
+    village->setName(getRandomItem(getCityNames(), rand));
 
     auto villagePtr{village.get()};
 
@@ -2110,6 +2111,8 @@ void TemplateZone::fractalize()
 
 void TemplateZone::placeCapital()
 {
+    auto& rand{mapGenerator->randomGenerator};
+
     // Create capital id
     auto capitalId{mapGenerator->createId(CMidgardID::Type::Fortification)};
     // Create capital object
@@ -2118,6 +2121,7 @@ void TemplateZone::placeCapital()
 
     assert(ownerId != emptyId);
     fort->setOwner(ownerId);
+    fort->setName(getRandomItem(getCityNames(), rand));
 
     auto ownerPlayer{mapGenerator->map->find<Player>(ownerId)};
     assert(ownerPlayer != nullptr);
@@ -2147,7 +2151,7 @@ void TemplateZone::placeCapital()
     auto leader{std::make_unique<Unit>(leaderId)};
     leader->setImplId(leaderInfo->unitId);
     leader->setHp(leaderInfo->hitPoints);
-    leader->setName(getUnitName(*leaderInfo, mapGenerator->randomGenerator));
+    leader->setName(getUnitName(*leaderInfo, rand));
     mapGenerator->insertObject(std::move(leader));
 
     // Create starting stack

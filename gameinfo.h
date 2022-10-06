@@ -224,3 +224,11 @@ using TextsInfo = std::unordered_map<CMidgardID, std::string, CMidgardIDHash>;
 const TextsInfo& getGlobalTexts();
 
 bool readGlobalTexts(const std::filesystem::path& globalsFolderPath);
+
+using CityNames = std::vector<std::string>;
+
+const CityNames& getCityNames();
+
+bool readCityNames(const std::filesystem::path& scenDataFolderPath);
+
+bool readGameInfo(const std::filesystem::path& gameFolderPath);
