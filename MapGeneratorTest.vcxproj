@@ -235,6 +235,7 @@
     <ClCompile Include="subrace.cpp" />
     <ClCompile Include="talismancharges.cpp" />
     <ClCompile Include="templatezone.cpp" />
+    <ClCompile Include="textconvert.cpp" />
     <ClCompile Include="turnsummary.cpp" />
     <ClCompile Include="unit.cpp" />
     <ClCompile Include="unitpicker.cpp" />
@@ -326,6 +327,7 @@
     <ClInclude Include="subrace.h" />
     <ClInclude Include="talismancharges.h" />
     <ClInclude Include="templatezone.h" />
+    <ClInclude Include="textconvert.h" />
     <ClInclude Include="tileinfo.h" />
     <ClInclude Include="turnsummary.h" />
     <ClInclude Include="unit.h" />
