@@ -285,6 +285,12 @@
     <ClCompile Include="decoration.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="texts.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="textconvert.cpp">
+      <Filter>Исходные файлы\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -565,6 +571,12 @@
     </ClInclude>
     <ClInclude Include="decoration.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="texts.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="textconvert.h">
+      <Filter>Файлы заголовков\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

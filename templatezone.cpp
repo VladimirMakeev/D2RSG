@@ -12,6 +12,7 @@
 #include "player.h"
 #include "spellpicker.h"
 #include "subrace.h"
+#include "texts.h"
 #include "unit.h"
 #include "unitpicker.h"
 #include "village.h"
@@ -1249,7 +1250,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(const UnitInfo& leaderInfo,
 
     leader->setImplId(leaderInfo.unitId);
     leader->setHp(leaderInfo.hitPoints);
-    leader->setName("Guard");
+    leader->setName(getUnitName(leaderInfo, rand));
 
     mapGenerator->insertObject(std::move(leader));
 
@@ -2141,7 +2142,7 @@ void TemplateZone::placeCapital()
     auto leader{std::make_unique<Unit>(leaderId)};
     leader->setImplId(leaderInfo->unitId);
     leader->setHp(leaderInfo->hitPoints);
-    leader->setName("Leader");
+    leader->setName(getUnitName(*leaderInfo, mapGenerator->randomGenerator));
     mapGenerator->insertObject(std::move(leader));
 
     // Create starting stack

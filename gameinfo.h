@@ -7,6 +7,8 @@
 #include <filesystem>
 #include <map>
 #include <memory>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 // Brief information about unit from GUnits, GAttacks and LAttR.dbf
@@ -15,6 +17,8 @@ struct UnitInfo
     UnitInfo() = default;
 
     UnitInfo(const CMidgardID& unitId,
+             const CMidgardID& raceId,
+             const CMidgardID& nameId,
              int level,
              int value,
              UnitType type,
@@ -24,8 +28,11 @@ struct UnitInfo
              int hp,
              int move,
              int leadership,
-             bool bigUnit)
+             bool bigUnit,
+             bool male)
         : unitId{unitId}
+        , raceId{raceId}
+        , nameId{nameId}
         , level{level}
         , value{value}
         , unitType{type}
@@ -36,9 +43,12 @@ struct UnitInfo
         , move{move}
         , leadership{leadership}
         , bigUnit{bigUnit}
+        , male{male}
     { }
 
     CMidgardID unitId;
+    CMidgardID raceId;
+    CMidgardID nameId;
     int level{};
     int value{};
     UnitType unitType{UnitType::Soldier};
@@ -49,6 +59,7 @@ struct UnitInfo
     int move{};
     int leadership{};
     bool bigUnit{};
+    bool male{};
 };
 
 using UnitInfoPtr = std::unique_ptr<UnitInfo>;
@@ -167,18 +178,27 @@ const LandmarkInfoArray& getMountainLandmarks();
 
 bool readLandmarksInfo(const std::filesystem::path& globalsFolderPath);
 
+struct LeaderNames
+{
+    std::vector<std::string> maleNames;
+    std::vector<std::string> femaleNames;
+};
+
 struct RaceInfo
 {
     RaceInfo(const CMidgardID& raceId,
              const CMidgardID& guardianId,
              const CMidgardID& nobleId,
-             RaceType raceType)
-        : raceId{raceId}
+             RaceType raceType,
+             LeaderNames&& leaderNames)
+        : leaderNames(std::move(leaderNames))
+        , raceId{raceId}
         , guardianId{guardianId}
         , nobleId{nobleId}
         , raceType{raceType}
     { }
 
+    LeaderNames leaderNames;
     CMidgardID raceId;
     CMidgardID guardianId;
     CMidgardID nobleId;
@@ -194,4 +214,13 @@ const RacesInfo& getRacesInfo();
 // Returns race info for specified race type
 const RaceInfo& getRaceInfo(RaceType raceType);
 
+bool isRaceUnplayable(const CMidgardID& raceId);
+bool isRaceUnplayable(RaceType raceType);
+
 bool readRacesInfo(const std::filesystem::path& globalsFolderPath);
+
+using TextsInfo = std::unordered_map<CMidgardID, std::string, CMidgardIDHash>;
+
+const TextsInfo& getGlobalTexts();
+
+bool readGlobalTexts(const std::filesystem::path& globalsFolderPath);

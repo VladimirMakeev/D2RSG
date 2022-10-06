@@ -37,6 +37,10 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    if (!readGlobalTexts(globalsFolder)) {
+        return 1;
+    }
+
 #if 0
     std::time_t mapSeed{std::time(nullptr)};
 #else

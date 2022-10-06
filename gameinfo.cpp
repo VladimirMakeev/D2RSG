@@ -1,6 +1,7 @@
 #include "gameinfo.h"
 #include "containers.h"
 #include "dbf.h"
+#include "textconvert.h"
 #include <cassert>
 #include <iostream>
 #include <limits>
@@ -31,6 +32,8 @@ static std::map<RaceType, LandmarkInfoArray> landmarksByRace;
 static LandmarkInfoArray mountainLandmarks;
 
 static RacesInfo racesInfo;
+
+static TextsInfo globalTexts;
 
 const UnitsInfo& getUnitsInfo()
 {
@@ -184,13 +187,38 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
             continue;
         }
 
+        std::string_view raceIdString{};
+        if (!record.value(raceIdString, "RACE_ID")) {
+            continue;
+        }
+
+        CMidgardID raceId(raceIdString.data());
+        if (raceId == invalidId || raceId == emptyId) {
+            continue;
+        }
+
         bool smallUnit{};
         if (!record.value(smallUnit, "SIZE_SMALL")) {
             continue;
         }
 
+        bool male{};
+        if (!record.value(male, "SEX_M")) {
+            continue;
+        }
+
         int subrace{};
         if (!record.value(subrace, "SUBRACE")) {
+            continue;
+        }
+
+        std::string_view nameIdString{};
+        if (!record.value(nameIdString, "NAME_TXT")) {
+            continue;
+        }
+
+        CMidgardID nameId(nameIdString.data());
+        if (nameId == invalidId || nameId == emptyId) {
             continue;
         }
 
@@ -242,9 +270,9 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
 
         auto& pair{it->second};
 
-        auto info{std::make_unique<UnitInfo>(unitId, level, value, unitType,
+        auto info{std::make_unique<UnitInfo>(unitId, raceId, nameId, level, value, unitType,
                                              static_cast<SubRaceType>(subrace), pair.first,
-                                             pair.second, hp, move, leadership, !smallUnit)};
+                                             pair.second, hp, move, leadership, !smallUnit, male)};
 
         if (unitType == UnitType::Leader) {
             leaders.push_back(info.get());
@@ -770,15 +798,27 @@ const RaceInfo& getRaceInfo(RaceType raceType)
     throw std::runtime_error("Could not find race info by race type");
 }
 
+bool isRaceUnplayable(const CMidgardID& raceId)
+{
+    const RacesInfo& races = getRacesInfo();
+
+    auto it = races.find(raceId);
+    if (it == races.end()) {
+        assert(false);
+        return true;
+    }
+
+    return isRaceUnplayable(it->second->raceType);
+}
+
+bool isRaceUnplayable(RaceType raceType)
+{
+    return raceType == RaceType::Neutral;
+}
+
 bool readRacesInfo(const std::filesystem::path& globalsFolderPath)
 {
     racesInfo.clear();
-
-    Dbf racesDb{globalsFolderPath / "Grace.dbf"};
-    if (!racesDb) {
-        std::cerr << "Could not open Grace.dbf\n";
-        return false;
-    }
 
     auto readId = [](const Dbf::Record& record, const char* column, CMidgardID& id) {
         std::string_view idString{};
@@ -794,6 +834,47 @@ bool readRacesInfo(const std::filesystem::path& globalsFolderPath)
         id = tmpId;
         return true;
     };
+
+    std::map<CMidgardID /* race id */, LeaderNames> leaderNames;
+
+    Dbf namesDb{globalsFolderPath / "Tleader.dbf"};
+    if (!namesDb) {
+        std::cerr << "Could not open Tleader.dbf\n";
+        return false;
+    }
+
+    for (const auto& record : namesDb) {
+        if (record.deleted()) {
+            continue;
+        }
+
+        CMidgardID raceId;
+        if (!readId(record, "RACE_ID", raceId)) {
+            continue;
+        }
+
+        bool male{};
+        if (!record.value(male, "SEX_M")) {
+            continue;
+        }
+
+        std::string_view nameView{};
+        if (!record.value(nameView, "TEXT")) {
+            continue;
+        }
+
+        LeaderNames& names = leaderNames[raceId];
+        auto& namesArray = male ? names.maleNames : names.femaleNames;
+
+        constexpr std::uint8_t maxLeaderNameLength{31};
+        namesArray.push_back(translate(nameView, maxLeaderNameLength));
+    }
+
+    Dbf racesDb{globalsFolderPath / "Grace.dbf"};
+    if (!racesDb) {
+        std::cerr << "Could not open Grace.dbf\n";
+        return false;
+    }
 
     for (const auto& record : racesDb) {
         if (record.deleted()) {
@@ -837,10 +918,64 @@ bool readRacesInfo(const std::filesystem::path& globalsFolderPath)
 
         const auto raceType{static_cast<RaceType>(type)};
 
-        auto raceInfo{std::make_unique<RaceInfo>(raceId, guardId, nobleId, raceType)};
+        auto raceInfo{std::make_unique<RaceInfo>(raceId, guardId, nobleId, raceType,
+                                                 std::move(leaderNames[raceId]))};
         raceInfo->leaderIds.swap(leaderIds);
 
         racesInfo[raceId] = std::move(raceInfo);
+    }
+
+    return true;
+}
+
+const TextsInfo& getGlobalTexts()
+{
+    return globalTexts;
+}
+
+bool readGlobalTexts(const std::filesystem::path& globalsFolderPath)
+{
+    auto readId = [](const Dbf::Record& record, const char* column, CMidgardID& id) {
+        std::string_view idString{};
+        if (!record.value(idString, column)) {
+            return false;
+        }
+
+        CMidgardID tmpId{idString.data()};
+        if (tmpId == invalidId) {
+            return false;
+        }
+
+        id = tmpId;
+        return true;
+    };
+
+    globalTexts.clear();
+
+    Dbf textsDb{globalsFolderPath / "Tglobal.dbf"};
+    if (!textsDb) {
+        std::cerr << "Could not open Tglobal.dbf\n";
+        return false;
+    }
+
+    const auto textLength = textsDb.column("TEXT")->length;
+
+    for (const auto& record : textsDb) {
+        if (record.deleted()) {
+            continue;
+        }
+
+        CMidgardID textId;
+        if (!readId(record, "TXT_ID", textId)) {
+            continue;
+        }
+
+        std::string_view textView{};
+        if (!record.value(textView, "TEXT")) {
+            continue;
+        }
+
+        globalTexts[textId] = translate(textView, textLength);
     }
 
     return true;
