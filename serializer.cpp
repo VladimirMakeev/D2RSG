@@ -57,7 +57,7 @@ void Serializer::serialize(const MapHeader& header,
     serializeValue(std::numeric_limits<std::uint32_t>::max());
 
     // Do not even ask how we ended up with this formula
-    const std::uint32_t headerSize{(races.size() + 67) * 40};
+    const std::uint32_t headerSize = (races.size() + 67) * 40;
     serializeValue(headerSize);
 
     // Version
@@ -165,7 +165,7 @@ void Serializer::serialize(const char* name, const char* value)
 
     serializeName(name);
 
-    const std::uint32_t stringLength{std::strlen(value)};
+    const std::uint32_t stringLength = std::strlen(value);
     // + 1 for null terminator
     serializeValue(stringLength + 1);
 
