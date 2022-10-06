@@ -1685,12 +1685,17 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
     mage->setImgIso(image);
 
     // Generate random spells of specified types
-    if (!mageInfo.spellTypes.empty() && mageInfo.value) {
+    if (mageInfo.value) {
         const auto& value{mageInfo.value};
         int desiredValue{(int)rand.getInt64Range(value.min, value.max)()};
         int currentValue{};
 
         auto noWrongType = [types = &mageInfo.spellTypes](const SpellInfo* info) {
+            if (types->empty()) {
+                // No types specified, allow all spells
+                return false;
+            }
+
             // Remove spells of types that mage is not allowed to sell
             return types->find(info->spellType) == types->end();
         };
