@@ -231,4 +231,25 @@ const CityNames& getCityNames();
 
 bool readCityNames(const std::filesystem::path& scenDataFolderPath);
 
+struct SiteText
+{
+    std::string name;
+    std::string description;
+};
+
+using SiteTexts = std::vector<SiteText>;
+
+// Returns texts for mercenary camps
+const SiteTexts& getMercenaryTexts();
+// Returns texts for mage towers
+const SiteTexts& getMageTexts();
+// Returns texts for merchants
+const SiteTexts& getMerchantTexts();
+// Returns texts for ruins
+const SiteTexts& getRuinTexts();
+// Returns texts for trainers
+const SiteTexts& getTrainerTexts();
+
+bool readSiteTexts(const std::filesystem::path& scenDataFolderPath);
+
 bool readGameInfo(const std::filesystem::path& gameFolderPath);

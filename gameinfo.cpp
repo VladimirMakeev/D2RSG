@@ -35,6 +35,11 @@ static RacesInfo racesInfo;
 
 static TextsInfo globalTexts;
 static CityNames cityNames;
+static SiteTexts mercenaryTexts;
+static SiteTexts mageTexts;
+static SiteTexts merchantTexts;
+static SiteTexts ruinTexts;
+static SiteTexts trainerTexts;
 
 const UnitsInfo& getUnitsInfo()
 {
@@ -1015,6 +1020,81 @@ bool readCityNames(const std::filesystem::path& scenDataFolderPath)
     return true;
 }
 
+const SiteTexts& getMercenaryTexts()
+{
+    return mercenaryTexts;
+}
+
+const SiteTexts& getMageTexts()
+{
+    return mageTexts;
+}
+
+const SiteTexts& getMerchantTexts()
+{
+    return merchantTexts;
+}
+
+const SiteTexts& getRuinTexts()
+{
+    return ruinTexts;
+}
+
+const SiteTexts& getTrainerTexts()
+{
+    return trainerTexts;
+}
+
+static bool readSiteText(SiteTexts& texts,
+                         const std::filesystem::path& dbFilename,
+                         bool readDescriptions = true)
+{
+    texts.clear();
+
+    Dbf db{dbFilename};
+    if (!db) {
+        std::cerr << "Could not open " << dbFilename.filename().string() << '\n';
+        return false;
+    }
+
+    const auto nameLength = db.column("NAME")->length;
+    const auto descriptionLength = db.column("DESC")->length;
+
+    for (const auto& record : db) {
+        if (record.deleted()) {
+            continue;
+        }
+
+        std::string_view nameView{};
+        if (!record.value(nameView, "NAME")) {
+            continue;
+        }
+
+        SiteText text;
+        text.name = translate(nameView, nameLength);
+
+        if (readDescriptions) {
+            std::string_view descriptionView{};
+            if (record.value(descriptionView, "DESC")) {
+                text.description = translate(descriptionView, descriptionLength);
+            }
+        }
+
+        texts.emplace_back(std::move(text));
+    }
+
+    return true;
+}
+
+bool readSiteTexts(const std::filesystem::path& scenDataFolderPath)
+{
+    return readSiteText(mercenaryTexts, scenDataFolderPath / "Campname.dbf")
+           && readSiteText(mageTexts, scenDataFolderPath / "Magename.dbf")
+           && readSiteText(merchantTexts, scenDataFolderPath / "Mercname.dbf")
+           && readSiteText(ruinTexts, scenDataFolderPath / "Ruinname.dbf", false)
+           && readSiteText(trainerTexts, scenDataFolderPath / "Trainame.dbf");
+}
+
 bool readGameInfo(const std::filesystem::path& gameFolderPath)
 {
     const std::filesystem::path globalsFolder{gameFolderPath / "Globals"};
@@ -1023,5 +1103,5 @@ bool readGameInfo(const std::filesystem::path& gameFolderPath)
     return readRacesInfo(globalsFolder) && readUnitsInfo(globalsFolder)
            && readItemsInfo(globalsFolder) && readSpellsInfo(globalsFolder)
            && readLandmarksInfo(globalsFolder) && readGlobalTexts(globalsFolder)
-           && readCityNames(scenDataFolder);
+           && readCityNames(scenDataFolder) && readSiteTexts(scenDataFolder);
 }

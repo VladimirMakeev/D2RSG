@@ -1644,8 +1644,10 @@ Site* TemplateZone::placeMerchant(const Position& position, const MerchantInfo& 
 
     auto merchantId{mapGenerator->createId(CMidgardID::Type::Site)};
     auto merchant{std::make_unique<Merchant>(merchantId)};
-    merchant->setTitle("Merchant");
-    merchant->setDescription("Merchant description");
+
+    const SiteText text = getRandomItem(getMerchantTexts(), rand);
+    merchant->setTitle(text.name);
+    merchant->setDescription(text.description);
 
     // Pick random merchant image
     int image{(int)rand.getInt64Range(0, std::size(merchantImages) - 1)()};
@@ -1679,8 +1681,10 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
 
     auto mageId{mapGenerator->createId(CMidgardID::Type::Site)};
     auto mage{std::make_unique<Mage>(mageId)};
-    mage->setTitle("Mage tower");
-    mage->setDescription("Mage tower description");
+
+    const SiteText text = getRandomItem(getMageTexts(), rand);
+    mage->setTitle(text.name);
+    mage->setDescription(text.description);
 
     int image{(int)rand.getInt64Range(0, std::size(mageImages) - 1)()};
     mage->setImgIso(image);
@@ -1740,8 +1744,10 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
 
     auto mercenaryId{mapGenerator->createId(CMidgardID::Type::Site)};
     auto mercenary{std::make_unique<Mercenary>(mercenaryId)};
-    mercenary->setTitle("Mercenaries camp");
-    mercenary->setDescription("Mercenaries camp description");
+
+    const SiteText text = getRandomItem(getMercenaryTexts(), rand);
+    mercenary->setTitle(text.name);
+    mercenary->setDescription(text.description);
 
     int image{(int)rand.getInt64Range(0, std::size(mercenaryImages) - 1)()};
     mercenary->setImgIso(image);
@@ -1808,7 +1814,9 @@ Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo
 
     auto ruinId{mapGenerator->createId(CMidgardID::Type::Ruin)};
     auto ruin{std::make_unique<Ruin>(ruinId)};
-    ruin->setTitle("Ruin");
+
+    const SiteText text = getRandomItem(getRuinTexts(), rand);
+    ruin->setTitle(text.name);
 
     const auto& guardValue{ruinInfo.guard.value};
     if (guardValue) {
