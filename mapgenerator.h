@@ -83,7 +83,7 @@ public:
     void setNearestObjectDistance(const Position& position, float value);
 
     void createRoads();
-    void createRoad(const std::vector<Position>& roads);
+    void createRoadObjects(const std::set<Position>& roads);
 
     // Returns global race id for specified race
     const CMidgardID& getRaceId(RaceType race) const

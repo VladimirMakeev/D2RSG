@@ -449,22 +449,21 @@ void MapGenerator::createRoads()
         return;
     }
 
-    for (const auto& it : zones) {
-        const auto& roads{it.second->getRoads()};
+    std::set<Position> roads;
 
-        for (const auto& roadInfo : roads) {
-            std::vector<Position> road;
+    for (const auto& it : zones) {
+        const auto& zoneRoads{it.second->getRoads()};
+
+        for (const auto& roadInfo : zoneRoads) {
             auto path{roadInfo.path};
 
             if (roadsPercentage == 100) {
-                road.reserve(path.size());
-
                 // All road tiles contains roads
                 while (!path.empty()) {
                     auto node{path.top()};
                     path.pop();
 
-                    road.push_back(node.first);
+                    roads.insert(node.first);
                 }
             } else {
                 // Create roads with gaps that looks nice.
@@ -480,8 +479,6 @@ void MapGenerator::createRoads()
                 const auto gapSizes{constrainedSum(gaps, emptyTiles, randomGenerator)};
                 const auto partsSizes{constrainedSum(gaps + 1, roadTiles, randomGenerator)};
 
-                road.reserve(roadTiles);
-
                 std::size_t index{};
 
                 for (std::size_t i = 0; i < partsSizes.size() && !path.empty(); ++i) {
@@ -491,7 +488,7 @@ void MapGenerator::createRoads()
                         auto node{path.top()};
                         path.pop();
 
-                        road.push_back(node.first);
+                        roads.insert(node.first);
                     }
 
                     // Throw out gap tiles
@@ -508,16 +505,16 @@ void MapGenerator::createRoads()
                     }
                 }
             }
-
-            createRoad(road);
         }
     }
+
+    createRoadObjects(roads);
 }
 
-void MapGenerator::createRoad(const std::vector<Position>& roads)
+void MapGenerator::createRoadObjects(const std::set<Position>& roads)
 {
     for (const auto& tile : roads) {
-        std::uint8_t index{};
+        std::size_t index{};
         int i{};
 
         // clang-format off
