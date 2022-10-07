@@ -1286,8 +1286,9 @@ const UnitInfo* TemplateZone::createStackLeader(std::size_t& unusedValue,
             return info->value < minValue || info->value > value;
         };
 
-        // TODO: if we have a single leader, do not pick support or ranged unit.
-        // summoners are still allowed
+        // TODO: if we have a single leader, do not pick support or ranged unit ?
+        // (summoners are still allowed as a single leaders)
+        // With tightenGroup() calls this looks redundant, feedback is needed.
         leaderInfo = pickLeader(rand, {filter, noLore});
         if (leaderInfo) {
             // Accumulate unused value after picking a leader
@@ -1299,7 +1300,24 @@ const UnitInfo* TemplateZone::createStackLeader(std::size_t& unusedValue,
         unusedValue += value;
     }
 
-    valuesConsumed = i + 1;
+    if (leaderInfo) {
+        valuesConsumed = i + 1;
+    } else {
+        // Could not pick any leader
+        // pick weakest one just to create the stack and do not lose the value
+        const auto& leaders = getLeaders();
+        auto it = std::find_if(leaders.begin(), leaders.end(),
+                               [](UnitInfo* info) { return info->value == getMinLeaderValue(); });
+
+        if (it != leaders.end()) {
+            std::cerr << "Could not pick leader, place weakest\n";
+            leaderInfo = *it;
+        }
+
+        valuesConsumed = 0;
+        unusedValue = 0;
+    }
+
     return leaderInfo;
 }
 
