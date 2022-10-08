@@ -1836,6 +1836,9 @@ Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo
     const SiteText text = getRandomItem(getRuinTexts(), rand);
     ruin->setTitle(text.name);
 
+    int imageIndex = (int)rand.getInt64Range(0, std::size(ruinImages) - 1)();
+    ruin->setImage(ruinImages[imageIndex]);
+
     const auto& guardValue{ruinInfo.guard.value};
     if (guardValue) {
         constexpr std::size_t maxRuinUnits{6};
