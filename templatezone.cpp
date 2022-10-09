@@ -1966,20 +1966,35 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
         int currentValue{};
 
         auto noWrongType = [types = &loot.itemTypes](const ItemInfo* info) {
+            if (types->empty()) {
+                return false;
+            }
+
             // Remove items of types that is not allowed
             return types->find(info->itemType) == types->end();
         };
 
+        int picked{};
         while (currentValue <= desiredValue) {
-            auto item{pickItem(rand, {noWrongType})};
+            const int remainingValue = desiredValue - currentValue;
+
+            auto noWrongValue = [remainingValue](const ItemInfo* info) {
+                return info->value > static_cast<int>(remainingValue);
+            };
+
+            auto item{pickItem(rand, {noWrongType, noWrongValue, noSpecialItem})};
             if (!item) {
                 // Could not pick anything, stop
                 break;
             }
 
+            ++picked;
             currentValue += item->value;
             items.push_back({item->itemId, 1});
         }
+
+        std::cout << "Loot value " << desiredValue << ", created " << currentValue << ", " << picked
+                  << " items\n";
     }
 
     return items;
@@ -1988,7 +2003,7 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
 CMidgardID TemplateZone::createRuinLoot(const LootInfo& loot)
 {
     // If we have specific items return the first one.
-    // Ruins don't care about amout
+    // Ruins don't care about amount
     if (!loot.requiredItems.empty()) {
         return loot.requiredItems[0].itemId;
     }
@@ -2014,7 +2029,7 @@ CMidgardID TemplateZone::createRuinLoot(const LootInfo& loot)
 
     auto& rand{mapGenerator->randomGenerator};
 
-    auto item{pickItem(rand, {noWrongType, noWrongValue})};
+    auto item{pickItem(rand, {noWrongType, noWrongValue, noSpecialItem})};
     if (!item) {
         return emptyId;
     }
@@ -2582,10 +2597,6 @@ void TemplateZone::placeBags()
         int bagImage = (int)rand.getInt64Range(0, std::size(bagImages) - 1)();
         bag->setImage(bagImage);
 
-        auto noSpecial = [](const ItemInfo* info) {
-            return info->itemType == ItemType::Special;
-        };
-
         auto noWrongValue = [bagValue](const ItemInfo* info) {
             return info->value > static_cast<int>(bagValue);
         };
@@ -2593,7 +2604,7 @@ void TemplateZone::placeBags()
         // Create items
         int currentValue{};
         while (currentValue <= static_cast<int>(bagValue)) {
-            auto itemInfo{pickItem(rand, {noSpecial, noWrongValue})};
+            auto itemInfo{pickItem(rand, {noSpecialItem, noWrongValue})};
             if (!itemInfo) {
                 break;
             }

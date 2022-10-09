@@ -157,12 +157,16 @@ void MapGenerator::fillZones()
         debugTiles("before createObstacles.png");
     }
 
+    // TODO: this is tightenObstacles() actually
     createObstacles();
 
     if constexpr (debugObstacles) {
         debugTiles("after createObstacles.png");
     }
 
+    // TODO: this should be done not for each zone,
+    // but as a loop through all possible tiles.
+    // In this case mountains on zone boundaries can be made bigger.
     // Place actual obstacles matching zone terrain
     for (auto& it : zones) {
         it.second->createObstacles();

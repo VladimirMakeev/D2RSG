@@ -30,3 +30,8 @@ ItemInfo* pickItem(ItemType itemType, Rng& random, const ItemFilterList& filters
 {
     return pickItem(getItems(itemType), random, filters);
 }
+
+bool noSpecialItem(const ItemInfo* info)
+{
+    return info->itemType == ItemType::Special;
+}

@@ -20,3 +20,8 @@ ItemInfo* pickItem(const std::vector<ItemInfo*>& itemPool,
 ItemInfo* pickItem(Rng& random, const ItemFilterList& filters);
 // Picks random item of specific type
 ItemInfo* pickItem(ItemType itemType, Rng& random, const ItemFilterList& filters);
+
+// These below are predefined filters
+
+// Removes special items from pick
+bool noSpecialItem(const ItemInfo* info);
