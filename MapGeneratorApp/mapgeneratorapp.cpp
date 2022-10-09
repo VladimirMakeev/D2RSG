@@ -16,7 +16,7 @@ MapGeneratorApp::MapGeneratorApp(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->aboutLabel->setText(tr("v %1, by mak").arg(VER_PRODUCTVERSION_STR));
+    ui->aboutLabel->setText(tr("v %1, mak").arg(VER_PRODUCTVERSION_STR));
 
     connect(&seedPlaceholderTimer, &QTimer::timeout, this, &MapGeneratorApp::seedPlaceholderUpdate);
 
@@ -83,6 +83,37 @@ bool MapGeneratorApp::readGameInfo(const std::filesystem::path &gameFolder)
     return ::readGameInfo(gameFolder);
 }
 
+void MapGeneratorApp::readTemplateAndUpdateUi(const std::filesystem::path& templatePath)
+{
+    if (!readTemplate(templatePath)) {
+        QMessageBox::critical(this, tr("Error"), tr("Could not read template file"));
+        return;
+    }
+
+    // Show chosen template in ui
+    ui->scenarioTemplateEdit->setText(QString(templatePath.stem().string().c_str()));
+    // Allow user to select generator seed
+    ui->seedEdit->setEnabled(true);
+    // Update seedEdit placeholder text with seed of current time
+    seedPlaceholderTimer.start(seedPlaceholderUpdateTime);
+    // Allow user to refresh template
+    ui->scenarioTemplateButtonReload->setEnabled(true);
+    // Allow uset to change roads, forests and starting gold
+    ui->goldSpinBox->setValue(mapTemplate->startingGold);
+    ui->goldSpinBox->setEnabled(true);
+
+    ui->roadsSpinBox->setValue(mapTemplate->roads);
+    ui->roadsSpinBox->setEnabled(true);
+
+    ui->forestSpinBox->setValue(mapTemplate->forest);
+    ui->forestSpinBox->setEnabled(true);
+
+    // Allow user to select scenario size
+    updateRadioButtons();
+    // Allow user to generate scenario
+    ui->generateButton->setEnabled(true);
+}
+
 bool MapGeneratorApp::readTemplate(const std::filesystem::path& templatePath)
 {
     if (!std::filesystem::exists(templatePath)) {
@@ -95,6 +126,7 @@ bool MapGeneratorApp::readTemplate(const std::filesystem::path& templatePath)
     }
 
     mapTemplate.reset(tmplt);
+    templateFilePath = templatePath;
     return true;
 }
 
@@ -105,14 +137,23 @@ void MapGeneratorApp::disableButtons(bool forGeneration)
     }
 
     ui->scenarioTemplateButton->setEnabled(false);
+    ui->scenarioTemplateButtonReload->setEnabled(false);
     ui->saveScenarioButtom->setEnabled(false);
 
     if (!forGeneration) {
         ui->seedEdit->clear();
+        ui->goldSpinBox->clear();
+        ui->roadsSpinBox->clear();
+        ui->forestSpinBox->clear();
     }
 
     seedPlaceholderTimer.stop();
     ui->seedEdit->setEnabled(false);
+
+    ui->goldSpinBox->setEnabled(false);
+
+    ui->roadsSpinBox->setEnabled(false);
+    ui->forestSpinBox->setEnabled(false);
 
     ui->generateButton->setEnabled(false);
     disableRadioButtons(forGeneration);
@@ -141,6 +182,12 @@ void MapGeneratorApp::enableButtons()
 {
     ui->gameFolderButton->setEnabled(true);
     ui->scenarioTemplateButton->setEnabled(true);
+    ui->scenarioTemplateButtonReload->setEnabled(true);
+
+    ui->goldSpinBox->setEnabled(true);
+
+    ui->roadsSpinBox->setEnabled(true);
+    ui->forestSpinBox->setEnabled(true);
 
     ui->seedEdit->setEnabled(true);
     seedPlaceholderTimer.start(seedPlaceholderUpdateTime);
@@ -328,22 +375,7 @@ void MapGeneratorApp::on_scenarioTemplateButton_clicked()
                                                  tr("Templates (*.lua)"));
 
     const std::filesystem::path templatePath{filepath.toStdString()};
-    if (!readTemplate(templatePath)) {
-        QMessageBox::critical(this, tr("Error"), tr("Could not read template file"));
-        return;
-    }
-
-    // Show chosen template in ui
-    ui->scenarioTemplateEdit->setText(filepath);
-    // Allow user to select generator seed
-    ui->seedEdit->setEnabled(true);
-    // Update seedEdit placeholder text with seed of current time
-    seedPlaceholderTimer.start(seedPlaceholderUpdateTime);
-
-    // Allow user to select scenario size
-    updateRadioButtons();
-    // Allow user to generate scenario
-    ui->generateButton->setEnabled(true);
+    readTemplateAndUpdateUi(templatePath);
 }
 
 void MapGeneratorApp::on_generateButton_clicked()
@@ -400,4 +432,50 @@ void MapGeneratorApp::on_saveScenarioButtom_clicked()
 
     enableButtons();
     ui->saveScenarioButtom->setEnabled(true);
+}
+
+void MapGeneratorApp::on_scenarioTemplateButtonReload_clicked()
+{
+    if (templateFilePath.empty()) {
+        // How we are ended up with enabled button, but no valid path?
+        return;
+    }
+
+    readTemplateAndUpdateUi(templateFilePath);
+}
+
+
+void MapGeneratorApp::on_roadsSpinBox_valueChanged(int roadsPercentage)
+{
+    if (!mapTemplate) {
+        // How we are ended up with enabled roads spin box, but no valid map template?
+        assert(false);
+        return;
+    }
+
+    mapTemplate->roads = roadsPercentage;
+}
+
+
+void MapGeneratorApp::on_forestSpinBox_valueChanged(int forestPercentage)
+{
+    if (!mapTemplate) {
+        // How we are ended up with enabled forest spin box, but no valid map template?
+        assert(false);
+        return;
+    }
+
+    mapTemplate->forest = forestPercentage;
+}
+
+
+void MapGeneratorApp::on_goldSpinBox_valueChanged(int gold)
+{
+    if (!mapTemplate) {
+        // How we are ended up with enabled gold spin box, but no valid map template?
+        assert(false);
+        return;
+    }
+
+    mapTemplate->startingGold = gold;
 }

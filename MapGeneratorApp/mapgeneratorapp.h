@@ -34,11 +34,20 @@ private slots:
 
     void on_saveScenarioButtom_clicked();
 
+    void on_scenarioTemplateButtonReload_clicked();
+
+    void on_roadsSpinBox_valueChanged(int roadsPercentage);
+
+    void on_forestSpinBox_valueChanged(int forestPercentage);
+
+    void on_goldSpinBox_valueChanged(int gold);
+
 signals:
     void startGeneration();
 
 private:
     bool readGameInfo(const std::filesystem::path& gameFolder);
+    void readTemplateAndUpdateUi(const std::filesystem::path& templatePath);
     bool readTemplate(const std::filesystem::path& templatePath);
 
     // Disable everything, except game folder button
@@ -69,6 +78,7 @@ private:
     MapGeneratorPtr generator;
 
     MapPtr scenario;
+    std::filesystem::path templateFilePath;
     bool radioButtons[5];
 };
 

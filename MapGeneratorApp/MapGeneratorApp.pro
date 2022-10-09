@@ -216,7 +216,6 @@ HEADERS += \
         ../unitpicker.h \
         ../village.h \
         ../vposition.h \
-        ../zoneconnection.h \
         ../zoneid.h \
         ../zoneoptions.h \
         ../zoneplacer.h \
