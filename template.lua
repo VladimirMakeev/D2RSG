@@ -101,6 +101,7 @@ template = {
 	roads = 65,
 	-- Starting players gold
 	startingGold = 500,
+	forest = 35,
 
 	zones = {
 		{

@@ -19,5 +19,6 @@ struct MapTemplate
     int sizeMax{48};
     int roads{100}; // Percentage of road tiles
     int startingGold{};
+    int forest{};                       // Percentage of forest tiles
     std::array<bool, racesTotal> races; // Index is RaceType
 };

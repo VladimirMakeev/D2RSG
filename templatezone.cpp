@@ -7,6 +7,7 @@
 #include "landmarkpicker.h"
 #include "mage.h"
 #include "mapgenerator.h"
+#include "maptemplate.h"
 #include "mercenary.h"
 #include "merchant.h"
 #include "player.h"
@@ -257,10 +258,57 @@ void TemplateZone::createObstacles()
     // Roads already have clear free paths for them,
     // we can convert remaining possible tiles to forests
 
-    // Cleanup, remove unused possible tiles to make space for roads
+    // TODO: I have tested filling remaining possible tiles completely with water and with forests
+    // Both results loogs good, but:
+    // in case of water there are some crystals that became stranded on an island
+    // without single free tile for a rod.
+    // this can be fixed by marking some tiles as free during decoration placement
+    // there are also cases of single tile waters: this can be fixed by checking neigbour tiles
+    // the same way as we do in MapGenerator::createObstacles()
+
+    // In case water and forest settings are become part of template we need to generate both of
+    // them here For water we can randomly pick several possible tiles (pick them the same way we
+    // find place for objects) and create small lakes (depending on water template setting). The
+    // rest for the forests, check mountains in the zone, place near them. Also pick random tiles
+    // and place around
+
+    // Place forests, for now
+    const int forests = mapGenerator->mapGenOptions.mapTemplate->forest;
+
+    if (forests == 0) {
+        // Cleanup, remove unused possible tiles to make space for roads
+        for (auto& tile : tileInfo) {
+            if (mapGenerator->isPossible(tile)) {
+                mapGenerator->setOccupied(tile, TileType::Free);
+            }
+        }
+
+        return;
+    }
+
+    auto& rand{mapGenerator->randomGenerator};
+
+    // Place forests, for now
     for (auto& tile : tileInfo) {
         if (mapGenerator->isPossible(tile)) {
-            mapGenerator->setOccupied(tile, TileType::Free);
+            if (mapGenerator->isRoad(tile)) {
+                mapGenerator->setOccupied(tile, TileType::Free);
+                continue;
+            }
+
+            // Can place forests here
+            const bool shouldPlace = forests == 100 ? true : rand.chance(forests);
+            if (!shouldPlace) {
+                mapGenerator->setOccupied(tile, TileType::Free);
+                continue;
+            }
+
+            mapGenerator->setOccupied(tile, TileType::Used);
+
+            auto& mapTile = mapGenerator->map->getTile(tile);
+            // For tests!
+            mapTile.setTerrainGround(TerrainType::Neutral, GroundType::Forest);
+            mapTile.treeImage = (std::uint8_t)rand.getInt64Range(0, 19)();
         }
     }
 }

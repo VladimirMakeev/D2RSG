@@ -537,6 +537,7 @@ static MapTemplate* createMapTemplate(sol::state& lua)
     map->sizeMax = std::clamp(map->sizeMax, map->sizeMin, 144);
     map->roads = readValue(tmpl, "roads", 100, 0, 100);
     map->startingGold = readValue(tmpl, "startingGold", 0, 0, 9999);
+    map->forest = readValue(tmpl, "forest", 0, 0, 100);
 
     std::vector<RaceType> races = tmpl.get<std::vector<RaceType>>("races");
     for (auto& race : races) {
