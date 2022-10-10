@@ -1,5 +1,6 @@
 #include "generatorsettings.h"
 #include <fstream>
+#include <iostream>
 #include <lua.hpp>
 #include <sol/sol.hpp>
 #include <string>
@@ -83,7 +84,14 @@ bool readGeneratorSettings(const std::filesystem::path& gameFolderPath)
     // Read and parse 'Scripts/generatorSettings.lua'
     // Populate forbidden units & landmarks
     try {
-        std::string code{readFile(gameFolderPath / "Scripts" / "generatorSettings.lua")};
+        const std::filesystem::path settingsPath = gameFolderPath / "Scripts"
+                                                   / "generatorSettings.lua";
+        if (!std::filesystem::exists(settingsPath)) {
+            std::cerr << "No generatorSettings.lua file found\n";
+            return false;
+        }
+
+        std::string code{readFile(settingsPath)};
 
         sol::state lua;
         lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::table,

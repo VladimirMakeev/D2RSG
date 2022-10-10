@@ -1337,7 +1337,7 @@ const UnitInfo* TemplateZone::createStackLeader(std::size_t& unusedValue,
         // TODO: if we have a single leader, do not pick support or ranged unit ?
         // (summoners are still allowed as a single leaders)
         // With tightenGroup() calls this looks redundant, feedback is needed.
-        leaderInfo = pickLeader(rand, {filter, noLore});
+        leaderInfo = pickLeader(rand, {filter, noForbidden});
         if (leaderInfo) {
             // Accumulate unused value after picking a leader
             unusedValue = value - leaderInfo->value;
@@ -1426,7 +1426,7 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
             return false;
         };
 
-        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noLore});
+        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noForbidden});
         if (info) {
             // We picked a unit, update unused value
             unusedValue = value - info->value;
@@ -1521,7 +1521,7 @@ void TemplateZone::tightenGroup(std::size_t& unusedValue,
             return false;
         };
 
-        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noLore});
+        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noForbidden});
         if (info) {
             // We picked a unit, update unused value
             unusedValue = value - info->value;

@@ -44,6 +44,7 @@ SOURCES += \
         ../fog.cpp \
         ../fortification.cpp \
         ../gameinfo.cpp \
+        ../generatorsettings.cpp \
         ../group.cpp \
         ../image.cpp \
         ../inventory.cpp \
@@ -137,6 +138,7 @@ HEADERS += \
         ../fog.h \
         ../fortification.h \
         ../gameinfo.h \
+        ../generatorsettings.h \
         ../group.h \
         ../image.h \
         ../inventory.h \

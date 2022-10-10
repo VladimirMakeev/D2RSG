@@ -18,8 +18,8 @@ UnitInfo* pickUnit(Rng& random, const UnitFilterList& filters);
 
 // These below are predefined filters
 
-// Remove lore-specific units from pick
-bool noLore(const UnitInfo* info);
+// Remove units that are forbidden in generator settings from pick
+bool noForbidden(const UnitInfo* info);
 // Removes units of playable subraces from pick
 bool noPlayableRaces(const UnitInfo* info);
 // Removes big units
