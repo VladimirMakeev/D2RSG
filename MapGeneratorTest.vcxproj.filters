@@ -291,6 +291,9 @@
     <ClCompile Include="textconvert.cpp">
       <Filter>Исходные файлы\utils</Filter>
     </ClCompile>
+    <ClCompile Include="generatorsettings.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua\lapi.h">
@@ -577,6 +580,9 @@
     </ClInclude>
     <ClInclude Include="textconvert.h">
       <Filter>Файлы заголовков\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="generatorsettings.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
