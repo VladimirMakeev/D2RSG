@@ -95,6 +95,7 @@ SOURCES += \
         ../midgardid.cpp \
         ../midgardmap.cpp \
         ../mountains.cpp \
+        ../mqdb.cpp \
         ../plan.cpp \
         ../player.cpp \
         ../playerbuildings.cpp \
@@ -187,6 +188,7 @@ HEADERS += \
         ../midgardid.h \
         ../midgardmap.h \
         ../mountains.h \
+        ../mqdb.h \
         ../objectinfo.h \
         ../plan.h \
         ../player.h \

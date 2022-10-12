@@ -38,7 +38,20 @@ struct GeneratorSettings
     // Mountain sizes and their corresponding images from IsoTerrn.ff
     std::vector<Mountain> mountains;
 
-    // TODO: bag, ruin, merchant, mage, trainer, mercenary images
+    struct ObjectImages
+    {
+        // Images on terrain
+        std::set<int> images;
+        // Images in/on water
+        std::set<int> waterImages;
+    };
+
+    ObjectImages bags;
+    ObjectImages ruins;
+    ObjectImages merchants;
+    ObjectImages mages;
+    ObjectImages trainers;
+    ObjectImages mercenaries;
 };
 
 bool readGeneratorSettings(const std::filesystem::path& gameFolderPath);

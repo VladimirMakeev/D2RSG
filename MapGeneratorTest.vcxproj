@@ -218,6 +218,7 @@
     <ClCompile Include="midgardid.cpp" />
     <ClCompile Include="midgardmap.cpp" />
     <ClCompile Include="mountains.cpp" />
+    <ClCompile Include="mqdb.cpp" />
     <ClCompile Include="plan.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="playerbuildings.cpp" />
@@ -269,6 +270,7 @@
     <ClInclude Include="merchant.h" />
     <ClInclude Include="midgardmap.h" />
     <ClInclude Include="mountains.h" />
+    <ClInclude Include="mqdb.h" />
     <ClInclude Include="plan.h" />
     <ClInclude Include="playerbuildings.h" />
     <ClInclude Include="capital.h" />
