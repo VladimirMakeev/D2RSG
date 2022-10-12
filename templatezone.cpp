@@ -161,42 +161,13 @@ void TemplateZone::createObstacles()
 
     decorations.clear();
 
-    struct Mountain
-    {
-        int size{1};
-        int image{1};
-    };
-
-    // clang-format off
-    static const Mountain knownMountains[]={
-        Mountain{5, 7},
-        Mountain{3, 8},
-        Mountain{3, 1},
-        Mountain{3, 5},
-        Mountain{5, 2},
-        Mountain{5, 6},
-        Mountain{3, 4},
-        Mountain{3, 6},
-        Mountain{1, 1},
-        Mountain{1, 4},
-        Mountain{1, 10},
-        Mountain{1, 8},
-        Mountain{1, 2},
-        Mountain{1, 5},
-        Mountain{1, 7},
-        Mountain{1, 9},
-        Mountain{1, 6},
-        Mountain{2, 1},
-        Mountain{2, 3}
-    };
-    // clang-format on
-
-    using MountainsVector = std::vector<Mountain>;
+    using MountainsVector = std::vector<GeneratorSettings::Mountain>;
     using MountainPair = std::pair<int /* mountain size */, MountainsVector>;
 
     std::map<int /* mountain size */, MountainsVector> obstaclesBySize;
     std::vector<MountainPair> possibleObstacles;
 
+    const auto& knownMountains = getGeneratorSettings().mountains;
     for (const auto& mountain : knownMountains) {
         obstaclesBySize[mountain.size].push_back(mountain);
     }
@@ -1694,18 +1665,6 @@ Village* TemplateZone::placeCity(const Position& position,
 
 Site* TemplateZone::placeMerchant(const Position& position, const MerchantInfo& merchantInfo)
 {
-    /*
-    Vanilla merchant images:
-    0 - windmill
-    1 - tower
-    2 - house dark wood
-    3 - house bright wood
-    4 - tower on the left and big tent-house
-    5 - tower on the right and L-shaped house on the left
-    6 - tents and ruined building on the left
-    7 - inn
-    */
-    static const int merchantImages[] = {0, 1, 2, 3, 4, 5, 6, 7};
     auto& rand{mapGenerator->randomGenerator};
 
     auto merchantId{mapGenerator->createId(CMidgardID::Type::Site)};
@@ -1714,10 +1673,7 @@ Site* TemplateZone::placeMerchant(const Position& position, const MerchantInfo& 
     const SiteText text = getRandomItem(getMerchantTexts(), rand);
     merchant->setTitle(text.name);
     merchant->setDescription(text.description);
-
-    // Pick random merchant image
-    int image{(int)rand.getInt64Range(0, std::size(merchantImages) - 1)()};
-    merchant->setImgIso(image);
+    merchant->setImgIso(getRandomItem(getGeneratorSettings().merchants.images, rand));
 
     // Create merchant items
     const auto items{createLoot(merchantInfo.items)};
@@ -1734,15 +1690,6 @@ Site* TemplateZone::placeMerchant(const Position& position, const MerchantInfo& 
 
 Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo)
 {
-    /*
-    Vanilla mage tower images:
-    0
-    1
-    2
-    3
-    */
-    static const int mageImages[] = {0, 1, 2, 3};
-
     auto& rand{mapGenerator->randomGenerator};
 
     auto mageId{mapGenerator->createId(CMidgardID::Type::Site)};
@@ -1751,9 +1698,7 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
     const SiteText text = getRandomItem(getMageTexts(), rand);
     mage->setTitle(text.name);
     mage->setDescription(text.description);
-
-    int image{(int)rand.getInt64Range(0, std::size(mageImages) - 1)()};
-    mage->setImgIso(image);
+    mage->setImgIso(getRandomItem(getGeneratorSettings().mages.images, rand));
 
     // Generate random spells of specified types
     if (mageInfo.value) {
@@ -1796,16 +1741,6 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
 
 Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo& mercInfo)
 {
-    /*
-    Vanilla mercenary images:
-    0
-    1
-    2
-    3
-    4
-    */
-    static const int mercenaryImages[] = {0, 1, 2, 3, 4};
-
     auto& rand{mapGenerator->randomGenerator};
 
     auto mercenaryId{mapGenerator->createId(CMidgardID::Type::Site)};
@@ -1814,9 +1749,7 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
     const SiteText text = getRandomItem(getMercenaryTexts(), rand);
     mercenary->setTitle(text.name);
     mercenary->setDescription(text.description);
-
-    int image{(int)rand.getInt64Range(0, std::size(mercenaryImages) - 1)()};
-    mercenary->setImgIso(image);
+    mercenary->setImgIso(getRandomItem(getGeneratorSettings().mercenaries.images, rand));
 
     // Generate random mercenary units of specified subraces
     if (mercInfo.value) {
@@ -1860,22 +1793,6 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
 
 Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo)
 {
-    /*
-    Vanilla ruin images:
-    0 - ambar
-    1 - small castle ruins
-    2 - farm ruins
-    3 - squared with colonnade
-    4 - tower
-    5 - squared with red roof
-    6 - tower in mountains
-    7 - circular panteon
-    8 - mountain clans style
-    9 - water temple
-    10 - elven cottage
-    */
-    static const int ruinImages[] = {0, 1, 2, 3, 4, 5, 6, 7};
-
     auto& rand{mapGenerator->randomGenerator};
 
     auto ruinId{mapGenerator->createId(CMidgardID::Type::Ruin)};
@@ -1883,9 +1800,7 @@ Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo
 
     const SiteText text = getRandomItem(getRuinTexts(), rand);
     ruin->setTitle(text.name);
-
-    int imageIndex = (int)rand.getInt64Range(0, std::size(ruinImages) - 1)();
-    ruin->setImage(ruinImages[imageIndex]);
+    ruin->setImage(getRandomItem(getGeneratorSettings().ruins.images, rand));
 
     const auto& guardValue{ruinInfo.guard.value};
     if (guardValue) {
