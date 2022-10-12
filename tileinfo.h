@@ -83,6 +83,11 @@ struct TileInfo
         nearestObjectDistance = std::max(.0f, value);
     }
 
+    bool isWater() const
+    {
+        return groundType == GroundType::Water;
+    }
+
 private:
     float nearestObjectDistance{static_cast<float>(std::numeric_limits<int>::max())};
     TileType occupied{TileType::Possible};

@@ -2,6 +2,7 @@
 #include "capital.h"
 #include "containers.h"
 #include "crystal.h"
+#include "generatorsettings.h"
 #include "item.h"
 #include "itempicker.h"
 #include "landmarkpicker.h"
@@ -146,7 +147,6 @@ void TemplateZone::fill()
     placeStacks();
     placeBags();
     createRequiredObjects();
-    createTreasures();
 
     std::cout << "Zone " << id << " filled successfully\n";
 }
@@ -1942,6 +1942,46 @@ Stack* TemplateZone::placeZoneGuard(const Position& position, const GroupInfo& g
     return stackPtr;
 }
 
+Bag* TemplateZone::placeBag(const Position& position, std::uint32_t bagValue)
+{
+    LootInfo bagLoot;
+    bagLoot.value.min = bagValue;
+    bagLoot.value.max = bagValue;
+
+    const auto loot{createLoot(bagLoot)};
+    if (loot.empty()) {
+        // Do not create empty bags
+        return nullptr;
+    }
+
+    auto bagId{mapGenerator->createId(CMidgardID::Type::Bag)};
+    auto bag{std::make_unique<Bag>(bagId)};
+
+    const auto& bags = getGeneratorSettings().bags;
+    const auto& bagImages = mapGenerator->getTile(position).isWater() ? bags.waterImages
+                                                                      : bags.images;
+
+    auto& rand{mapGenerator->randomGenerator};
+    // Pick random bag image with respect to ground type
+    bag->setImage(getRandomItem(bagImages, rand));
+
+    for (const auto& [id, amount] : loot) {
+        for (int i = 0; i < amount; ++i) {
+            auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
+            auto item{std::make_unique<Item>(itemId)};
+            item->setItemType(id);
+
+            mapGenerator->insertObject(std::move(item));
+            bag->add(itemId);
+        }
+    }
+
+    Bag* bagPtr{bag.get()};
+    placeObject(std::move(bag), position);
+
+    return bagPtr;
+}
+
 std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo& loot)
 {
     auto& rand{mapGenerator->randomGenerator};
@@ -2577,49 +2617,35 @@ void TemplateZone::placeStacks()
 
 void TemplateZone::placeBags()
 {
-    if (!bags.count) {
+    if (!bags.count || !bags.value) {
         return;
     }
 
-    static const int bagImages[] = {0, 1, 2, 3, 4, 5, 6, 7};
-
     auto& rand{mapGenerator->randomGenerator};
     // Roll actual bags value in the zone
-    auto totalValue{(int)rand.getInt64Range(bags.value.min, bags.value.max)()};
-
+    const auto totalValue{(std::uint32_t)rand.getInt64Range(bags.value.min, bags.value.max)()};
     const auto bagValue{totalValue / bags.count};
 
     for (std::uint32_t i = 0; i < bags.count; ++i) {
-        // Create bag
-        auto bagId{mapGenerator->createId(CMidgardID::Type::Bag)};
-        auto bag{std::make_unique<Bag>(bagId)};
+        MapElement mapElement{Position{1, 1}};
+        Position position;
 
-        int bagImage = (int)rand.getInt64Range(0, std::size(bagImages) - 1)();
-        bag->setImage(bagImage);
-
-        auto noWrongValue = [bagValue](const ItemInfo* info) {
-            return info->value > static_cast<int>(bagValue);
-        };
-
-        // Create items
-        int currentValue{};
-        while (currentValue <= static_cast<int>(bagValue)) {
-            auto itemInfo{pickItem(rand, {noSpecialItem, noWrongValue})};
-            if (!itemInfo) {
-                break;
+        const int minDistance{mapElement.getSize().x * 2};
+        while (true) {
+            if (!findPlaceForObject(mapElement, minDistance, position)) {
+                std::cerr << "Failed to place bag in zone " << id << " due to lack of space\n";
+                // Nothing to do here, other bags could not fit either
+                return;
             }
 
-            // Create item
-            auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
-            auto item{std::make_unique<Item>(itemId)};
-            item->setItemType(itemInfo->itemId);
-
-            mapGenerator->insertObject(std::move(item));
-            bag->add(itemId);
-            currentValue += itemInfo->value;
+            if (tryToPlaceObjectAndConnectToPath(mapElement, position)
+                == ObjectPlacingResult::Success) {
+                std::cout << "Create bag at " << position << '\n';
+                // Do not create decorations near bags
+                placeBag(position, bagValue);
+                break;
+            }
         }
-
-        addRequiredObject(std::move(bag), nullptr, bagValue);
     }
 }
 
@@ -2784,9 +2810,6 @@ bool TemplateZone::createRequiredObjects()
 
     return true;
 }
-
-void TemplateZone::createTreasures()
-{ }
 
 bool TemplateZone::findPlaceForObject(const MapElement& mapElement,
                                       int minDistance,

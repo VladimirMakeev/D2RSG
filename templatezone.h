@@ -213,6 +213,7 @@ struct TemplateZone : public ZoneOptions
     Site* placeMercenary(const Position& position, const MercenaryInfo& mercInfo);
     Ruin* placeRuin(const Position& position, const RuinInfo& ruinInfo);
     Stack* placeZoneGuard(const Position& position, const GroupInfo& guardInfo);
+    Bag* placeBag(const Position& position, std::uint32_t bagValue);
 
     std::vector<std::pair<CMidgardID, int>> createLoot(const LootInfo& loot);
     CMidgardID createRuinLoot(const LootInfo& loot);
@@ -229,7 +230,6 @@ struct TemplateZone : public ZoneOptions
     void placeStacks();
     void placeBags();
     bool createRequiredObjects();
-    void createTreasures();
 
     bool findPlaceForObject(const MapElement& mapElement, int minDistance, Position& position);
     bool findPlaceForObject(const std::set<Position>& area,
