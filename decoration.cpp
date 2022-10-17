@@ -45,9 +45,11 @@ std::set<Position> Decoration::getMapElementArea(const MapElement& mapElement,
     const auto entrance{mapElement.getEntrance()};
     const auto endPos{startPos + size};
 
+    // Decorations can't be placed above map element and its entrance
     auto blocked{mapElement.getBlockedPositions()};
     blocked.insert(entrance);
 
+    // Decorations also can't block tiles near entrance
     const auto& nearEntrance{mapElement.getEntranceOffsets()};
     for (const auto& offset : nearEntrance) {
         blocked.insert(entrance + offset);

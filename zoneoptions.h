@@ -108,7 +108,7 @@ struct StacksInfo
 
 struct BagInfo
 {
-    RandomValue<std::uint32_t> value{};
+    LootInfo loot;
     std::uint32_t count{};
 };
 

@@ -307,12 +307,15 @@ static void readRuins(std::vector<RuinInfo>& ruins, const std::vector<sol::table
 
 static void readMerchant(MerchantInfo& merchant, const sol::table& table)
 {
+    auto loot = table.get<OptionalTable>("goods");
+    if (loot.has_value()) {
+        readLoot(merchant.items, loot.value());
+    }
+
     auto guard = table.get<OptionalTable>("guard");
     if (guard.has_value()) {
         readGroup(merchant.guard, guard.value());
     }
-
-    readLoot(merchant.items, table);
 }
 
 static void readMerchants(std::vector<MerchantInfo>& merchants,
@@ -448,11 +451,14 @@ static void readStacks(StacksInfo& stacks, const sol::table& table)
     }
 }
 
-static void readBags(BagInfo& bagInfo, const sol::table& bags)
+static void readBags(BagInfo& bagInfo, const sol::table& table)
 {
-    auto value = bags.get<sol::table>("value");
-    readRandomValue<std::uint32_t>(bagInfo.value, value, 0, 0);
-    bagInfo.count = readValue(bags, "count", 0, 0);
+    auto loot = table.get<OptionalTable>("loot");
+    if (loot.has_value()) {
+        readLoot(bagInfo.loot, loot.value());
+    }
+
+    bagInfo.count = readValue(table, "count", 0, 0);
 }
 
 static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
