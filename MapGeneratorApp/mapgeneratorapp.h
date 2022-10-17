@@ -48,7 +48,6 @@ signals:
 private:
     bool readGameInfo(const std::filesystem::path& gameFolder);
     void readTemplateAndUpdateUi(const std::filesystem::path& templatePath);
-    bool readTemplate(const std::filesystem::path& templatePath);
 
     // Disable everything, except game folder button
     void disableButtons(bool forGeneration = false);

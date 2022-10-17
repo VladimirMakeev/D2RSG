@@ -53,11 +53,15 @@ void MapGeneratorApp::seedPlaceholderUpdate()
 
 void MapGeneratorApp::on_gameFolderButton_clicked()
 {
-    auto dir = QFileDialog::getExistingDirectory(this,
-                                                 tr("Choose game folder"),
-                                                 "",
-                                                 QFileDialog::ShowDirsOnly
-                                                 | QFileDialog::DontResolveSymlinks);
+    const QString dir = QFileDialog::getExistingDirectory(this,
+                                                          tr("Choose game folder"),
+                                                          "",
+                                                          QFileDialog::ShowDirsOnly
+                                                          | QFileDialog::DontResolveSymlinks);
+    if (dir.isEmpty()) {
+        // Canceled by user
+        return;
+    }
 
     const std::filesystem::path gameFolder{dir.toStdString()};
 
@@ -85,8 +89,14 @@ bool MapGeneratorApp::readGameInfo(const std::filesystem::path &gameFolder)
 
 void MapGeneratorApp::readTemplateAndUpdateUi(const std::filesystem::path& templatePath)
 {
-    if (!readTemplate(templatePath)) {
-        QMessageBox::critical(this, tr("Error"), tr("Could not read template file"));
+    try {
+        MapTemplate* tmplt = readMapTemplate(templatePath);
+
+        mapTemplate.reset(tmplt);
+        templateFilePath = templatePath;
+    }
+    catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, tr("Error"), tr("Could not read template file\n%1").arg(e.what()));
         return;
     }
 
@@ -112,22 +122,6 @@ void MapGeneratorApp::readTemplateAndUpdateUi(const std::filesystem::path& templ
     updateRadioButtons();
     // Allow user to generate scenario
     ui->generateButton->setEnabled(true);
-}
-
-bool MapGeneratorApp::readTemplate(const std::filesystem::path& templatePath)
-{
-    if (!std::filesystem::exists(templatePath)) {
-        return false;
-    }
-
-    auto* tmplt = readMapTemplate(templatePath);
-    if (!tmplt) {
-        return false;
-    }
-
-    mapTemplate.reset(tmplt);
-    templateFilePath = templatePath;
-    return true;
 }
 
 void MapGeneratorApp::disableButtons(bool forGeneration)
@@ -369,10 +363,14 @@ void MapGeneratorApp::updatePreviewImages()
 
 void MapGeneratorApp::on_scenarioTemplateButton_clicked()
 {
-    auto filepath = QFileDialog::getOpenFileName(this,
-                                                 tr("Open template file"),
-                                                 "",
-                                                 tr("Templates (*.lua)"));
+    const QString filepath = QFileDialog::getOpenFileName(this,
+                                                          tr("Open template file"),
+                                                          "",
+                                                          tr("Templates (*.lua)"));
+    if (filepath.isEmpty()) {
+        // Canceled by user
+        return;
+    }
 
     const std::filesystem::path templatePath{filepath.toStdString()};
     readTemplateAndUpdateUi(templatePath);

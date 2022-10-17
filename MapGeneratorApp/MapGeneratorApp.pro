@@ -136,6 +136,7 @@ HEADERS += \
         ../decoration.h \
         ../diplomacy.h \
         ../enums.h \
+        ../exceptions.h \
         ../fog.h \
         ../fortification.h \
         ../gameinfo.h \

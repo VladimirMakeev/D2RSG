@@ -254,6 +254,7 @@
     <ClInclude Include="dbf.h" />
     <ClInclude Include="decoration.h" />
     <ClInclude Include="diplomacy.h" />
+    <ClInclude Include="exceptions.h" />
     <ClInclude Include="gameinfo.h" />
     <ClInclude Include="generatorsettings.h" />
     <ClInclude Include="group.h" />

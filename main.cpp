@@ -28,25 +28,27 @@ int main(int argc, char* argv[])
     std::time_t mapSeed = std::time_t(/*1659202294*/ 1659802826);
 #endif
 
-    const auto seedString{std::to_string(mapSeed)};
+    const std::string seedString{std::to_string(mapSeed)};
 
     MapGenOptions options;
-    options.mapTemplate = readMapTemplate(argv[1]);
-    if (!options.mapTemplate) {
-        return 1;
-    }
-
-    options.name = std::string{"random map "} + seedString;
-    options.description = std::string{"Random map based on template '"} + options.mapTemplate->name
-                          + std::string{"'. Seed: "} + seedString;
-    options.size = 72;
-
-    MapGenerator generator{options, mapSeed};
 
     try {
+        const std::filesystem::path templateFilePath{argv[1]};
+
+        options.mapTemplate = readMapTemplate(templateFilePath);
+
+        options.name = std::string{"random map "} + seedString;
+        options.description = std::string{"Random map based on template '"}
+                              + options.mapTemplate->name + std::string{"'. Seed: "} + seedString;
+        options.size = 72;
+
+        MapGenerator generator{options, mapSeed};
+
         auto map{generator.generate()};
 
-        map->serialize({argv[3]});
+        const std::filesystem::path scenarioFilePath{argv[3]};
+
+        map->serialize(scenarioFilePath);
 
         {
             const auto width{generator.mapGenOptions.size};

@@ -1,5 +1,6 @@
 #include "maptemplatereader.h"
 #include "containers.h"
+#include "exceptions.h"
 #include "maptemplate.h"
 #include <fstream>
 #include <iostream>
@@ -591,29 +592,24 @@ static MapTemplate* createMapTemplate(sol::state& lua)
 
 MapTemplate* readMapTemplate(const std::filesystem::path& templatePath)
 {
-    try {
-        std::string code{readFile(templatePath)};
+    std::string code{readFile(templatePath)};
 
-        sol::state lua;
-        lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::table,
-                           sol::lib::os);
+    sol::state lua;
+    lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::table,
+                       sol::lib::os);
 
-        bindLuaApi(lua);
+    bindLuaApi(lua);
 
-        // Execute script
-        auto result = lua.safe_script(code, [](lua_State*, sol::protected_function_result pfr) {
-            return pfr;
-        });
+    // Execute script
+    auto result = lua.safe_script(code, [](lua_State*, sol::protected_function_result pfr) {
+        return pfr;
+    });
 
-        if (!result.valid()) {
-            const sol::error err = result;
-            std::cerr << "Could not execute template script: " << err.what() << "\n";
-            return nullptr;
-        }
+    if (!result.valid()) {
+        const sol::error err = result;
 
-        return createMapTemplate(lua);
-    } catch (const std::exception& e) {
-        std::cerr << "Could not read template: " << e.what() << '\n';
-        return nullptr;
+        throw TemplateException(err.what());
     }
+
+    return createMapTemplate(lua);
 }
