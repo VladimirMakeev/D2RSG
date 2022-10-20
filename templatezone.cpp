@@ -15,6 +15,7 @@
 #include "spellpicker.h"
 #include "subrace.h"
 #include "texts.h"
+#include "trainer.h"
 #include "unit.h"
 #include "unitpicker.h"
 #include "village.h"
@@ -142,6 +143,7 @@ void TemplateZone::fill()
     placeMerchants();
     placeMages();
     placeMercenaries();
+    placeTrainers();
     placeRuins();
     placeMines();
     placeStacks();
@@ -1791,6 +1793,25 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
     return mercPtr;
 }
 
+Site* TemplateZone::placeTrainer(const Position& position, const TrainerInfo& trainerInfo)
+{
+    auto& rand{mapGenerator->randomGenerator};
+
+    auto trainerId{mapGenerator->createId(CMidgardID::Type::Site)};
+    auto trainer{std::make_unique<Trainer>(trainerId)};
+
+    const SiteText text = getRandomItem(getTrainerTexts(), rand);
+    trainer->setTitle(text.name);
+    trainer->setDescription(text.description);
+    trainer->setImgIso(getRandomItem(getGeneratorSettings().trainers.images, rand));
+
+    auto trainerPtr{trainer.get()};
+    placeObject(std::move(trainer), position);
+    guardObject(*trainerPtr, trainerInfo.guard);
+
+    return trainerPtr;
+}
+
 Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo)
 {
     auto& rand{mapGenerator->randomGenerator};
@@ -2327,6 +2348,31 @@ void TemplateZone::placeMercenaries()
                 std::cout << "Create mercenary at " << position << '\n';
                 auto merc = placeMercenary(position, mercInfo);
                 decorations.push_back(std::make_unique<SiteDecoration>(merc));
+                break;
+            }
+        }
+    }
+}
+
+void TemplateZone::placeTrainers()
+{
+    for (const auto& trainerInfo : trainers) {
+        MapElement mapElement{Position{3, 3}};
+        Position position;
+
+        const int minDistance{mapElement.getSize().x * 2};
+        while (true) {
+            if (!findPlaceForObject(mapElement, minDistance, position)) {
+                std::cerr << "Failed to place trainer in zone " << id << " due to lack of space\n";
+                // Nothing to do here, other trainers could not fit either
+                return;
+            }
+
+            if (tryToPlaceObjectAndConnectToPath(mapElement, position)
+                == ObjectPlacingResult::Success) {
+                std::cout << "Create trainer at " << position << '\n';
+                auto trainer = placeTrainer(position, trainerInfo);
+                decorations.push_back(std::make_unique<SiteDecoration>(trainer));
                 break;
             }
         }

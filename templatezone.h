@@ -211,6 +211,7 @@ struct TemplateZone : public ZoneOptions
     Site* placeMerchant(const Position& position, const MerchantInfo& merchantInfo);
     Site* placeMage(const Position& position, const MageInfo& mageInfo);
     Site* placeMercenary(const Position& position, const MercenaryInfo& mercInfo);
+    Site* placeTrainer(const Position& position, const TrainerInfo& trainerInfo);
     Ruin* placeRuin(const Position& position, const RuinInfo& ruinInfo);
     Stack* placeZoneGuard(const Position& position, const GroupInfo& guardInfo);
     Bag* placeBag(const Position& position);
@@ -225,6 +226,7 @@ struct TemplateZone : public ZoneOptions
     void placeMerchants();
     void placeMages();
     void placeMercenaries();
+    void placeTrainers();
     void placeRuins();
     bool placeMines();
     void placeStacks();

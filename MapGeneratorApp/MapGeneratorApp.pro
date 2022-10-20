@@ -216,6 +216,7 @@ HEADERS += \
         ../textconvert.h \
         ../texts.h \
         ../tileinfo.h \
+        ../trainer.h \
         ../turnsummary.h \
         ../unit.h \
         ../unitpicker.h \

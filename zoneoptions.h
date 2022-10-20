@@ -112,6 +112,11 @@ struct BagInfo
     std::uint32_t count{};
 };
 
+struct TrainerInfo
+{
+    GroupInfo guard;
+};
+
 // Connection between two zones in template
 struct ZoneConnection
 {
@@ -132,6 +137,7 @@ struct ZoneOptions
     std::vector<MerchantInfo> merchants;        // Merchants
     std::vector<MageInfo> mages;                // Mage towers
     std::vector<MercenaryInfo> mercenaries;     // Mercenary camps
+    std::vector<TrainerInfo> trainers;          // Trainers
     StacksInfo stacks;                          // Neutral stacks
     BagInfo bags;                               // Bags with treasures
     TemplateZoneId id{0};

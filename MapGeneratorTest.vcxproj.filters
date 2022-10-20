@@ -593,5 +593,8 @@
     <ClInclude Include="exceptions.h">
       <Filter>Файлы заголовков\utils</Filter>
     </ClInclude>
+    <ClInclude Include="trainer.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

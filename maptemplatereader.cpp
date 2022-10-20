@@ -462,6 +462,22 @@ static void readBags(BagInfo& bagInfo, const sol::table& table)
     bagInfo.count = readValue(table, "count", 0, 0);
 }
 
+static void readTrainers(std::vector<TrainerInfo>& trainers, const std::vector<sol::table>& tables)
+{
+    trainers.reserve(tables.size());
+
+    for (const auto& table : tables) {
+        TrainerInfo info{};
+
+        auto guard = table.get<OptionalTable>("guard");
+        if (guard.has_value()) {
+            readGroup(info.guard, guard.value());
+        }
+
+        trainers.push_back(info);
+    }
+}
+
 static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
 {
     auto options = std::make_shared<ZoneOptions>();
@@ -508,6 +524,11 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     auto bags = zone.get<OptionalTable>("bags");
     if (bags.has_value()) {
         readBags(options->bags, bags.value());
+    }
+
+    auto trainers = zone.get<OptionalTableArray>("trainers");
+    if (trainers.has_value()) {
+        readTrainers(options->trainers, trainers.value());
     }
 
     return options;

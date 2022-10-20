@@ -336,6 +336,7 @@
     <ClInclude Include="textconvert.h" />
     <ClInclude Include="texts.h" />
     <ClInclude Include="tileinfo.h" />
+    <ClInclude Include="trainer.h" />
     <ClInclude Include="turnsummary.h" />
     <ClInclude Include="unit.h" />
     <ClInclude Include="unitpicker.h" />
