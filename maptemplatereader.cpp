@@ -25,7 +25,8 @@ static void bindLuaApi(sol::state& lua)
         "Heretic", RaceType::Heretic,
         "Dwarf", RaceType::Dwarf,
         "Neutral", RaceType::Neutral,
-        "Elf", RaceType::Elf
+        "Elf", RaceType::Elf,
+        "Random", RaceType::Random
     );
 
     lua.new_enum("Subrace",
@@ -484,6 +485,7 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
 
     options->id = readValue(zone, "id", -1, 0);
     options->type = zone.get<TemplateZoneType>("type");
+    options->playerRace = zone.get<RaceType>("race");
     options->size = readValue(zone, "size", 1, 1);
 
     auto mines = zone.get<OptionalTable>("mines");
@@ -534,7 +536,8 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     return options;
 }
 
-static ZoneConnection createZoneConnection(const sol::table& table, const MapTemplate::Zones& zones)
+static ZoneConnection createZoneConnection(const sol::table& table,
+                                           const MapTemplateContents::Zones& zones)
 {
     ZoneConnection connection;
 
@@ -552,69 +555,91 @@ static ZoneConnection createZoneConnection(const sol::table& table, const MapTem
     return connection;
 }
 
-static MapTemplate* createMapTemplate(sol::state& lua)
+static void readContents(MapTemplate& mapTemplate, const sol::table& contentsTable)
 {
-    const sol::table& tmpl = lua["template"];
+    MapTemplateContents& contents = mapTemplate.contents;
 
-    auto map = new MapTemplate();
-    // auto map{std::make_unique<MapTemplate>()};
-
-    map->name = readString(tmpl, "name", "default name");
-    map->sizeMin = readValue(tmpl, "minSize", 48, 48, 144);
-    map->sizeMax = readValue(tmpl, "maxSize", 48, 48, 144);
-    map->sizeMax = std::clamp(map->sizeMax, map->sizeMin, 144);
-    map->roads = readValue(tmpl, "roads", 100, 0, 100);
-    map->startingGold = readValue(tmpl, "startingGold", 0, 0, 9999);
-    map->forest = readValue(tmpl, "forest", 0, 0, 100);
-
-    std::vector<RaceType> races = tmpl.get<std::vector<RaceType>>("races");
-    for (auto& race : races) {
-        map->races[static_cast<int>(race)] = true;
-    }
-
-    std::vector<sol::table> zones = tmpl.get<std::vector<sol::table>>("zones");
+    std::vector<sol::table> zones = contentsTable.get<std::vector<sol::table>>("zones");
     for (auto& table : zones) {
         auto options{createZoneOptions(table)};
-        map->zones[options->id] = options;
+        contents.zones[options->id] = options;
     }
 
     const auto startingZones{
-        std::count_if(map->zones.begin(), map->zones.end(), [](const auto& it) {
+        std::count_if(contents.zones.begin(), contents.zones.end(), [](const auto& it) {
             auto& zoneOptions{it.second};
             return zoneOptions->type == TemplateZoneType::PlayerStart
                    || zoneOptions->type == TemplateZoneType::AiStart;
         })};
 
     // Make sure playable races count matches number of player or ai starting zones
-    assert(races.size() == startingZones);
+    if (mapTemplate.settings.maxPlayers < startingZones) {
+        throw TemplateException("Invalid template contents: " + std::to_string(startingZones)
+                                + " starting zones, but only "
+                                + std::to_string(mapTemplate.settings.maxPlayers)
+                                + " players allowed");
+    }
 
-    std::vector<sol::table> connections = tmpl.get<std::vector<sol::table>>("connections");
+    std::vector<sol::table> connections = contentsTable.get<std::vector<sol::table>>("connections");
     for (auto& table : connections) {
-        map->connections.push_back(createZoneConnection(table, map->zones));
+        contents.connections.push_back(createZoneConnection(table, contents.zones));
     }
 
     // Populate zone connections
-    for (auto& connection : map->connections) {
+    for (auto& connection : contents.connections) {
         const auto zoneFromId{connection.zoneFrom};
         const auto zoneToId{connection.zoneTo};
 
-        auto zoneFrom = map->zones.find(zoneFromId);
-        assert(zoneFrom != map->zones.end());
+        auto zoneFrom = contents.zones.find(zoneFromId);
+        assert(zoneFrom != contents.zones.end());
 
-        auto zoneTo = map->zones.find(zoneToId);
-        assert(zoneTo != map->zones.end());
+        auto zoneTo = contents.zones.find(zoneToId);
+        assert(zoneTo != contents.zones.end());
 
         zoneFrom->second->connections.push_back(zoneToId);
         zoneTo->second->connections.push_back(zoneFromId);
     }
-
-    return map;
 }
 
-MapTemplate* readMapTemplate(const std::filesystem::path& templatePath)
+static void readSettings(MapTemplate& mapTemplate, const sol::state& lua)
+{
+    // There must be a 'template' table
+    auto templateTable = lua.get<OptionalTable>("template");
+    if (!templateTable.has_value()) {
+        throw TemplateException("Not a Disciples 2 scenario template");
+    }
+
+    const sol::table& table = templateTable.value();
+
+    // There must be a 'getContents' function inside 'template' table
+    auto object = table.get<sol::optional<sol::object>>("getContents");
+    if (!object.has_value()) {
+        throw TemplateException("Template does not have 'getContents' function");
+    }
+
+    if (object.value().get_type() != sol::type::function) {
+        throw TemplateException("'getContents' must be a function in 'template' table");
+    }
+
+    // Other fields are optional, but nice to have
+    MapTemplateSettings& settings = mapTemplate.settings;
+
+    settings.name = readString(table, "name", "default name");
+    settings.description = readString(table, "description", "default description");
+    settings.maxPlayers = readValue(table, "maxPlayers", 1, 1, 4);
+    settings.sizeMin = readValue(table, "minSize", 48, 48, 144);
+    settings.sizeMax = readValue(table, "maxSize", 48, 48, 144);
+    // Keep maximum scenario size greater or equal minimum and within bounds
+    settings.sizeMax = std::clamp(settings.sizeMax, settings.sizeMin, 144);
+
+    settings.roads = readValue(table, "roads", 100, 0, 100);
+    settings.startingGold = readValue(table, "startingGold", 0, 0, 9999);
+    settings.forest = readValue(table, "forest", 0, 0, 100);
+}
+
+MapTemplate* readTemplateSettings(const std::filesystem::path& templatePath)
 {
     std::string code{readFile(templatePath)};
-
     sol::state lua;
     lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::table,
                        sol::lib::os);
@@ -632,5 +657,44 @@ MapTemplate* readMapTemplate(const std::filesystem::path& templatePath)
         throw TemplateException(err.what());
     }
 
-    return createMapTemplate(lua);
+    auto mapTemplate = std::make_unique<MapTemplate>();
+    readSettings(*mapTemplate, lua);
+
+    // Remember lua state for faster access during contents reading
+    mapTemplate->lua = std::move(lua);
+    return mapTemplate.release();
+}
+
+void readTemplateContents(MapTemplate& mapTemplate)
+{
+    sol::state& lua = mapTemplate.lua;
+
+    // There must be a 'template' table
+    auto templateTable = lua.get<OptionalTable>("template");
+    if (!templateTable.has_value()) {
+        throw TemplateException("Not a Disciples 2 scenario template");
+    }
+
+    const sol::table& table = templateTable.value();
+
+    // There must be a 'getContents' function inside 'template' table
+    auto object = table.get<sol::optional<sol::object>>("getContents");
+    if (!object.has_value()) {
+        throw TemplateException("Template does not have 'getContents' function");
+    }
+
+    if (object.value().get_type() != sol::type::function) {
+        throw TemplateException("'getContents' must be a function in 'template' table");
+    }
+
+    auto getContents = object.value().as<sol::protected_function>();
+
+    auto result = getContents(mapTemplate.settings.races, mapTemplate.settings.size);
+    if (result.valid()) {
+        sol::table contents = result;
+        readContents(mapTemplate, contents);
+    } else {
+        sol::error err = result;
+        throw TemplateException(std::string("Could not get template contents: ") + err.what());
+    }
 }

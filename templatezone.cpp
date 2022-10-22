@@ -246,7 +246,7 @@ void TemplateZone::createObstacles()
     // and place around
 
     // Place forests, for now
-    const int forests = mapGenerator->mapGenOptions.mapTemplate->forest;
+    const int forests = mapGenerator->mapGenOptions.mapTemplate->settings.forest;
 
     if (forests == 0) {
         // Cleanup, remove unused possible tiles to make space for roads

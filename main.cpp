@@ -30,17 +30,31 @@ int main(int argc, char* argv[])
 
     const std::string seedString{std::to_string(mapSeed)};
 
-    MapGenOptions options;
-
     try {
         const std::filesystem::path templateFilePath{argv[1]};
 
-        options.mapTemplate = readMapTemplate(templateFilePath);
+        // Read template from file, make sure its ok
+        auto mapTemplate = std::unique_ptr<MapTemplate>(readTemplateSettings(templateFilePath));
+        // Emulate settings from user
+        MapTemplateSettings& settings = mapTemplate->settings;
+        // TODO: here settings.maxPlayers should be handled
+        settings.races.push_back(RaceType::Random);
+        settings.races.push_back(RaceType::Random);
+        settings.size = 72;
 
+        // Generate template contents
+        readTemplateContents(*mapTemplate);
+
+        MapGenOptions options;
+        options.mapTemplate = mapTemplate.get();
+
+        // These are temporary placeholders. Think about better name and description.
+        // MapTemplateSettings name and description are used for ingame (or standalone tool) UI
+        // only.
         options.name = std::string{"random map "} + seedString;
-        options.description = std::string{"Random map based on template '"}
-                              + options.mapTemplate->name + std::string{"'. Seed: "} + seedString;
-        options.size = 72;
+        options.description = std::string{"Random map based on template '"} + settings.name
+                              + std::string{"'. Seed: "} + seedString;
+        options.size = settings.size;
 
         MapGenerator generator{options, mapSeed};
 
@@ -114,11 +128,5 @@ int main(int argc, char* argv[])
         }
     } catch (const std::exception& e) {
         std::cerr << "Exception during map generation: " << e.what() << '\n';
-    }
-
-    if (options.mapTemplate) {
-        // TODO: use smart pointer
-        delete options.mapTemplate;
-        options.mapTemplate = nullptr;
     }
 }

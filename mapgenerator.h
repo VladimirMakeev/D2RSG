@@ -85,14 +85,8 @@ public:
     void createRoads();
     void createRoadObjects(const std::set<Position>& roads);
 
-    // Returns global race id for specified race
-    const CMidgardID& getRaceId(RaceType race) const
-    {
-        return map->getRaceId(race);
-    }
-
     // Returns global lord id for specified race
-    const CMidgardID& getLordId(RaceType race) const
+    CMidgardID getLordId(RaceType race) const
     {
         return map->getLordId(race);
     }
@@ -116,9 +110,6 @@ public:
     void registerZone(RaceType race);
     std::size_t getZoneCount(RaceType race);
     std::size_t getTotalZoneCount() const;
-
-    // Returns next playable race
-    RaceType getNextRace(std::size_t& raceIndex) const;
 
     const TileInfo& getTile(const Position& position) const;
     TileInfo& getTile(const Position& position);

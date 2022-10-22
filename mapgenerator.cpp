@@ -18,11 +18,12 @@ std::pair<CMidgardID, CMidgardID> MapGenerator::createPlayer(RaceType race)
     auto playerId{createId(CMidgardID::Type::Player)};
 
     auto player{std::make_unique<Player>(playerId)};
-    player->setRace(getRaceId(race));
+    player->setRace(getRaceInfo(race).raceId);
     player->setLord(getLordId(race));
 
     if (race != RaceType::Neutral) {
-        player->getBank().set(Currency::Type::Gold, mapGenOptions.mapTemplate->startingGold);
+        player->getBank().set(Currency::Type::Gold,
+                              mapGenOptions.mapTemplate->settings.startingGold);
     }
 
     // Create fog, knownSpells and buildings.
@@ -96,7 +97,7 @@ void MapGenerator::generateZones()
 
     zones.clear();
 
-    for (const auto& pair : tmpl->zones) {
+    for (const auto& pair : tmpl->contents.zones) {
         const auto& options{pair.second};
 
         auto zone = std::make_shared<TemplateZone>(this);
@@ -115,20 +116,44 @@ void MapGenerator::fillZones()
 {
     std::cout << "Started filling zones\n";
 
-    const auto& races{mapGenOptions.mapTemplate->races};
     std::size_t raceIndex{};
 
     // Create players, assign player id to each starting zone
-    for (auto& it : zones) {
-        auto& zone{it.second};
+    {
+        const auto& races{mapGenOptions.mapTemplate->settings.races};
+        // Races available for random selection
+        std::set<RaceType> availableRaces{RaceType::Human, RaceType::Undead, RaceType::Heretic,
+                                          RaceType::Dwarf, RaceType::Elf};
 
-        if (zone->type == TemplateZoneType::PlayerStart
-            || zone->type == TemplateZoneType::AiStart) {
-            auto race{getNextRace(raceIndex)};
-            assert(race != RaceType::Neutral);
+        for (const auto& race : races) {
+            if (!isRaceUnplayable(race)) {
+                // Player already selected this race, we can't randomly choose it again
+                availableRaces.erase(race);
+            }
+        }
 
-            auto playerSubraceIds{createPlayer(race)};
-            zone->setOwner(playerSubraceIds.first);
+        for (auto& it : zones) {
+            auto& zone{it.second};
+
+            if (zone->type == TemplateZoneType::PlayerStart
+                || zone->type == TemplateZoneType::AiStart) {
+                RaceType playerRace = zone->playerRace;
+
+                if (playerRace == RaceType::Random) {
+                    // Pick one from available races
+                    if (availableRaces.empty()) {
+                        throw std::runtime_error("No available races for random selection");
+                    }
+
+                    playerRace = getRandomItem(availableRaces, randomGenerator);
+                    availableRaces.erase(playerRace);
+
+                    zone->playerRace = playerRace;
+                }
+
+                auto playerSubraceIds{createPlayer(playerRace)};
+                zone->setOwner(playerSubraceIds.first);
+            }
         }
     }
 
@@ -185,7 +210,7 @@ void MapGenerator::fillZones()
 
 void MapGenerator::createDirectConnections()
 {
-    for (auto& connection : mapGenOptions.mapTemplate->connections) {
+    for (auto& connection : mapGenOptions.mapTemplate->contents.connections) {
         auto zoneA{zones[connection.zoneFrom]};
         auto zoneB{zones[connection.zoneTo]};
 
@@ -447,7 +472,7 @@ void MapGenerator::setNearestObjectDistance(const Position& position, float valu
 
 void MapGenerator::createRoads()
 {
-    const auto roadsPercentage{mapGenOptions.mapTemplate->roads};
+    const auto roadsPercentage{mapGenOptions.mapTemplate->settings.roads};
     if (roadsPercentage == 0) {
         // No roads at all, nothing to do here
         return;
@@ -602,21 +627,6 @@ std::size_t MapGenerator::getZoneCount(RaceType race)
 std::size_t MapGenerator::getTotalZoneCount() const
 {
     return zonesTotal;
-}
-
-RaceType MapGenerator::getNextRace(std::size_t& raceIndex) const
-{
-    const auto& races{mapGenOptions.mapTemplate->races};
-
-    for (; raceIndex < races.size();) {
-        auto index{raceIndex++};
-        // Neutrals always exist, and we are not interested in them
-        if (races[index] && static_cast<RaceType>(index) != RaceType::Neutral) {
-            return static_cast<RaceType>(index);
-        }
-    }
-
-    return RaceType::Neutral;
 }
 
 const TileInfo& MapGenerator::getTile(const Position& position) const

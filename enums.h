@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstddef>
-
 // Same as LRace.dbf
 enum class RaceType
 {
@@ -11,11 +9,9 @@ enum class RaceType
     Dwarf,
     Neutral,
     Elf,
-    // Utility use only
-    Total,
+    // Special case for scenario generator
+    Random,
 };
-
-static constexpr const std::size_t racesTotal{static_cast<std::size_t>(RaceType::Total)};
 
 // Same as LSubRace.dbf
 enum class SubRaceType

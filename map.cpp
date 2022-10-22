@@ -1,5 +1,6 @@
 #include "map.h"
 #include "diplomacy.h"
+#include "gameinfo.h"
 #include "mapblock.h"
 #include "mapelement.h"
 #include "midgardmap.h"
@@ -75,7 +76,7 @@ void Map::serialize(const std::filesystem::path& scenarioFilePath)
         scenarioInfo->addPlayer(i, races[i]);
 
         for (std::size_t j = i + 1; j < races.size(); ++j) {
-            diplomacy->add(getRaceId(races[i]), getRaceId(races[j]), 0);
+            diplomacy->add(getRaceInfo(races[i]).raceId, getRaceInfo(races[j]).raceId, 0);
         }
     }
 
@@ -270,40 +271,25 @@ bool Map::isAtTheBorder(const MapElement& mapElement, const Position& position) 
     return false;
 }
 
-const CMidgardID& Map::getRaceId(RaceType race) const
-{
-    // Values from GRace.dbf
-    // clang-format off
-    static const std::array<CMidgardID, (size_t)RaceType::Total> raceIds{{
-        CMidgardID{"g000rr0000"},
-        CMidgardID{"g000rr0003"},
-        CMidgardID{"g000rr0002"},
-        CMidgardID{"g000rr0001"},
-        CMidgardID{"g000rr0004"},
-        CMidgardID{"g000rr0005"}
-    }};
-    // clang-format on
-
-    return raceIds[static_cast<std::size_t>(race)];
-}
-
-const CMidgardID& Map::getLordId(RaceType race) const
+CMidgardID Map::getLordId(RaceType race) const
 {
     // We don't care about actual lord id, since player will choose it at the start of scenario.
     // These ids are for errorless and convenient map generation
-
-    // clang-format off
-    static const std::array<CMidgardID, (size_t)RaceType::Total> lordIds{{
-        CMidgardID{"g000LR0001"},
-        CMidgardID{"g000LR0010"},
-        CMidgardID{"g000LR0007"},
-        CMidgardID{"g000LR0004"},
-        CMidgardID{"g000LR0013"},
-        CMidgardID{"g000LR0016"}
-    }};
-    // clang-format on
-
-    return lordIds[static_cast<std::size_t>(race)];
+    switch (race) {
+    case RaceType::Human:
+        return CMidgardID{"g000LR0001"};
+    case RaceType::Undead:
+        return CMidgardID{"g000LR0010"};
+    case RaceType::Heretic:
+        return CMidgardID{"g000LR0007"};
+    case RaceType::Dwarf:
+        return CMidgardID{"g000LR0004"};
+    default:
+    case RaceType::Neutral:
+        return CMidgardID{"g000LR0013"};
+    case RaceType::Elf:
+        return CMidgardID{"g000LR0016"};
+    }
 }
 
 RaceType Map::getRaceType(const CMidgardID& raceId) const

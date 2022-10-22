@@ -103,10 +103,8 @@ public:
     // Returns true if mapElement will be at the border of the map, if placed at position
     bool isAtTheBorder(const MapElement& mapElement, const Position& position) const;
 
-    // Returns global race id for specified race
-    const CMidgardID& getRaceId(RaceType race) const;
     // Returns global lord id for specified race
-    const CMidgardID& getLordId(RaceType race) const;
+    CMidgardID getLordId(RaceType race) const;
     // Returns race type for specified race id
     RaceType getRaceType(const CMidgardID& raceId) const;
     // Returns subrace type for specified race

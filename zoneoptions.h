@@ -142,6 +142,7 @@ struct ZoneOptions
     BagInfo bags;                               // Bags with treasures
     TemplateZoneId id{0};
     TemplateZoneType type{TemplateZoneType::PlayerStart};
+    RaceType playerRace{RaceType::Neutral};
     MonsterStrength monsterStrength{MonsterStrength::ZoneNormal};
     int size{1}; // Zone size
 };

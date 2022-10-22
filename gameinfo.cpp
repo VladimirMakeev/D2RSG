@@ -635,7 +635,9 @@ bool isRaceUnplayable(const CMidgardID& raceId)
 
 bool isRaceUnplayable(RaceType raceType)
 {
-    return raceType == RaceType::Neutral;
+    // Random race is a special type and considered as unplayable.
+    // Random races are checked early during scenario generation and changed to a playable ones.
+    return raceType == RaceType::Neutral || raceType == RaceType::Random;
 }
 
 bool readRacesInfo(const std::filesystem::path& globalsFolderPath)
