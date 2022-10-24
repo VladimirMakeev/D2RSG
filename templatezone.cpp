@@ -1427,7 +1427,8 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
                 groupUnits[position] = info;
             }
         } else {
-            unusedValue += value;
+            // Accumulate unused value
+            unusedValue += unitValues[i];
         }
     }
 }
