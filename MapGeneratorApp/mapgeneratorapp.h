@@ -23,7 +23,7 @@ public:
 public slots:
     void onScenarioMapGenerated(Map* scenarioMap, const QString& error);
     void seedPlaceholderUpdate();
-
+    void onRaceSelected(int comboBoxIndex);
 
 private slots:
     void on_gameFolderButton_clicked();
@@ -52,17 +52,23 @@ private:
     // Disable everything, except game folder button
     void disableButtons(bool forGeneration = false);
     void disableRadioButtons(bool forGeneration = false);
+    void disableRaceButtons(bool forGeneration = false);
     // Enable buttons after generation completes
     void enableButtons();
     // Enable radio buttons according to scenario sizes allowed by template
     void updateRadioButtons();
     void rememberRadioButtonStates();
     void restoreRadioButtonStates();
+    // Enable race buttons according to max players allowed by template
+    void updateRaceButtons();
+    void restoreRaceButtonStates();
+    void restoreButtonStates();
     // Returns scenario size based on radio buttons state
     int getSelectedScenarioSize();
     std::time_t getScenarioSeed();
 
     void updatePreviewImages();
+    void getSelectedRaces(std::vector<RaceType>& races, int maxPlayers);
 
     Ui::MapGeneratorApp *ui;
 

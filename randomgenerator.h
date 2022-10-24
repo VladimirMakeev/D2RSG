@@ -147,7 +147,7 @@ static inline std::vector<std::size_t> constrainedSum(std::size_t n, std::size_t
 template <typename T>
 static inline auto getRandomItem(const T& container, Rng& rand)
 {
-    std::vector<T::value_type> tmp;
+    std::vector<typename T::value_type> tmp;
 
     std::sample(container.begin(), container.end(), std::back_inserter(tmp), 1, rand.getEngine());
 

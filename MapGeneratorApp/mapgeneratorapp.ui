@@ -13,9 +13,9 @@
   <property name="windowTitle">
    <string>Disciples II генератор случайных сценариев</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="5,0,2">
+  <layout class="QHBoxLayout" name="horizontalLayout_17" stretch="5,0,2">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QVBoxLayout" name="verticalLayout_6">
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
@@ -189,6 +189,311 @@
           <widget class="QRadioButton" name="size144Button">
            <property name="text">
             <string>144</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_15">
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Расы</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_8">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_16">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QCheckBox" name="race1CheckBox">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="race1ComboBox">
+           <item>
+            <property name="text">
+             <string>Случайно</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Империя</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Горные Кланы</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Орды Нежити</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Легионы Проклятых</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Альянс Эльфов</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="race1Label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="pixmap">
+            <pixmap resource="resources.qrc">:/images/random.png</pixmap>
+           </property>
+           <property name="scaledContents">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="Line" name="line_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QCheckBox" name="race2CheckBox">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="race2ComboBox">
+           <item>
+            <property name="text">
+             <string>Случайно</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Империя</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Горные Кланы</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Орды Нежити</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Легионы Проклятых</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Альянс Эльфов</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="race2Label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="pixmap">
+            <pixmap resource="resources.qrc">:/images/random.png</pixmap>
+           </property>
+           <property name="scaledContents">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="Line" name="line_5">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QCheckBox" name="race3CheckBox">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="race3ComboBox">
+           <item>
+            <property name="text">
+             <string>Случайно</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Империя</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Горные Кланы</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Орды Нежити</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Легионы Проклятых</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Альянс Эльфов</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="race3Label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="pixmap">
+            <pixmap resource="resources.qrc">:/images/random.png</pixmap>
+           </property>
+           <property name="scaledContents">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="Line" name="line_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QCheckBox" name="race4CheckBox">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="race4ComboBox">
+           <item>
+            <property name="text">
+             <string>Случайно</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Империя</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Горные Кланы</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Орды Нежити</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Легионы Проклятых</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Альянс Эльфов</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="race4Label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="pixmap">
+            <pixmap resource="resources.qrc">:/images/random.png</pixmap>
+           </property>
+           <property name="scaledContents">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

@@ -9,6 +9,50 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QImage>
+#include <QDebug>
+#include <QComboBox>
+
+static const char* getRaceLabel(RaceType race)
+{
+    switch (race) {
+    case RaceType::Human: return "empire.png";
+    case RaceType::Dwarf: return "dwarf.png";
+    case RaceType::Undead: return "undead.png";
+    case RaceType::Heretic: return "heretic.png";
+    case RaceType::Elf: return "elf.png";
+    default:
+    case RaceType::Neutral:
+    case RaceType::Random: return "random.png";
+    }
+}
+
+static int getComboBoxIndex(RaceType race)
+{
+    switch (race) {
+    case RaceType::Human: return 1;
+    case RaceType::Dwarf: return 2;
+    case RaceType::Undead: return 3;
+    case RaceType::Heretic: return 4;
+    case RaceType::Elf: return 5;
+    default:
+    case RaceType::Neutral:
+    case RaceType::Random: return 0;
+    }
+}
+
+static RaceType comboBoxIndexToRace(int index)
+{
+    switch (index) {
+    case 1: return RaceType::Human;
+    case 2: return RaceType::Dwarf;
+    case 3: return RaceType::Undead;
+    case 4: return RaceType::Heretic;
+    case 5: return RaceType::Elf;
+    default:
+    case 0:
+        return RaceType::Random;
+    }
+}
 
 MapGeneratorApp::MapGeneratorApp(QWidget *parent) :
     QWidget(parent),
@@ -19,6 +63,11 @@ MapGeneratorApp::MapGeneratorApp(QWidget *parent) :
     ui->aboutLabel->setText(tr("v %1, mak").arg(VER_PRODUCTVERSION_STR));
 
     connect(&seedPlaceholderTimer, &QTimer::timeout, this, &MapGeneratorApp::seedPlaceholderUpdate);
+
+    connect(ui->race1ComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onRaceSelected(int)));
+    connect(ui->race2ComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onRaceSelected(int)));
+    connect(ui->race3ComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onRaceSelected(int)));
+    connect(ui->race4ComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onRaceSelected(int)));
 
     disableButtons();
 }
@@ -49,6 +98,51 @@ void MapGeneratorApp::seedPlaceholderUpdate()
 {
     ui->seedEdit->setPlaceholderText(QString("%1").arg(std::time(nullptr)));
 
+}
+
+void MapGeneratorApp::onRaceSelected(int comboBoxIndex)
+{
+    QComboBox* comboBoxes[4] = {
+        ui->race1ComboBox,
+        ui->race2ComboBox,
+        ui->race3ComboBox,
+        ui->race4ComboBox
+    };
+
+    QLabel* labels[4] = {
+        ui->race1Label,
+        ui->race2Label,
+        ui->race3Label,
+        ui->race4Label
+    };
+
+    QComboBox* comboBox = qobject_cast<QComboBox*>(sender());
+    const RaceType selectedRace = comboBoxIndexToRace(comboBoxIndex);
+
+    for (int i = 0; i < 4; ++i) {
+        QComboBox* other = comboBoxes[i];
+
+        if (comboBox == other) {
+            // Update corresponding label according to index
+            qDebug() << "ComboBox" << i + 1 << "changed to index:" << comboBoxIndex;
+
+            const char* labelName = getRaceLabel(selectedRace);
+            labels[i]->setPixmap(QPixmap(QString(":/images/%1").arg(labelName)));
+        }
+        else {
+            // Make sure there are no duplicates in playable races
+            if (selectedRace == RaceType::Random) {
+                // Multiple random races are accepted
+                continue;
+            }
+
+            const RaceType otherRace = comboBoxIndexToRace(other->currentIndex());
+            if (otherRace == selectedRace) {
+                // Other combo box have this race already selected, revert it to random
+                other->setCurrentIndex(getComboBoxIndex(RaceType::Random));
+            }
+        }
+    }
 }
 
 void MapGeneratorApp::on_gameFolderButton_clicked()
@@ -90,7 +184,7 @@ bool MapGeneratorApp::readGameInfo(const std::filesystem::path &gameFolder)
 void MapGeneratorApp::readTemplateAndUpdateUi(const std::filesystem::path& templatePath)
 {
     try {
-        MapTemplate* tmplt = readMapTemplate(templatePath);
+        MapTemplate* tmplt = readTemplateSettings(templatePath);
 
         mapTemplate.reset(tmplt);
         templateFilePath = templatePath;
@@ -108,18 +202,21 @@ void MapGeneratorApp::readTemplateAndUpdateUi(const std::filesystem::path& templ
     seedPlaceholderTimer.start(seedPlaceholderUpdateTime);
     // Allow user to refresh template
     ui->scenarioTemplateButtonReload->setEnabled(true);
-    // Allow uset to change roads, forests and starting gold
-    ui->goldSpinBox->setValue(mapTemplate->startingGold);
+
+    auto& settings = mapTemplate->settings;
+    // Allow user to change roads, forests and starting gold
+    ui->goldSpinBox->setValue(settings.startingGold);
     ui->goldSpinBox->setEnabled(true);
 
-    ui->roadsSpinBox->setValue(mapTemplate->roads);
+    ui->roadsSpinBox->setValue(settings.roads);
     ui->roadsSpinBox->setEnabled(true);
 
-    ui->forestSpinBox->setValue(mapTemplate->forest);
+    ui->forestSpinBox->setValue(settings.forest);
     ui->forestSpinBox->setEnabled(true);
 
     // Allow user to select scenario size
     updateRadioButtons();
+    updateRaceButtons();
     // Allow user to generate scenario
     ui->generateButton->setEnabled(true);
 }
@@ -151,6 +248,7 @@ void MapGeneratorApp::disableButtons(bool forGeneration)
 
     ui->generateButton->setEnabled(false);
     disableRadioButtons(forGeneration);
+    disableRaceButtons(forGeneration);
 }
 
 void MapGeneratorApp::disableRadioButtons(bool forGeneration)
@@ -172,6 +270,33 @@ void MapGeneratorApp::disableRadioButtons(bool forGeneration)
     }
 }
 
+void MapGeneratorApp::disableRaceButtons(bool forGeneration)
+{
+    QCheckBox* checkBoxes[4] = {
+        ui->race1CheckBox,
+        ui->race2CheckBox,
+        ui->race3CheckBox,
+        ui->race4CheckBox
+    };
+
+    QComboBox* comboBoxes[4] = {
+        ui->race1ComboBox,
+        ui->race2ComboBox,
+        ui->race3ComboBox,
+        ui->race4ComboBox
+    };
+
+    for (int i = 0; i < 4; ++i) {
+        comboBoxes[i]->setEnabled(false);
+        checkBoxes[i]->setEnabled(false);
+
+        if (!forGeneration) {
+            comboBoxes[i]->setCurrentIndex(-1);
+            checkBoxes[i]->setChecked(false);
+        }
+    }
+}
+
 void MapGeneratorApp::enableButtons()
 {
     ui->gameFolderButton->setEnabled(true);
@@ -187,7 +312,7 @@ void MapGeneratorApp::enableButtons()
     seedPlaceholderTimer.start(seedPlaceholderUpdateTime);
 
     ui->generateButton->setEnabled(true);
-    restoreRadioButtonStates();
+    restoreButtonStates();
 }
 
 void MapGeneratorApp::updateRadioButtons()
@@ -202,8 +327,8 @@ void MapGeneratorApp::updateRadioButtons()
         ui->size144Button
     };
 
-    const auto startIndex = mapTemplate->sizeMin / 24 - 2;
-    const auto endIndex = mapTemplate->sizeMax / 24 - 2;
+    const auto startIndex = mapTemplate->settings.sizeMin / 24 - 2;
+    const auto endIndex = mapTemplate->settings.sizeMax / 24 - 2;
 
     // Enable buttons that correspond to allowed template sizes
     for (int i = startIndex; i <= endIndex && i < 5; ++i) {
@@ -244,6 +369,70 @@ void MapGeneratorApp::restoreRadioButtonStates()
     }
 }
 
+void MapGeneratorApp::updateRaceButtons()
+{
+    // Disable them first
+    disableRaceButtons();
+
+    QCheckBox* checkBoxes[4] = {
+        ui->race1CheckBox,
+        ui->race2CheckBox,
+        ui->race3CheckBox,
+        ui->race4CheckBox
+    };
+
+    QComboBox* comboBoxes[4] = {
+        ui->race1ComboBox,
+        ui->race2ComboBox,
+        ui->race3ComboBox,
+        ui->race4ComboBox
+    };
+
+    // Enable according to maxPlayers
+    const int maxPlayers = mapTemplate->settings.maxPlayers;
+
+    for (int i = 0; i < maxPlayers; ++i) {
+        //checkBoxes[i]->setEnabled(true);
+        // Check by default, for convenience
+        checkBoxes[i]->setChecked(true);
+
+        comboBoxes[i]->setEnabled(true);
+        // Choose random race by default
+        comboBoxes[i]->setCurrentIndex(getComboBoxIndex(RaceType::Random));
+    }
+}
+
+void MapGeneratorApp::restoreRaceButtonStates()
+{
+    /*QCheckBox* checkBoxes[4] = {
+        ui->race1CheckBox,
+        ui->race2CheckBox,
+        ui->race3CheckBox,
+        ui->race4CheckBox
+    };*/
+
+    QComboBox* comboBoxes[4] = {
+        ui->race1ComboBox,
+        ui->race2ComboBox,
+        ui->race3ComboBox,
+        ui->race4ComboBox
+    };
+
+    // Enable according to maxPlayers
+    const int maxPlayers = mapTemplate->settings.maxPlayers;
+
+    for (int i = 0; i < maxPlayers; ++i) {
+        //checkBoxes[i]->setEnabled(true);
+        comboBoxes[i]->setEnabled(true);
+    }
+}
+
+void MapGeneratorApp::restoreButtonStates()
+{
+    restoreRadioButtonStates();
+    restoreRaceButtonStates();
+}
+
 int MapGeneratorApp::getSelectedScenarioSize()
 {
     QRadioButton *buttons[5] = {
@@ -255,7 +444,7 @@ int MapGeneratorApp::getSelectedScenarioSize()
     };
 
     for (int i = 0; i < 5; ++i) {
-        auto button = buttons[i];
+        QRadioButton* button = buttons[i];
         if (button->isEnabled() && button->isChecked()) {
             return 48 + i * 24;
         }
@@ -361,6 +550,31 @@ void MapGeneratorApp::updatePreviewImages()
     ui->contentsImage->setPixmap(contentPixmap.scaled(288, 288));
 }
 
+void MapGeneratorApp::getSelectedRaces(std::vector<RaceType>& races, int maxPlayers)
+{
+    /*QCheckBox* checkBoxes[4] = {
+        ui->race1CheckBox,
+        ui->race2CheckBox,
+        ui->race3CheckBox,
+        ui->race4CheckBox
+    };*/
+
+    QComboBox* comboBoxes[4] = {
+        ui->race1ComboBox,
+        ui->race2ComboBox,
+        ui->race3ComboBox,
+        ui->race4ComboBox
+    };
+
+    races.clear();
+
+    for (int i = 0; i < maxPlayers; ++i) {
+        //if (checkBoxes[i]->isChecked()) {
+            races.push_back(comboBoxIndexToRace(comboBoxes[i]->currentIndex()));
+        //}
+    }
+}
+
 void MapGeneratorApp::on_scenarioTemplateButton_clicked()
 {
     const QString filepath = QFileDialog::getOpenFileName(this,
@@ -384,20 +598,37 @@ void MapGeneratorApp::on_generateButton_clicked()
         return;
     }
 
-
     const auto seed = getScenarioSeed();
     const auto seedString = std::to_string(seed);
+
+    auto& settings = mapTemplate->settings;
+    settings.size = scenarioSize;
+    getSelectedRaces(settings.races, settings.maxPlayers);
 
     // Create options
     options = MapGenOptions();
     options.mapTemplate = mapTemplate.get();
     options.name = std::string{"random map "} + seedString;
     options.description = std::string{"Random map based on template '"}
-            + options.mapTemplate->name
+            + settings.name
             + std::string{"'. Seed: "} + seedString;
-    options.size = scenarioSize;
+    options.size = settings.size;
     // Create generator
     generator = std::make_unique<MapGenerator>(options, seed);
+
+    try {
+        // Cleanup previous contents, if any
+        mapTemplate->contents = MapTemplateContents();
+
+        settings.replaceRandomRaces(generator->randomGenerator);
+        // Generate new contents according to user settings
+        readTemplateContents(*mapTemplate);
+    }
+    catch (const std::exception& e)
+    {
+        QMessageBox::critical(this, tr("Error"), tr("Could not generate template contents. Reason: %1").arg(e.what()));
+    }
+
     // Remember radio button states
     rememberRadioButtonStates();
     // Disable buttons
@@ -451,7 +682,7 @@ void MapGeneratorApp::on_roadsSpinBox_valueChanged(int roadsPercentage)
         return;
     }
 
-    mapTemplate->roads = roadsPercentage;
+    mapTemplate->settings.roads = roadsPercentage;
 }
 
 
@@ -463,7 +694,7 @@ void MapGeneratorApp::on_forestSpinBox_valueChanged(int forestPercentage)
         return;
     }
 
-    mapTemplate->forest = forestPercentage;
+    mapTemplate->settings.forest = forestPercentage;
 }
 
 
@@ -475,5 +706,5 @@ void MapGeneratorApp::on_goldSpinBox_valueChanged(int gold)
         return;
     }
 
-    mapTemplate->startingGold = gold;
+    mapTemplate->settings.startingGold = gold;
 }

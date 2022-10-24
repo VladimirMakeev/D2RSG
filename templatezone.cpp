@@ -2,6 +2,7 @@
 #include "capital.h"
 #include "containers.h"
 #include "crystal.h"
+#include "exceptions.h"
 #include "generatorsettings.h"
 #include "item.h"
 #include "itempicker.h"
@@ -2262,9 +2263,8 @@ void TemplateZone::placeCities()
         const int minDistance{mapElement.getSize().x * 2};
         while (true) {
             if (!findPlaceForObject(mapElement, minDistance, position)) {
-                std::cerr << "Failed to place city in zone " << id << " due to lack of space\n";
-                // Nothing to do here, other cities could not fit either
-                return;
+                throw LackOfSpaceException(std::string("Failed to place city in zone ")
+                                           + std::to_string(id) + " due to lack of space");
             }
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
@@ -2287,9 +2287,8 @@ void TemplateZone::placeMerchants()
         const int minDistance{mapElement.getSize().x * 2};
         while (true) {
             if (!findPlaceForObject(mapElement, minDistance, position)) {
-                std::cerr << "Failed to place merchant in zone " << id << " due to lack of space\n";
-                // Nothing to do here, other merchants could not fit either
-                return;
+                throw LackOfSpaceException(std::string("Failed to place merchant in zone ")
+                                           + std::to_string(id) + " due to lack of space");
             }
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
@@ -2312,9 +2311,8 @@ void TemplateZone::placeMages()
         const int minDistance{mapElement.getSize().x * 2};
         while (true) {
             if (!findPlaceForObject(mapElement, minDistance, position)) {
-                std::cerr << "Failed to place mage in zone " << id << " due to lack of space\n";
-                // Nothing to do here, other mages could not fit either
-                return;
+                throw LackOfSpaceException(std::string("Failed to place mage in zone ")
+                                           + std::to_string(id) + " due to lack of space");
             }
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
@@ -2337,10 +2335,8 @@ void TemplateZone::placeMercenaries()
         const int minDistance{mapElement.getSize().x * 2};
         while (true) {
             if (!findPlaceForObject(mapElement, minDistance, position)) {
-                std::cerr << "Failed to place mercenary in zone " << id
-                          << " due to lack of space\n";
-                // Nothing to do here, other mercenaries could not fit either
-                return;
+                throw LackOfSpaceException(std::string("Failed to place mercenary in zone ")
+                                           + std::to_string(id) + " due to lack of space");
             }
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
@@ -2363,9 +2359,8 @@ void TemplateZone::placeTrainers()
         const int minDistance{mapElement.getSize().x * 2};
         while (true) {
             if (!findPlaceForObject(mapElement, minDistance, position)) {
-                std::cerr << "Failed to place trainer in zone " << id << " due to lack of space\n";
-                // Nothing to do here, other trainers could not fit either
-                return;
+                throw LackOfSpaceException(std::string("Failed to place trainer in zone ")
+                                           + std::to_string(id) + " due to lack of space");
             }
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
@@ -2388,9 +2383,8 @@ void TemplateZone::placeRuins()
         const int minDistance{mapElement.getSize().x * 2};
         while (true) {
             if (!findPlaceForObject(mapElement, minDistance, position)) {
-                std::cerr << "Failed to place ruin in zone " << id << " due to lack of space\n";
-                // Nothing to do here, other ruins could not fit either
-                return;
+                throw LackOfSpaceException(std::string("Failed to place ruin in zone ")
+                                           + std::to_string(id) + " due to lack of space");
             }
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
@@ -2468,8 +2462,8 @@ void TemplateZone::placeStacks()
 
         while (true) {
             if (!findPlaceForObject(mapElement, minDistance, position)) {
-                std::cerr << "Failed to place stacks in zone " << id << " due to lack of space\n";
-                return;
+                throw LackOfSpaceException(std::string("Failed to place stacks in zone ")
+                                           + std::to_string(id) + " due to lack of space");
             }
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
@@ -2572,9 +2566,8 @@ void TemplateZone::placeBags()
         const int minDistance{mapElement.getSize().x * 2};
         while (true) {
             if (!findPlaceForObject(mapElement, minDistance, position)) {
-                std::cerr << "Failed to place bags in zone " << id << " due to lack of space\n";
-                // Nothing to do here, other bags could not fit either
-                return;
+                throw LackOfSpaceException(std::string("Failed to place bags in zone ")
+                                           + std::to_string(id) + " due to lack of space");
             }
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
@@ -2619,8 +2612,7 @@ bool TemplateZone::createRequiredObjects()
 
         auto mapElement{dynamic_cast<MapElement*>(object.get())};
         if (!mapElement) {
-            std::cerr << "Required object is not MapElement!\n";
-            return false;
+            throw std::runtime_error("Required object is not MapElement!");
         }
 
         while (true) {
@@ -2633,8 +2625,8 @@ bool TemplateZone::createRequiredObjects()
 
             if (!findPlaceForObject(objectSize.isValid() ? MapElement{objectSize} : *mapElement,
                                     minDistance, position)) {
-                std::cerr << "Failed to fill zone " << id << " due to lack of space\n";
-                return false;
+                throw LackOfSpaceException(std::string("Failed to fill zone ") + std::to_string(id)
+                                           + " due to lack of space");
             }
 
             // If specific size was requested, place object at the center of found area
@@ -2662,8 +2654,7 @@ bool TemplateZone::createRequiredObjects()
 
         auto mapElement{dynamic_cast<MapElement*>(object.get())};
         if (!mapElement) {
-            std::cerr << "Close object is not MapElement!\n";
-            return false;
+            throw std::runtime_error("Required object is not MapElement!");
         }
 
         // Find place for object using required object size
@@ -2719,8 +2710,8 @@ bool TemplateZone::createRequiredObjects()
             std::sort(tiles.begin(), tiles.end(), isCloser);
 
             if (tiles.empty()) {
-                std::cerr << "Failed to fill zone " << id << " due to lack of space\n";
-                return false;
+                throw LackOfSpaceException(std::string("Failed to fill zone ") + std::to_string(id)
+                                           + " due to lack of space");
             }
 
             for (const auto& tile : tiles) {

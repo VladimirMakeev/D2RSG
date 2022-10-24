@@ -119,41 +119,13 @@ void MapGenerator::fillZones()
     std::size_t raceIndex{};
 
     // Create players, assign player id to each starting zone
-    {
-        const auto& races{mapGenOptions.mapTemplate->settings.races};
-        // Races available for random selection
-        std::set<RaceType> availableRaces{RaceType::Human, RaceType::Undead, RaceType::Heretic,
-                                          RaceType::Dwarf, RaceType::Elf};
+    for (auto& it : zones) {
+        auto& zone{it.second};
 
-        for (const auto& race : races) {
-            if (!isRaceUnplayable(race)) {
-                // Player already selected this race, we can't randomly choose it again
-                availableRaces.erase(race);
-            }
-        }
-
-        for (auto& it : zones) {
-            auto& zone{it.second};
-
-            if (zone->type == TemplateZoneType::PlayerStart
-                || zone->type == TemplateZoneType::AiStart) {
-                RaceType playerRace = zone->playerRace;
-
-                if (playerRace == RaceType::Random) {
-                    // Pick one from available races
-                    if (availableRaces.empty()) {
-                        throw std::runtime_error("No available races for random selection");
-                    }
-
-                    playerRace = getRandomItem(availableRaces, randomGenerator);
-                    availableRaces.erase(playerRace);
-
-                    zone->playerRace = playerRace;
-                }
-
-                auto playerSubraceIds{createPlayer(playerRace)};
-                zone->setOwner(playerSubraceIds.first);
-            }
+        if (zone->type == TemplateZoneType::PlayerStart
+            || zone->type == TemplateZoneType::AiStart) {
+            auto playerSubraceIds{createPlayer(zone->playerRace)};
+            zone->setOwner(playerSubraceIds.first);
         }
     }
 

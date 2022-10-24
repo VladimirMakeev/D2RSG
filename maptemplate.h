@@ -1,6 +1,7 @@
 #pragma once
 
 #include "zoneoptions.h"
+#include "gameinfo.h"
 #include <memory>
 #include <set>
 #include <sol/sol.hpp>
@@ -20,6 +21,34 @@ struct MapTemplateSettings
     int roads{100}; // Percentage of road tiles
     int startingGold{};
     int forest{}; // Percentage of unused tiles converted to forest after content placement
+
+    // Replaces random races with real ones
+    void replaceRandomRaces(Rng& rand)
+    {
+        std::set<RaceType> availableRaces{RaceType::Human, RaceType::Undead, RaceType::Heretic,
+                                          RaceType::Dwarf, RaceType::Elf};
+
+        // Find playable races that are available for replacement
+        for (const RaceType& race : races) {
+            if (!isRaceUnplayable(race)) {
+                // Player already selected this race, we can't randomly choose it again
+                availableRaces.erase(race);
+            }
+        }
+
+        // Assign actual playable races
+        for (RaceType& race : races) {
+            if (race == RaceType::Random) {
+                // Pick one from available races
+                if (availableRaces.empty()) {
+                    throw std::runtime_error("No available races for random selection");
+                }
+
+                race = getRandomItem(availableRaces, rand);
+                availableRaces.erase(race);
+            }
+        }
+    }
 };
 
 // Describes template contents.

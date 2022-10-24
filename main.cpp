@@ -37,13 +37,8 @@ int main(int argc, char* argv[])
         auto mapTemplate = std::unique_ptr<MapTemplate>(readTemplateSettings(templateFilePath));
         // Emulate settings from user
         MapTemplateSettings& settings = mapTemplate->settings;
-        // TODO: here settings.maxPlayers should be handled
-        settings.races.push_back(RaceType::Random);
-        settings.races.push_back(RaceType::Random);
+        settings.races.insert(settings.races.end(), settings.maxPlayers, RaceType::Random);
         settings.size = 72;
-
-        // Generate template contents
-        readTemplateContents(*mapTemplate);
 
         MapGenOptions options;
         options.mapTemplate = mapTemplate.get();
@@ -57,6 +52,11 @@ int main(int argc, char* argv[])
         options.size = settings.size;
 
         MapGenerator generator{options, mapSeed};
+
+        settings.replaceRandomRaces(generator.randomGenerator);
+
+        // Generate template contents
+        readTemplateContents(*mapTemplate);
 
         auto map{generator.generate()};
 

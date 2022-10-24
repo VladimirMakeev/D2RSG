@@ -485,7 +485,12 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
 
     options->id = readValue(zone, "id", -1, 0);
     options->type = zone.get<TemplateZoneType>("type");
-    options->playerRace = zone.get<RaceType>("race");
+
+    if (options->type == TemplateZoneType::PlayerStart
+        || options->type == TemplateZoneType::AiStart) {
+        options->playerRace = zone.get<RaceType>("race");
+    }
+
     options->size = readValue(zone, "size", 1, 1);
 
     auto mines = zone.get<OptionalTable>("mines");

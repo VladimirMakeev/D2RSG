@@ -2,5 +2,11 @@
     <qresource prefix="/images">
         <file>logo.png</file>
         <file>refresh.png</file>
+        <file>dwarf.png</file>
+        <file>elf.png</file>
+        <file>empire.png</file>
+        <file>heretic.png</file>
+        <file>random.png</file>
+        <file>undead.png</file>
     </qresource>
 </RCC>
