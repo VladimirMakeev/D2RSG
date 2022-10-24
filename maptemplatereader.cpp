@@ -647,7 +647,7 @@ MapTemplate* readTemplateSettings(const std::filesystem::path& templatePath)
     std::string code{readFile(templatePath)};
     sol::state lua;
     lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::table,
-                       sol::lib::os);
+                       sol::lib::os, sol::lib::io);
 
     bindLuaApi(lua);
 
