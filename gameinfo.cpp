@@ -43,6 +43,14 @@ static SiteTexts merchantTexts;
 static SiteTexts ruinTexts;
 static SiteTexts trainerTexts;
 
+// Returns true if raw reach attack id (from LAttR.dbf)
+// is one of three vanilla ones: All, Any or Adjacent
+static bool isVanillaReachId(int reachId)
+{
+    return reachId == (int)ReachType::All || reachId == (int)ReachType::Any
+           || reachId == (int)ReachType::Adjacent;
+}
+
 const UnitsInfo& getUnitsInfo()
 {
     return unitsInfo;
@@ -112,6 +120,60 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
     minSoldierValue = std::numeric_limits<int>::max();
     maxSoldierValue = std::numeric_limits<int>::min();
 
+    bool customReaches{false};
+    std::map<int /* raw reach id */, ReachType /* actual reach type to use instead */> reaches;
+
+    {
+        Dbf reachDb{globalsFolderPath / "LAttR.dbf"};
+        if (!reachDb) {
+            std::cerr << "Could not open LAttR.dbf\n";
+            return false;
+        }
+
+        // Check custom reaches presence by new special 'melee' column.
+        // Don't bother reading even vanilla ones if there are no custom reaches
+        customReaches = reachDb.column("MELEE") != nullptr;
+        if (customReaches) {
+            for (const auto& record : reachDb) {
+                if (record.deleted()) {
+                    continue;
+                }
+
+                int rawId{};
+                if (!record.value(rawId, "ID")) {
+                    continue;
+                }
+
+                if (isVanillaReachId(rawId)) {
+                    reaches[rawId] = static_cast<ReachType>(rawId);
+                } else {
+                    // Map custom reaches to vanilla ones (Any, All or Adjacent)
+                    // depending on 'melee' hint and max targets count.
+                    // We don't care about their actual logic
+                    bool melee{false};
+                    if (!record.value(melee, "MELEE")) {
+                        continue;
+                    }
+
+                    // Melle custom reaches become 'Adjacent'
+                    ReachType reach = ReachType::Adjacent;
+                    if (!melee) {
+                        // Non-melee custom reaches with 6 max targets becomes 'All',
+                        // others are 'Any'
+                        int maxTargets{};
+                        if (!record.value(maxTargets, "MAX_TARGTS")) {
+                            continue;
+                        }
+
+                        reach = maxTargets == 6 ? ReachType::All : ReachType::Any;
+                    }
+
+                    reaches[rawId] = reach;
+                }
+            }
+        }
+    }
+
     std::map<CMidgardID /* attack id */, std::pair<ReachType, AttackType>> attacks;
 
     {
@@ -146,11 +208,21 @@ bool readUnitsInfo(const std::filesystem::path& globalsFolderPath)
                 continue;
             }
 
-            attacks[attackId] = {static_cast<ReachType>(reach), static_cast<AttackType>(type)};
+            if (!customReaches) {
+                // We can use vanilla reaches as is
+                attacks[attackId] = {static_cast<ReachType>(reach), static_cast<AttackType>(type)};
+            } else {
+                const auto it = reaches.find(reach);
+                if (it == reaches.end()) {
+                    // This should never happen
+                    continue;
+                }
+
+                const ReachType actualReach = it->second;
+                attacks[attackId] = {actualReach, static_cast<AttackType>(type)};
+            }
         }
     }
-
-    // TODO: Read reaches and support custom ones
 
     Dbf unitsDb{globalsFolderPath / "GUnits.dbf"};
     if (!unitsDb) {
