@@ -1,5 +1,6 @@
 #include "gameinfo.h"
 #include "containers.h"
+#include "currency.h"
 #include "dbf.h"
 #include "generatorsettings.h"
 #include "textconvert.h"
@@ -362,14 +363,14 @@ bool readItemsInfo(const std::filesystem::path& globalsFolderPath)
             continue;
         }
 
-        if (valueString.size() < 35) {
-            continue;
-        }
+        const Currency currency{Currency::fromString(valueString)};
 
-        // Use gold as value
+        // Use sum of resources as as value
         // TODO: get values by running Lua script
-        char buf[5] = {valueString[1], valueString[2], valueString[3], valueString[4], '\0'};
-        int value{std::atoi(buf)};
+        int value = 0;
+        for (int i = (int)Currency::Type::Gold; i < (int)Currency::Type::Total; ++i) {
+            value += currency.get(static_cast<Currency::Type>(i));
+        }
 
         auto itemType{static_cast<ItemType>(type)};
 
