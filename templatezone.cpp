@@ -1959,39 +1959,12 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
 
 CMidgardID TemplateZone::createRuinLoot(const LootInfo& loot)
 {
-    // If we have specific items return the first one.
-    // Ruins don't care about amount
-    if (!loot.requiredItems.empty()) {
-        return loot.requiredItems[0].itemId;
-    }
-
-    // Otherwise, pick a single item from specified value range with respect to item types
-    const auto& value{loot.value};
-    if (!value) {
+    auto lootItems = createLoot(loot);
+    if (lootItems.empty()) {
         return emptyId;
     }
 
-    auto noWrongType = [types = &loot.itemTypes](const ItemInfo* info) {
-        if (types->empty()) {
-            return false;
-        }
-
-        // Remove items of types that is not allowed
-        return types->find(info->itemType) == types->end();
-    };
-
-    auto noWrongValue = [&value](const ItemInfo* info) {
-        return info->value < value.min || info->value > value.max;
-    };
-
-    auto& rand{mapGenerator->randomGenerator};
-
-    auto item{pickItem(rand, {noWrongType, noWrongValue, noSpecialItem})};
-    if (!item) {
-        return emptyId;
-    }
-
-    return item->itemId;
+    return lootItems[0].first;
 }
 
 void TemplateZone::initTerrain()
