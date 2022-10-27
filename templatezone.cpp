@@ -2432,7 +2432,7 @@ void TemplateZone::placeStacks()
         Position position;
 
         MapElement mapElement{Position{1, 1}};
-        const int minDistance{2};
+        const int minDistance{1};
 
         while (true) {
             if (!findPlaceForObject(mapElement, minDistance, position)) {
