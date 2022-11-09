@@ -24,6 +24,8 @@ struct LootInfo
     std::vector<RequiredItemInfo> requiredItems;
     // Total loot value, excluding required items
     RandomValue<std::uint32_t> value{};
+    // Single loot item value, excluding required items
+    RandomValue<std::uint32_t> itemValue{};
 };
 
 struct GroupInfo

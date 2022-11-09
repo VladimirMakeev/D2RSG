@@ -1911,9 +1911,12 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
             continue;
         }
 
-        auto amount{(int)rand.getInt64Range(item.amount.min, item.amount.max)()};
-
-        items.push_back({item.itemId, amount});
+        const int amount{(int)rand.getInt64Range(item.amount.min, item.amount.max)()};
+        if (amount > 0) {
+            // User can specify [0 : 1+] amount of required items,
+            // make sure we only add valid amount
+            items.push_back({item.itemId, amount});
+        }
     }
 
     // Create random items of specified types and value
@@ -1931,11 +1934,19 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
             return types->find(info->itemType) == types->end();
         };
 
+        const auto& itemValue{loot.itemValue};
+
         int picked{};
         while (currentValue <= desiredValue) {
             const int remainingValue = desiredValue - currentValue;
 
-            auto noWrongValue = [remainingValue](const ItemInfo* info) {
+            auto noWrongValue = [remainingValue, &itemValue](const ItemInfo* info) {
+                if (itemValue && (info->value < itemValue.min || info->value > itemValue.max)) {
+                    // If user specified single item value range,
+                    // filter items that are outside of it
+                    return true;
+                }
+
                 return info->value > static_cast<int>(remainingValue);
             };
 

@@ -204,7 +204,7 @@ static void readMines(ZoneOptions& options, const sol::table& mines)
 static void readRequiredItem(RequiredItemInfo& item, const sol::table& table)
 {
     readId(item.itemId, table, "id");
-    readRandomValue<std::uint8_t>(item.amount, table, 1, 1);
+    readRandomValue<std::uint8_t>(item.amount, table, 1, 0);
 }
 
 static void readLoot(LootInfo& loot, const sol::table& table)
@@ -217,6 +217,11 @@ static void readLoot(LootInfo& loot, const sol::table& table)
     auto value = table.get<OptionalTable>("value");
     if (value.has_value()) {
         readRandomValue<std::uint32_t>(loot.value, value.value(), 0, 0);
+    }
+
+    auto itemValue = table.get<OptionalTable>("itemValue");
+    if (itemValue.has_value()) {
+        readRandomValue<std::uint32_t>(loot.itemValue, itemValue.value(), 0, 0);
     }
 
     auto items = table.get<OptionalTableArray>("items");
