@@ -1,5 +1,7 @@
 #include "itempicker.h"
+#include "containers.h"
 #include "gameinfo.h"
+#include "generatorsettings.h"
 #include "randomgenerator.h"
 
 ItemInfo* pickItem(const std::vector<ItemInfo*>& itemPool,
@@ -34,4 +36,9 @@ ItemInfo* pickItem(ItemType itemType, Rng& random, const ItemFilterList& filters
 bool noSpecialItem(const ItemInfo* info)
 {
     return info->itemType == ItemType::Special;
+}
+
+bool noForbiddenItem(const ItemInfo* info)
+{
+    return contains(getGeneratorSettings().forbiddenItems, info->itemId);
 }

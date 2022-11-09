@@ -1939,7 +1939,7 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
                 return info->value > static_cast<int>(remainingValue);
             };
 
-            auto item{pickItem(rand, {noWrongType, noWrongValue, noSpecialItem})};
+            auto item{pickItem(rand, {noWrongType, noWrongValue, noSpecialItem, noForbiddenItem})};
             if (!item) {
                 // Could not pick anything, stop
                 break;

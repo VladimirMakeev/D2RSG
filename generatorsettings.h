@@ -10,6 +10,8 @@ struct GeneratorSettings
 {
     // Units that will be never used in generation
     std::set<CMidgardID> forbiddenUnits;
+    // Items that will be never used in generation
+    std::set<CMidgardID> forbiddenItems;
 
     struct Landmarks
     {
