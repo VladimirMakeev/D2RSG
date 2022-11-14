@@ -508,23 +508,28 @@ bool readSpellsInfo(const std::filesystem::path& globalsFolderPath)
             continue;
         }
 
+        int level{};
+        if (!record.value(level, "LEVEL")) {
+            continue;
+        }
+
         std::string_view costString{};
         if (!record.value(costString, "BUY_C")) {
             continue;
         }
 
-        if (costString.size() < 35) {
-            continue;
-        }
+        const Currency currency{Currency::fromString(costString)};
 
-        // Use gold as value
+        // Use sum of resources as as value
         // TODO: get values by running Lua script
-        char buf[5] = {costString[1], costString[2], costString[3], costString[4], '\0'};
-        int value{std::atoi(buf)};
+        int value = 0;
+        for (int i = (int)Currency::Type::Gold; i < (int)Currency::Type::Total; ++i) {
+            value += currency.get(static_cast<Currency::Type>(i));
+        }
 
         auto spellType{static_cast<SpellType>(type)};
 
-        auto info{std::make_unique<SpellInfo>(spellId, value, spellType)};
+        auto info{std::make_unique<SpellInfo>(spellId, value, level, spellType)};
 
         allSpells.push_back(info.get());
         spellsByType[spellType].push_back(info.get());

@@ -118,14 +118,16 @@ bool readItemsInfo(const std::filesystem::path& globalsFolderPath);
 
 struct SpellInfo
 {
-    SpellInfo(const CMidgardID& spellId, int value, SpellType spellType)
+    SpellInfo(const CMidgardID& spellId, int value, int level, SpellType spellType)
         : spellId{spellId}
         , value{value}
+        , level{level}
         , spellType{spellType}
     { }
 
     CMidgardID spellId;
     int value{};
+    int level{};
     SpellType spellType{SpellType::Attack};
 };
 
