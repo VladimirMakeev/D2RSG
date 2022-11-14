@@ -71,10 +71,12 @@ struct MageInfo
     GroupInfo guard;
     // Types of spells merchant is allowed to sell
     std::set<SpellType> spellTypes;
-    // Spells that merchant must sell, regardless of spellTypes and cash
+    // Spells that merchant must sell, regardless of spellTypes and value
     std::set<CMidgardID> requiredSpells;
     // Total value of merchant tradable spells, excluding requiredSpells
     RandomValue<std::uint32_t> value{};
+    // Spell levels that merchant is allowed to sell.
+    RandomValue<std::uint8_t> spellLevels{};
 };
 
 struct MercenaryUnitInfo

@@ -355,6 +355,11 @@ static void readMage(MageInfo& mage, const sol::table& table)
         readRandomValue<std::uint32_t>(mage.value, value.value(), 0, 0);
     }
 
+    auto spellLevels = table.get<OptionalTable>("spellLevel");
+    if (spellLevels.has_value()) {
+        readRandomValue<std::uint8_t>(mage.spellLevels, spellLevels.value(), 1, 1, 5);
+    }
+
     auto spells = table.get<sol::optional<std::set<std::string>>>("spells");
     if (spells.has_value()) {
         for (const auto& spell : spells.value()) {

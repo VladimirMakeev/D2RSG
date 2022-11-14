@@ -1707,8 +1707,15 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
     // Generate random spells of specified types
     if (mageInfo.value) {
         const auto& value{mageInfo.value};
-        int desiredValue{(int)rand.getInt64Range(value.min, value.max)()};
+        const int desiredValue{(int)rand.getInt64Range(value.min, value.max)()};
         int currentValue{};
+
+        std::set<CMidgardID> pickedSpells;
+
+        auto noDuplicates = [&pickedSpells](const SpellInfo* info) {
+            // Make sure we don't pick duplicates
+            return pickedSpells.find(info->spellId) != pickedSpells.end();
+        };
 
         auto noWrongType = [types = &mageInfo.spellTypes](const SpellInfo* info) {
             if (types->empty()) {
@@ -1720,8 +1727,23 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
             return types->find(info->spellType) == types->end();
         };
 
+        auto noWrongLevel = [&level = mageInfo.spellLevels](const SpellInfo* info) {
+            if (!level) {
+                // No level range specified, allow all spell levels
+                return false;
+            }
+
+            return info->level < level.min || info->level > level.max;
+        };
+
         while (currentValue <= desiredValue) {
-            auto spell{pickSpell(rand, {noWrongType})};
+            const int remainingValue = desiredValue - currentValue;
+
+            auto noWrongValue = [remainingValue](const SpellInfo* info) {
+                return info->value > remainingValue;
+            };
+
+            auto spell{pickSpell(rand, {noWrongType, noWrongLevel, noWrongValue, noDuplicates})};
             if (!spell) {
                 // Could not pick anything, stop
                 break;
@@ -1729,6 +1751,7 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
 
             currentValue += spell->value;
             mage->addSpell(spell->spellId);
+            pickedSpells.insert(spell->spellId);
         }
     }
 
