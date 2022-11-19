@@ -2563,10 +2563,45 @@ void TemplateZone::placeBags()
         return;
     }
 
+    // Compute single bag value
+    const auto& bagsLoot = bags.loot;
+    LootInfo bagLoot;
+    bagLoot.value = bagsLoot.value / bags.count;
+    bagLoot.itemTypes = bagsLoot.itemTypes;
+    bagLoot.itemValue = bagsLoot.itemValue;
+
+    std::vector<std::vector<CMidgardID>> items(bags.count);
+    // Generate loot for each bag
+    for (std::uint32_t i = 0; i < bags.count; ++i) {
+        const auto loot{createLoot(bagLoot)};
+
+        for (const auto& [id, amount] : loot) {
+            items[i].insert(items[i].end(), amount, id);
+        }
+    }
+
+    // Generate required items
+    LootInfo requiredLootInfo;
+    requiredLootInfo.requiredItems = bagsLoot.requiredItems;
+    const auto requiredLoot{createLoot(requiredLootInfo)};
+
+    std::vector<CMidgardID> requiredItems;
+    for (const auto& [id, amount] : requiredLoot) {
+        requiredItems.insert(requiredItems.end(), amount, id);
+    }
+
     auto& rand{mapGenerator->randomGenerator};
-    std::vector<Bag*> placedBags;
+
+    // Place required items in the bags randomly
+    for (const auto& id : requiredItems) {
+        const std::size_t bagIndex = static_cast<std::size_t>(
+            rand.getInt64Range(0, int64_t(items.size() - 1))());
+
+        items[bagIndex].push_back(id);
+    }
 
     // Place bags
+    std::vector<Bag*> placedBags;
     for (std::uint32_t i = 0; i < bags.count; ++i) {
         MapElement mapElement{Position{1, 1}};
         Position position;
@@ -2588,25 +2623,19 @@ void TemplateZone::placeBags()
         }
     }
 
-    const auto bagsLoot{createLoot(bags.loot)};
-    std::vector<CMidgardID> items;
+    // Fill bags with actual items.
+    // It is the template author's job to think about bags.count and item values distribution.
+    // Generator won't care about dumb combinations that lead to empty bags.
+    for (std::size_t i = 0; i < items.size() && i < placedBags.size(); ++i) {
+        const auto& bagItems = items[i];
+        for (const auto& bagItemId : bagItems) {
+            auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
+            auto item{std::make_unique<Item>(itemId)};
+            item->setItemType(bagItemId);
 
-    for (const auto& [id, amount] : bagsLoot) {
-        items.insert(items.end(), amount, id);
-    }
-
-    // Make sure random and required items are randomly distributed
-    randomShuffle(items, rand);
-
-    std::size_t i{0};
-    for (const auto& id : items) {
-        auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
-        auto item{std::make_unique<Item>(itemId)};
-        item->setItemType(id);
-
-        mapGenerator->insertObject(std::move(item));
-
-        placedBags[i++ % placedBags.size()]->add(itemId);
+            mapGenerator->insertObject(std::move(item));
+            placedBags[i]->add(itemId);
+        }
     }
 }
 
