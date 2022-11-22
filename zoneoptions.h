@@ -98,16 +98,18 @@ struct MercenaryInfo
     RandomValue<std::uint32_t> value{};
 };
 
-struct StacksInfo
+struct NeutralStacksInfo
 {
-    // Total loot of stacks
-    LootInfo loot;
-    // Stacks that must be created
-    std::vector<GroupInfo> requiredStacks;
-    // Total value of stacks, excluding required
-    RandomValue<std::uint32_t> value{};
+    // GroupInfo used to describe value and loot of entire group
+    GroupInfo stacks;
     // Number of stacks to create
     std::uint32_t count{};
+};
+
+struct StacksInfo
+{
+    // Several neutral stack groups each with the same generation parameters
+    std::vector<NeutralStacksInfo> stackGroups;
 };
 
 struct BagInfo

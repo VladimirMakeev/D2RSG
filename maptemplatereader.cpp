@@ -438,28 +438,17 @@ static void readMercenaries(std::vector<MercenaryInfo>& mercenaries,
     }
 }
 
-static void readStacks(StacksInfo& stacks, const sol::table& table)
+static void readStacks(StacksInfo& stacks, const std::vector<sol::table>& tables)
 {
-    auto value = table.get<sol::table>("value");
-    readRandomValue<std::uint32_t>(stacks.value, value, 0, 0);
+    stacks.stackGroups.reserve(tables.size());
 
-    stacks.count = readValue(table, "count", 0, 0);
+    for (auto& table : tables) {
+        NeutralStacksInfo info{};
 
-    auto loot = table.get<OptionalTable>("loot");
-    if (loot.has_value()) {
-        readLoot(stacks.loot, loot.value());
-    }
+        readGroup(info.stacks, table);
+        info.count = readValue(table, "count", 0, 0);
 
-    auto required = table.get<OptionalTableArray>("predefined");
-    if (required.has_value()) {
-        stacks.requiredStacks.reserve(required.value().size());
-
-        for (auto& stack : required.value()) {
-            GroupInfo info{};
-            readGroup(info, stack);
-
-            stacks.requiredStacks.push_back(info);
-        }
+        stacks.stackGroups.push_back(info);
     }
 }
 
@@ -533,7 +522,7 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
         readMercenaries(options->mercenaries, mercenaries.value());
     }
 
-    auto stacks = zone.get<OptionalTable>("stacks");
+    auto stacks = zone.get<OptionalTableArray>("stacks");
     if (stacks.has_value()) {
         readStacks(options->stacks, stacks.value());
     }

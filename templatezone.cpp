@@ -2457,8 +2457,13 @@ bool TemplateZone::placeMines()
 
 void TemplateZone::placeStacks()
 {
-    // Compute how many stacks (random + required) we have in total
-    const std::size_t stacksTotal = stacks.count + stacks.requiredStacks.size();
+    // Compute how many stacks we have in total
+    const std::size_t stacksTotal = std::accumulate(stacks.stackGroups.begin(),
+                                                    stacks.stackGroups.end(), 0u,
+                                                    [](std::uint32_t val,
+                                                       const NeutralStacksInfo& info) {
+                                                        return info.count + val;
+                                                    });
     std::vector<Position> positions(stacksTotal);
 
     // Find position for each of them
@@ -2487,73 +2492,68 @@ void TemplateZone::placeStacks()
 
     auto& rand{mapGenerator->randomGenerator};
 
-    // Make sure random and required stacks are mixed on the map
+    // Make sure stacks from different groups are mixed on the map
     randomShuffle(positions, rand);
 
-    std::vector<Stack*> randomStacks(stacks.count);
-    std::size_t stackIndex{0};
-    // Generate and place all random stacks, value is split evenly
-    GroupInfo randomStackInfo;
-
-    if (stacks.count) {
-        randomStackInfo.value = RandomValue{stacks.value / stacks.count};
-    }
-
-    for (; stackIndex < stacks.count; ++stackIndex) {
-        auto stack{createStack(randomStackInfo)};
-        if (!stack) {
+    std::size_t positionIndex{};
+    for (const auto& stackGroup : stacks.stackGroups) {
+        if (!stackGroup.count) {
             continue;
         }
 
-        stack->setOwner(mapGenerator->getNeutralPlayerId());
-        stack->setSubrace(mapGenerator->getNeutralSubraceId());
+        std::vector<Stack*> randomStacks(stackGroup.count);
+        std::size_t stackIndex{};
+        // Generate and place all random stacks, value is split evenly
+        GroupInfo randomStackInfo;
+        randomStackInfo.value = stackGroup.stacks.value / stackGroup.count;
+        randomStackInfo.subraceTypes = stackGroup.stacks.subraceTypes;
 
-        randomStacks[stackIndex] = stack.get();
-        placeObject(std::move(stack), positions[stackIndex]);
-    }
+        for (; stackIndex < stackGroup.count; ++stackIndex) {
+            auto stack{createStack(randomStackInfo)};
+            if (!stack) {
+                continue;
+            }
 
-    // Generate loot and then split items among the stacks
-    auto stacksLoot{createLoot(stacks.loot)};
-    std::vector<CMidgardID> items;
+            stack->setOwner(mapGenerator->getNeutralPlayerId());
+            stack->setSubrace(mapGenerator->getNeutralSubraceId());
 
-    for (const auto& [id, amount] : stacksLoot) {
-        items.insert(items.end(), amount, id);
-    }
+            randomStacks[stackIndex] = stack.get();
+            placeObject(std::move(stack), positions[positionIndex++]);
+        }
 
-    // Make sure random and required items are randomly distributed
-    randomShuffle(items, rand);
+        // TODO: divide loot value by number of stacks in the group, then generate
+        // The same way we do with bags
+        // Generate loot and then split items among the stacks
+        auto stacksLoot{createLoot(stackGroup.stacks.loot)};
+        std::vector<CMidgardID> items;
 
-    std::size_t j{0};
-    for (const auto& id : items) {
-        const std::size_t index = j % randomStacks.size();
+        for (const auto& [id, amount] : stacksLoot) {
+            items.insert(items.end(), amount, id);
+        }
 
-        if (!randomStacks[index]) {
+        // Make sure random and required items are randomly distributed
+        randomShuffle(items, rand);
+
+        // Place items in stacks
+        std::size_t j{0};
+        for (const auto& id : items) {
+            const std::size_t index = j % randomStacks.size();
+
+            if (!randomStacks[index]) {
+                ++j;
+                continue;
+            }
+
+            auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
+            auto item{std::make_unique<Item>(itemId)};
+            item->setItemType(id);
+
+            mapGenerator->insertObject(std::move(item));
+
+            Inventory& inventory{randomStacks[index]->getInventory()};
+            inventory.add(itemId);
             ++j;
-            continue;
         }
-
-        auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
-        auto item{std::make_unique<Item>(itemId)};
-        item->setItemType(id);
-
-        mapGenerator->insertObject(std::move(item));
-
-        Inventory& inventory{randomStacks[index]->getInventory()};
-        inventory.add(itemId);
-        ++j;
-    }
-
-    // Generate and place all required stacks
-    for (const auto& stackInfo : stacks.requiredStacks) {
-        auto stack{createStack(stackInfo)};
-        if (!stack) {
-            continue;
-        }
-
-        stack->setOwner(mapGenerator->getNeutralPlayerId());
-        stack->setSubrace(mapGenerator->getNeutralSubraceId());
-
-        placeObject(std::move(stack), positions[stackIndex++]);
     }
 }
 
