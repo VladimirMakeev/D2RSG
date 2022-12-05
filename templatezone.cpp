@@ -2216,8 +2216,9 @@ void TemplateZone::placeCapital()
     auto leaderAdded{stack->addLeader(leaderId, 2, leaderInfo->bigUnit)};
     assert(leaderAdded);
     stack->setInside(capitalId);
-    stack->setMove(20);
+    stack->setMove(leaderInfo->move);
     stack->setOwner(ownerId);
+    stack->setOrder(OrderType::Normal);
 
     fort->setStack(stackId);
 

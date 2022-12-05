@@ -86,6 +86,11 @@ public:
         facing = value;
     }
 
+    void setOrder(OrderType value, const CMidgardID& targetId = emptyId)
+    {
+        order = value;
+    }
+
     const Group& getGroup() const
     {
         return group;
