@@ -216,7 +216,8 @@ struct TemplateZone : public ZoneOptions
     Stack* placeZoneGuard(const Position& position, const GroupInfo& guardInfo);
     Bag* placeBag(const Position& position);
 
-    std::vector<std::pair<CMidgardID, int>> createLoot(const LootInfo& loot);
+    std::vector<std::pair<CMidgardID, int>> createLoot(const LootInfo& loot,
+                                                       bool forMerchant = false);
     CMidgardID createRuinLoot(const LootInfo& loot);
 
     void initTerrain();

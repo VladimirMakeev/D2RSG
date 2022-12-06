@@ -1680,7 +1680,7 @@ Site* TemplateZone::placeMerchant(const Position& position, const MerchantInfo& 
     merchant->setImgIso(getRandomItem(getGeneratorSettings().merchants.images, rand));
 
     // Create merchant items
-    const auto items{createLoot(merchantInfo.items)};
+    const auto items{createLoot(merchantInfo.items, true)};
     for (const auto& [id, amount] : items) {
         merchant->addItem(id, amount);
     }
@@ -1922,7 +1922,8 @@ Bag* TemplateZone::placeBag(const Position& position)
     return bagPtr;
 }
 
-std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo& loot)
+std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo& loot,
+                                                                 bool forMerchant)
 {
     auto& rand{mapGenerator->randomGenerator};
 
@@ -1948,7 +1949,12 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
         int desiredValue{(int)rand.getInt64Range(value.min, value.max)()};
         int currentValue{};
 
-        auto noWrongType = [types = &loot.itemTypes](const ItemInfo* info) {
+        auto noWrongType = [types = &loot.itemTypes, forMerchant](const ItemInfo* info) {
+            if (forMerchant && info->itemType == ItemType::Valuable) {
+                // Do not generate valuables as merchant goods
+                return true;
+            }
+
             if (types->empty()) {
                 return false;
             }
