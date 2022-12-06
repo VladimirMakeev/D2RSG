@@ -23,6 +23,11 @@ public:
         itemTypeId = value;
     }
 
+    const CMidgardID& getItemType() const
+    {
+        return itemTypeId;
+    }
+
 private:
     CMidgardID itemTypeId;
 };

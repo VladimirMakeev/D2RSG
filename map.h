@@ -4,6 +4,7 @@
 #include "midgardid.h"
 #include "position.h"
 #include "scenarioobject.h"
+#include "talismancharges.h"
 #include <array>
 #include <filesystem>
 #include <functional>
@@ -126,6 +127,8 @@ public:
 
     int addMountain(const Position& position, const Position& size, int image);
 
+    void addTalismanCharge(const CMidgardID& talismanId);
+
     void paintTerrain(const Position& position, TerrainType terrain, GroundType ground);
     // Changes terrain and ground of specified tiles
     void paintTerrain(const std::vector<Position>& tiles, TerrainType terrain, GroundType ground);
@@ -148,6 +151,7 @@ private:
     Diplomacy* diplomacy{};
     ScenarioInfo* scenarioInfo{};
     Mountains* mountains{};
+    TalismanCharges* talismanCharges{};
 };
 
 using MapPtr = std::unique_ptr<Map>;

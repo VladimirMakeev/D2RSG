@@ -398,6 +398,18 @@ const ItemInfoArray& getItems(ItemType itemType)
     return itemsByType[itemType];
 }
 
+bool isTalisman(const CMidgardID& itemId)
+{
+    const auto& items{getItemsInfo()};
+
+    const auto it{items.find(itemId)};
+    if (it == items.end()) {
+        return false;
+    }
+
+    return it->second->itemType == ItemType::Talisman;
+}
+
 bool readItemsInfo(const std::filesystem::path& globalsFolderPath)
 {
     itemsInfo.clear();

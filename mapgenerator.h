@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gameinfo.h"
+#include "item.h"
 #include "map.h"
 #include "randomgenerator.h"
 #include "tileinfo.h"
@@ -38,6 +40,16 @@ public:
     bool insertObject(std::unique_ptr<ScenarioObject>&& object)
     {
         return map->insertObject(std::move(object));
+    }
+
+    bool insertObject(std::unique_ptr<Item>&& itemObject)
+    {
+        // Add talisman charges each time we insert talisman item on the map
+        if (isTalisman(itemObject->getItemType())) {
+            map->addTalismanCharge(itemObject->getId());
+        }
+
+        return map->insertObject(std::move(itemObject));
     }
 
     void paintTerrain(const Position& position, TerrainType terrain, GroundType ground)

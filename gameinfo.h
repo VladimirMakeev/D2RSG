@@ -113,6 +113,8 @@ const ItemsInfo& getItemsInfo();
 const ItemInfoArray& getItems();
 // Returns all items of specific type known to map generator
 const ItemInfoArray& getItems(ItemType itemType);
+// Returns true if item with specified global id is a talisman
+bool isTalisman(const CMidgardID& itemId);
 
 bool readItemsInfo(const std::filesystem::path& globalsFolderPath);
 

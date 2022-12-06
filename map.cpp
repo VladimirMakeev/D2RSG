@@ -15,7 +15,6 @@
 #include "spelleffects.h"
 #include "stackdestroyed.h"
 #include "subrace.h"
-#include "talismancharges.h"
 #include "turnsummary.h"
 #include <cassert>
 #include <sstream>
@@ -28,7 +27,10 @@ Map::Map()
     // Stack destroyed
     insertObject(std::make_unique<StackDestroyed>(createId(CMidgardID::Type::StackDestroyed)));
     // Talisman charges
-    insertObject(std::make_unique<TalismanCharges>(createId(CMidgardID::Type::TalismanCharges)));
+    auto chargesObject{
+        std::make_unique<TalismanCharges>(createId(CMidgardID::Type::TalismanCharges))};
+    talismanCharges = chargesObject.get();
+    insertObject(std::move(chargesObject));
     // Spell effects
     insertObject(std::make_unique<SpellEffects>(createId(CMidgardID::Type::SpellEffects)));
     // Spell cast
@@ -254,6 +256,13 @@ int Map::addMountain(const Position& position, const Position& size, int image)
     }
 
     return mountains->add(position, size, image);
+}
+
+void Map::addTalismanCharge(const CMidgardID& talismanId)
+{
+    assert(talismanCharges != nullptr);
+
+    talismanCharges->addTalisman(talismanId);
 }
 
 bool Map::isAtTheBorder(const MapElement& mapElement, const Position& position) const

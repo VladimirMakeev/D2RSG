@@ -8,7 +8,17 @@ void TalismanCharges::serialize(Serializer& serializer, const Map& scenario) con
     CMidgardID::String idString{};
     objectId.toString(idString);
 
-    serializer.serialize(idString.data(), 0);
+    serializer.serialize(idString.data(), static_cast<std::uint32_t>(charges.size()));
+
+    for (const auto& [id, count] : charges) {
+        serializer.serialize("ID_TALIS", id);
+        serializer.serialize("CHARGES", count);
+    }
 
     serializer.leaveRecord();
+}
+
+void TalismanCharges::addTalisman(const CMidgardID& itemId)
+{
+    charges.push_back({itemId, talismanChargesMax});
 }
