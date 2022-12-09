@@ -36,6 +36,7 @@ static LandmarkInfoArray mountainLandmarks;
 static RacesInfo racesInfo;
 
 static TextsInfo globalTexts;
+static TextsInfo editorInterfaceTexts;
 static CityNames cityNames;
 static SiteTexts mercenaryTexts;
 static SiteTexts mageTexts;
@@ -847,7 +848,14 @@ const TextsInfo& getGlobalTexts()
     return globalTexts;
 }
 
-bool readGlobalTexts(const std::filesystem::path& globalsFolderPath)
+const TextsInfo& getEditorInterfaceTexts()
+{
+    return editorInterfaceTexts;
+}
+
+static bool readTexts(TextsInfo& texts,
+                      const std::filesystem::path& folderPath,
+                      const char* dbFileName)
 {
     auto readId = [](const Dbf::Record& record, const char* column, CMidgardID& id) {
         std::string_view idString{};
@@ -864,17 +872,23 @@ bool readGlobalTexts(const std::filesystem::path& globalsFolderPath)
         return true;
     };
 
-    globalTexts.clear();
+    texts.clear();
 
-    Dbf textsDb{globalsFolderPath / "Tglobal.dbf"};
-    if (!textsDb) {
-        std::cerr << "Could not open Tglobal.dbf\n";
+    Dbf db{folderPath / dbFileName};
+    if (!db) {
+        std::cerr << "Could not open " << dbFileName << '\n';
         return false;
     }
 
-    const auto textLength = textsDb.column("TEXT")->length;
+    const Dbf::Column* textColumn{db.column("TEXT")};
+    if (!textColumn) {
+        std::cerr << "Missing 'TEXT' column in " << dbFileName << '\n';
+        return false;
+    }
 
-    for (const auto& record : textsDb) {
+    const std::uint8_t textLength{textColumn->length};
+
+    for (const auto& record : db) {
         if (record.deleted()) {
             continue;
         }
@@ -889,10 +903,20 @@ bool readGlobalTexts(const std::filesystem::path& globalsFolderPath)
             continue;
         }
 
-        globalTexts[textId] = translate(textView, textLength);
+        texts[textId] = translate(textView, textLength);
     }
 
     return true;
+}
+
+bool readGlobalTexts(const std::filesystem::path& globalsFolderPath)
+{
+    return readTexts(globalTexts, globalsFolderPath, "Tglobal.dbf");
+}
+
+bool readEditorInterfaceTexts(const std::filesystem::path& interfFolderPath)
+{
+    return readTexts(editorInterfaceTexts, interfFolderPath, "TAppEdit.dbf");
 }
 
 const CityNames& getCityNames()
@@ -1007,10 +1031,11 @@ bool readGameInfo(const std::filesystem::path& gameFolderPath)
 {
     const std::filesystem::path globalsFolder{gameFolderPath / "Globals"};
     const std::filesystem::path scenDataFolder{gameFolderPath / "ScenData"};
+    const std::filesystem::path interfDataFolder{gameFolderPath / "Interf"};
 
     return readGeneratorSettings(gameFolderPath) && readRacesInfo(globalsFolder)
            && readUnitsInfo(globalsFolder) && readItemsInfo(globalsFolder)
            && readSpellsInfo(globalsFolder) && readLandmarksInfo(globalsFolder)
-           && readGlobalTexts(globalsFolder) && readCityNames(scenDataFolder)
-           && readSiteTexts(scenDataFolder);
+           && readGlobalTexts(globalsFolder) && readEditorInterfaceTexts(interfDataFolder)
+           && readCityNames(scenDataFolder) && readSiteTexts(scenDataFolder);
 }

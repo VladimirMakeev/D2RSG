@@ -226,8 +226,11 @@ bool readRacesInfo(const std::filesystem::path& globalsFolderPath);
 using TextsInfo = std::unordered_map<CMidgardID, std::string, CMidgardIDHash>;
 
 const TextsInfo& getGlobalTexts();
+const TextsInfo& getEditorInterfaceTexts();
 
 bool readGlobalTexts(const std::filesystem::path& globalsFolderPath);
+
+bool readEditorInterfaceTexts(const std::filesystem::path& interfFolderPath);
 
 using CityNames = std::vector<std::string>;
 
