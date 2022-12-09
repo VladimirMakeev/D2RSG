@@ -175,6 +175,15 @@ enum class LandmarkType
     Terrain,
 };
 
+// Same as LDiff.dbf
+enum class DifficultyType
+{
+    Easy,
+    Average,
+    Hard,
+    VeryHard,
+};
+
 // Internal generator use only
 enum class MapFormat
 {

@@ -43,12 +43,14 @@ int main(int argc, char* argv[])
         MapGenOptions options;
         options.mapTemplate = mapTemplate.get();
 
-        // These are temporary placeholders. Think about better name and description.
         // MapTemplateSettings name and description are used for ingame (or standalone tool) UI
         // only.
-        options.name = std::string{"random map "} + seedString;
-        options.description = std::string{"Random map based on template '"} + settings.name
-                              + std::string{"'. Seed: "} + seedString;
+        options.name = std::string{"Random scenario "} + seedString;
+        options.description = std::string{"Random scenario based on template '"} + settings.name
+                              + std::string{"'. Seed: "} + seedString
+                              + ". Starting gold: " + std::to_string(settings.startingGold)
+                              + ". Roads: " + std::to_string(settings.roads)
+                              + "%. Forest: " + std::to_string(settings.forest) + "%.";
         options.size = settings.size;
 
         MapGenerator generator{options, mapSeed};

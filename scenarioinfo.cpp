@@ -3,6 +3,41 @@
 #include "serializer.h"
 #include <cstdio>
 
+// Serializes long strings by splitting them at max into 5 parts.
+// Each part is at most 253 characters long and ends with '_' separator if not empty.
+static void serializeLongString(Serializer& serializer,
+                                const char* name,
+                                int nameStartIndex,
+                                const std::string& string)
+{
+    // Part size and separator character are taken from Scenario Editor logic
+    constexpr std::size_t partSizeMax{253};
+    constexpr char partSeparator{'_'};
+    const std::size_t stringLen{string.length()};
+
+    std::vector<std::string> stringParts(5u);
+    for (std::size_t i = 0, j = 0; i < stringLen && j < stringParts.size(); i += partSizeMax, ++j) {
+        std::string& part{stringParts[j]};
+
+        part = string.substr(i, partSizeMax);
+        if (!part.empty()) {
+            part.append(1, partSeparator);
+        }
+    }
+
+    for (std::size_t i = 0; i < stringParts.size(); ++i) {
+        char fieldName[64] = {0};
+
+        if (i > 0 || nameStartIndex != 0) {
+            std::snprintf(fieldName, sizeof(fieldName) - 1, "%s%d", name, static_cast<int>(i + 1));
+        } else {
+            std::strcpy(fieldName, name);
+        }
+
+        serializer.serialize(fieldName, stringParts[i].c_str());
+    }
+}
+
 void ScenarioInfo::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -14,19 +49,13 @@ void ScenarioInfo::serialize(Serializer& serializer, const Map& scenario) const
     serializer.serialize("NAME", scenario.name.c_str());
     serializer.serialize("DESC", scenario.description.c_str());
     // Scenario objectives
-    serializer.serialize("BRIEFING", "Random map briefing");
-    serializer.serialize("DEBUNKW", "");
-    serializer.serialize("DEBUNKW2", "");
-    serializer.serialize("DEBUNKW3", "");
-    serializer.serialize("DEBUNKW4", "");
-    serializer.serialize("DEBUNKW5", "");
-    serializer.serialize("DEBUNKL", "You have been defeated in random map");
-    // Long, interesting and lorewise scenario description
-    serializer.serialize("BRIEFLONG1", "Random map long briefing._");
-    serializer.serialize("BRIEFLONG2", "");
-    serializer.serialize("BRIEFLONG3", "");
-    serializer.serialize("BRIEFLONG4", "");
-    serializer.serialize("BRIEFLONG5", "");
+    serializer.serialize("BRIEFING", objectives.c_str());
+    // Win condition message
+    serializeLongString(serializer, "DEBUNKW", 0, debunkW);
+    // Lose condition message
+    serializer.serialize("DEBUNKL", debunkL.c_str());
+    // Briefing shown to the player after scenario is loaded but not started yet
+    serializeLongString(serializer, "BRIEFLONG", 1, briefing);
     serializer.serialize("O", false);
     serializer.serialize("CUR_TURN", 0);
     serializer.serialize("MAX_UNIT", maxUnit);
@@ -34,8 +63,8 @@ void ScenarioInfo::serialize(Serializer& serializer, const Map& scenario) const
     serializer.serialize("MAX_LEADER", maxLeader);
     serializer.serialize("MAX_CITY", maxCity);
     serializer.serialize("MAP_SIZE", scenario.size);
-    serializer.serialize("DIFFSCEN", 0);
-    serializer.serialize("DIFFGAME", 0);
+    serializer.serialize("DIFFSCEN", static_cast<int>(scenarioDifficulty));
+    serializer.serialize("DIFFGAME", static_cast<int>(gameDifficulty));
     serializer.serialize("CREATOR", scenario.author.c_str());
 
     for (std::size_t i = 0; i < races.size(); ++i) {
@@ -45,7 +74,7 @@ void ScenarioInfo::serialize(Serializer& serializer, const Map& scenario) const
     }
 
     serializer.serialize("SUGG_LVL", 1);
-    serializer.serialize("MAP_SEED", 0);
+    serializer.serialize("MAP_SEED", seed);
     serializer.leaveRecord();
 }
 
@@ -56,4 +85,29 @@ void ScenarioInfo::addPlayer(std::size_t index, RaceType race)
     }
 
     races[index] = static_cast<int>(race);
+}
+
+void ScenarioInfo::setObjectives(const std::string& value)
+{
+    objectives = value;
+}
+
+void ScenarioInfo::setBriefing(const std::string& value)
+{
+    briefing = value;
+}
+
+void ScenarioInfo::setWinMessage(const std::string& value)
+{
+    debunkW = value;
+}
+
+void ScenarioInfo::setLoseMessage(const std::string& value)
+{
+    debunkL = value;
+}
+
+void ScenarioInfo::setSeed(std::uint32_t value)
+{
+    seed = value;
 }

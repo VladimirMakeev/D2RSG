@@ -85,7 +85,7 @@ void Map::serialize(const std::filesystem::path& scenarioFilePath)
     createMapBlocks();
     createNeutralSubraces();
 
-    // Write header
+    // Write header, TODO: use scenario info for this
     serializer.serialize(*this, scenarioId, races);
 
     // Write object count

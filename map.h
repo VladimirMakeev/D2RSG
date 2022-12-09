@@ -46,8 +46,8 @@ struct MapHeader
 {
     MapHeader() = default;
 
-    std::string name{"random map"};
-    std::string description{"random map description"};
+    std::string name{"Random scenario"};
+    std::string description{"Random scenario description"};
     std::string author{"mss32"};
     int size{48};
     MapFormat version{MapFormat::Rote};
@@ -132,6 +132,11 @@ public:
     void paintTerrain(const Position& position, TerrainType terrain, GroundType ground);
     // Changes terrain and ground of specified tiles
     void paintTerrain(const std::vector<Position>& tiles, TerrainType terrain, GroundType ground);
+
+    ScenarioInfo* getScenarioInfo()
+    {
+        return scenarioInfo;
+    }
 
 private:
     std::size_t posToIndex(const Position& position) const

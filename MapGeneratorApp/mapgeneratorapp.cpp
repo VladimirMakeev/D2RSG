@@ -608,10 +608,14 @@ void MapGeneratorApp::on_generateButton_clicked()
     // Create options
     options = MapGenOptions();
     options.mapTemplate = mapTemplate.get();
-    options.name = std::string{"random map "} + seedString;
-    options.description = std::string{"Random map based on template '"}
+    options.name = std::string{"Random scenario "} + seedString;
+    options.description = std::string{"Random scenario based on template '"}
             + settings.name
-            + std::string{"'. Seed: "} + seedString;
+            + std::string{"'. Seed: "} + seedString
+            + ". Starting gold: " + std::to_string(settings.startingGold)
+            + ". Roads: " + std::to_string(settings.roads)
+            + "%. Forest: " + std::to_string(settings.forest)
+            + "%.";
     options.size = settings.size;
     // Create generator
     generator = std::make_unique<MapGenerator>(options, seed);
@@ -657,6 +661,7 @@ void MapGeneratorApp::on_saveScenarioButtom_clicked()
     disableButtons(true);
 
     const std::filesystem::path scenarioPath{filePath.toStdString()};
+    scenario->author = std::string("mss32 rsg v ") + VER_PRODUCTVERSION_STR;
     scenario->serialize(scenarioPath);
 
     enableButtons();

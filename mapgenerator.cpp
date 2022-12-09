@@ -6,6 +6,7 @@
 #include "player.h"
 #include "playerbuildings.h"
 #include "road.h"
+#include "scenarioinfo.h"
 #include "subrace.h"
 #include <cassert>
 #include <iostream>
@@ -80,6 +81,20 @@ void MapGenerator::addHeaderInfo()
     map->name = mapGenOptions.name;
     map->description = mapGenOptions.description;
     map->size = mapGenOptions.size;
+
+    const TextsInfo& texts{getEditorInterfaceTexts()};
+    ScenarioInfo* info = map->getScenarioInfo();
+
+    info->setBriefing(map->description);
+    // Assume these identifiers exist, they are default texts used by Scenario Editor
+    // They are also less than 255 characters long, no truncation needed.
+    // 'No scenario objective defined'
+    info->setObjectives(texts.find(CMidgardID("X005TA0777"))->second);
+    // 'Congratulations! You have successfully completed the quest.'
+    info->setWinMessage(texts.find(CMidgardID("X005TA0778"))->second);
+    // 'You have been defeated, the objective was completed by the enemy.'
+    info->setLoseMessage(texts.find(CMidgardID("X005TA0779"))->second);
+    info->setSeed(static_cast<std::uint32_t>(randomSeed));
 }
 
 void MapGenerator::initTiles()
