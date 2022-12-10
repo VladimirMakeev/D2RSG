@@ -1,6 +1,7 @@
 #pragma once
 
 #include "scenarioobject.h"
+#include <set>
 
 class KnownSpells : public ScenarioObject
 {
@@ -17,4 +18,9 @@ public:
     }
 
     void serialize(Serializer& serializer, const Map& scenario) const override;
+
+    void add(const CMidgardID& spellId);
+
+private:
+    std::set<CMidgardID> spells;
 };

@@ -6,6 +6,7 @@
 #include "generatorsettings.h"
 #include "item.h"
 #include "itempicker.h"
+#include "knownspells.h"
 #include "landmarkpicker.h"
 #include "mage.h"
 #include "mapgenerator.h"
@@ -2178,8 +2179,8 @@ void TemplateZone::placeCapital()
     // Create capital id
     auto capitalId{mapGenerator->createId(CMidgardID::Type::Fortification)};
     // Create capital object
-    auto capital{std::make_unique<Capital>(capitalId)};
-    auto fort{capital.get()};
+    auto capitalCity{std::make_unique<Capital>(capitalId)};
+    auto fort{capitalCity.get()};
 
     assert(ownerId != emptyId);
     fort->setOwner(ownerId);
@@ -2192,18 +2193,47 @@ void TemplateZone::placeCapital()
 
     const auto& raceInfo{getRaceInfo(playerRace)};
     const auto& unitsInfo{getUnitsInfo()};
-    const auto* guardianInfo{unitsInfo.find(raceInfo.guardianId)->second.get()};
-    assert(guardianInfo);
 
-    // Add capital guardian
-    auto guardianId{mapGenerator->createId(CMidgardID::Type::Unit)};
-    auto guardian{std::make_unique<Unit>(guardianId)};
-    guardian->setImplId(guardianInfo->unitId);
-    guardian->setHp(guardianInfo->hitPoints);
+    const auto& garrison{capital.garrison};
 
-    mapGenerator->insertObject(std::move(guardian));
-    auto guardianAdded{fort->addUnit(guardianId, 3, guardianInfo->bigUnit)};
-    assert(guardianAdded);
+    {
+        const UnitInfo* guardianInfo{unitsInfo.find(raceInfo.guardianId)->second.get()};
+        assert(guardianInfo);
+
+        // Create capital garrison
+        std::size_t unusedValue{};
+        // Capital can fit entire group in its garrison. Slot 2 is reserved for a capital guardian
+        std::set<int> positions{0, 1, 3, 4, 5};
+        GroupUnits units = {{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
+        units[2] = guardianInfo;
+        if (guardianInfo->bigUnit) {
+            units[3] = guardianInfo;
+            positions.erase(3);
+        }
+
+        const auto& garrisonValue{garrison.value};
+        auto value{(std::size_t)rand.getInt64Range(garrisonValue.min, garrisonValue.max)()};
+        auto values{constrainedSum(Group::groupSize, value, rand)};
+
+        createGroup(unusedValue, positions, units, values, garrison.subraceTypes);
+        tightenGroup(unusedValue, positions, units, garrison.subraceTypes);
+        createGroupUnits(capitalCity->getGroup(), units);
+    }
+
+    // Create capital starting items
+    auto loot{createLoot(garrison.loot)};
+    auto& inventory{capitalCity->getInventory()};
+
+    for (const auto& [id, amount] : loot) {
+        for (int i = 0; i < amount; ++i) {
+            auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
+            auto item{std::make_unique<Item>(itemId)};
+            item->setItemType(id);
+
+            mapGenerator->insertObject(std::move(item));
+            inventory.add(itemId);
+        }
+    }
 
     const auto* leaderInfo{unitsInfo.find(raceInfo.leaderIds[0])->second.get()};
     assert(leaderInfo);
@@ -2245,10 +2275,10 @@ void TemplateZone::placeCapital()
     stack->setSubrace(subraceId);
 
     // Add capital decoration
-    decorations.push_back(std::make_unique<CapitalDecoration>(capital.get()));
+    decorations.push_back(std::make_unique<CapitalDecoration>(capitalCity.get()));
 
     // Place capital at the center of the zone
-    placeObject(std::move(capital), pos - fort->getSize() / 2,
+    placeObject(std::move(capitalCity), pos - fort->getSize() / 2,
                 mapGenerator->map->getRaceTerrain(playerRace));
     clearEntrance(*fort);
     // All roads lead to tile near capital entrance
@@ -2257,6 +2287,14 @@ void TemplateZone::placeCapital()
     mapGenerator->registerZone(playerRace);
 
     placeObject(std::move(stack), fort->getPosition());
+
+    // If there are known spells specified for player, add them
+    KnownSpells* knownSpells{mapGenerator->map->find<KnownSpells>(ownerPlayer->getSpellsId())};
+    assert(knownSpells);
+
+    for (const auto& spellId : capital.spells) {
+        knownSpells->add(spellId);
+    }
 }
 
 void TemplateZone::placeCities()

@@ -282,6 +282,27 @@ static void readCities(std::vector<CityInfo>& cities, const std::vector<sol::tab
     }
 }
 
+static void readCapital(CapitalInfo& capital, const sol::table& table)
+{
+    auto garrison = table.get<OptionalTable>("garrison");
+    if (garrison.has_value()) {
+        readGroup(capital.garrison, garrison.value());
+    }
+
+    auto spells = table.get<sol::optional<std::set<std::string>>>("spells");
+    if (spells.has_value()) {
+        for (const auto& spell : spells.value()) {
+            CMidgardID spellId(spell.c_str());
+
+            if (spellId == invalidId || spellId == emptyId) {
+                continue;
+            }
+
+            capital.spells.insert(spellId);
+        }
+    }
+}
+
 static void readRuin(RuinInfo& ruin, const sol::table& table)
 {
     auto guard = table.get<OptionalTable>("guard");
@@ -488,6 +509,11 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     if (options->type == TemplateZoneType::PlayerStart
         || options->type == TemplateZoneType::AiStart) {
         options->playerRace = zone.get<RaceType>("race");
+
+        auto capital = zone.get<OptionalTable>("capital");
+        if (capital.has_value()) {
+            readCapital(options->capital, capital.value());
+        }
     }
 
     options->size = readValue(zone, "size", 1, 1);

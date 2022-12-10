@@ -48,6 +48,14 @@ struct CityInfo
     std::uint8_t tier{1};
 };
 
+struct CapitalInfo
+{
+    // Capital garrison defenders and items
+    GroupInfo garrison;
+    // Spells the player knowns from the start
+    std::set<CMidgardID> spells;
+};
+
 struct RuinInfo
 {
     // Group inside the ruin, group loot ignored
@@ -146,6 +154,7 @@ struct ZoneOptions
     std::vector<TrainerInfo> trainers;          // Trainers
     StacksInfo stacks;                          // Neutral stacks
     BagInfo bags;                               // Bags with treasures
+    CapitalInfo capital;                        // Capital, in case of starting zone
     TemplateZoneId id{0};
     TemplateZoneType type{TemplateZoneType::PlayerStart};
     RaceType playerRace{RaceType::Neutral};
