@@ -2566,38 +2566,58 @@ void TemplateZone::placeStacks()
             placeObject(std::move(stack), positions[positionIndex++]);
         }
 
-        // TODO: divide loot value by number of stacks in the group, then generate
-        // The same way we do with bags
-        // Generate loot and then split items among the stacks
-        auto stacksLoot{createLoot(stackGroup.stacks.loot)};
-        std::vector<CMidgardID> items;
+        // Compute loot value for a single stack in group
+        const auto& stackGroupLoot{stackGroup.stacks.loot};
+        LootInfo stackLoot;
+        stackLoot.value = stackGroupLoot.value / stackGroup.count;
+        stackLoot.itemTypes = stackGroupLoot.itemTypes;
+        stackLoot.itemValue = stackGroupLoot.itemValue;
 
-        for (const auto& [id, amount] : stacksLoot) {
-            items.insert(items.end(), amount, id);
+        std::vector<std::vector<CMidgardID>> items(stackGroup.count);
+        // Generate loot for each stack
+        for (std::uint32_t i = 0; i < stackGroup.count; ++i) {
+            const auto loot{createLoot(stackLoot)};
+
+            for (const auto& [id, amount] : loot) {
+                items[i].insert(items[i].end(), amount, id);
+            }
         }
 
-        // Make sure random and required items are randomly distributed
-        randomShuffle(items, rand);
+        // Generate required items
+        LootInfo requiredLootInfo;
+        requiredLootInfo.requiredItems = stackGroupLoot.requiredItems;
+        const auto requiredLoot{createLoot(requiredLootInfo)};
 
-        // Place items in stacks
-        std::size_t j{0};
-        for (const auto& id : items) {
-            const std::size_t index = j % randomStacks.size();
+        std::vector<CMidgardID> requiredItems;
+        for (const auto& [id, amount] : requiredLoot) {
+            requiredItems.insert(requiredItems.end(), amount, id);
+        }
 
-            if (!randomStacks[index]) {
-                ++j;
+        // Place required items in stacks randomly
+        for (const auto& id : requiredItems) {
+            const std::size_t stackIndex = static_cast<std::size_t>(
+                rand.getInt64Range(0, int64_t(items.size() - 1))());
+
+            items[stackIndex].push_back(id);
+        }
+
+        for (std::size_t i = 0; i < randomStacks.size(); ++i) {
+            Stack* stack{randomStacks[i]};
+            if (!stack) {
                 continue;
             }
 
-            auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
-            auto item{std::make_unique<Item>(itemId)};
-            item->setItemType(id);
+            Inventory& inventory{stack->getInventory()};
 
-            mapGenerator->insertObject(std::move(item));
+            const std::vector<CMidgardID>& loot{items[i]};
+            for (const auto& itemType : loot) {
+                auto itemId{mapGenerator->createId(CMidgardID::Type::Item)};
+                auto item{std::make_unique<Item>(itemId)};
+                item->setItemType(itemType);
 
-            Inventory& inventory{randomStacks[index]->getInventory()};
-            inventory.add(itemId);
-            ++j;
+                mapGenerator->insertObject(std::move(item));
+                inventory.add(itemId);
+            }
         }
     }
 }
