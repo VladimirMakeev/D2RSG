@@ -1292,56 +1292,67 @@ const UnitInfo* TemplateZone::createStackLeader(std::size_t& unusedValue,
 {
     auto& rand{mapGenerator->randomGenerator};
 
-    const UnitInfo* leaderInfo{nullptr};
+    // How many failed attempts considered as a stop condition
+    constexpr std::size_t totalFails{5};
+    // How fast minValue coefficient decreases after each unsuccessfull attempt
+    constexpr float minValueCoeffDecrease{0.15};
+    // Coefficient that determines minimum leader value for pick.
+    // Gradually decreased if we struggle to pick leader
+    float minValueCoeff{0.65f};
+    // How many times we failed to pick a leader
+    std::size_t failedAttempts{0};
 
-    std::size_t i{};
-    for (; i < unitValues.size(); ++i) {
-        auto value = unitValues[i] + unusedValue;
-        auto minValue = value * 0.65f;
+    while (failedAttempts < totalFails) {
+        std::size_t unused = unusedValue;
 
-        auto filter = [allowedSubraces, minValue, value](const UnitInfo* info) {
-            if (!allowedSubraces.empty()) {
-                if (!contains(allowedSubraces, info->subrace)) {
-                    return true;
+        for (std::size_t i = 0; i < unitValues.size(); ++i) {
+            const std::size_t value = unitValues[i] + unused;
+            const float minValue = value * minValueCoeff;
+
+            auto filter = [allowedSubraces, minValue, value](const UnitInfo* info) {
+                if (!allowedSubraces.empty()) {
+                    if (!contains(allowedSubraces, info->subrace)) {
+                        return true;
+                    }
                 }
+
+                return static_cast<float>(info->value) < minValue || info->value > value;
+            };
+
+            const UnitInfo* leaderInfo{pickLeader(rand, {filter, noForbidden})};
+            if (leaderInfo) {
+                // Accumulate unused value after picking a leader
+                unusedValue = value - leaderInfo->value;
+                valuesConsumed = i + 1;
+
+                return leaderInfo;
             }
 
-            return info->value < minValue || info->value > value;
-        };
-
-        // TODO: if we have a single leader, do not pick support or ranged unit ?
-        // (summoners are still allowed as a single leaders)
-        // With tightenGroup() calls this looks redundant, feedback is needed.
-        leaderInfo = pickLeader(rand, {filter, noForbidden});
-        if (leaderInfo) {
-            // Accumulate unused value after picking a leader
-            unusedValue = value - leaderInfo->value;
-            break;
+            // Could not pick leader.
+            // Consume next unit value for leader pick and remember all unused
+            unused = value;
         }
 
-        // Could not pick leader, try next value and accumulate unused one
-        unusedValue += value;
+        // Consumed all unit values and still could not pick leader.
+        // Decrease minValue range, count how many times we failed
+        minValueCoeff = std::max(0.f, minValueCoeff - minValueCoeffDecrease);
+        ++failedAttempts;
     }
 
-    if (leaderInfo) {
-        valuesConsumed = i + 1;
-    } else {
-        // Could not pick any leader
-        // pick weakest one just to create the stack and do not lose the value
-        const auto& leaders = getLeaders();
-        auto it = std::find_if(leaders.begin(), leaders.end(),
-                               [](UnitInfo* info) { return info->value == getMinLeaderValue(); });
-
-        if (it != leaders.end()) {
-            std::cerr << "Could not pick leader, place weakest\n";
-            leaderInfo = *it;
-        }
-
-        valuesConsumed = 0;
+    // Could not pick any leader.
+    // Either constraints are too tight, or something wrong with value (or unit values)
+    // Pick weakest one just to create the stack and do not lose its value
+    const auto& leaders{getLeaders()};
+    auto it = std::find_if(leaders.begin(), leaders.end(),
+                           [](const UnitInfo* info) { return info->value == getMinLeaderValue(); });
+    if (it != leaders.end()) {
+        std::cerr << "Could not pick leader, place weakest\n";
         unusedValue = 0;
+        valuesConsumed = 0;
+        return *it;
     }
 
-    return leaderInfo;
+    return nullptr;
 }
 
 void TemplateZone::createGroup(std::size_t& unusedValue,
