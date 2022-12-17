@@ -2758,6 +2758,9 @@ bool TemplateZone::createRequiredObjects()
                 }
 
                 break;
+            } else {
+                throw LackOfSpaceException(std::string("Failed to fill zone ") + std::to_string(id)
+                                           + " due to lack of space");
             }
         }
     }
@@ -2777,6 +2780,7 @@ bool TemplateZone::createRequiredObjects()
 
         const auto tilesBlockedByObject{requiredMapElement.getBlockedOffsets()};
 
+        bool objectPlaced{};
         bool finished{};
         bool attempt{true};
         while (!finished && attempt) {
@@ -2850,6 +2854,7 @@ bool TemplateZone::createRequiredObjects()
                         decorations.push_back(std::move(closeObject.decoration));
                     }
 
+                    objectPlaced = true;
                     finished = true;
                     break;
                 }
@@ -2866,6 +2871,11 @@ bool TemplateZone::createRequiredObjects()
 
                 throw std::runtime_error("Wrong result of tryToPlaceObjectAndConnectToPath()");
             }
+        }
+
+        if (!objectPlaced) {
+            throw LackOfSpaceException(std::string("Failed to fill zone ") + std::to_string(id)
+                                       + " due to lack of space");
         }
     }
 
