@@ -9,6 +9,8 @@
 #include <functional>
 #include <vector>
 
+namespace rsg {
+
 struct MapTemplate;
 
 // Map generator options
@@ -146,3 +148,5 @@ public:
     CMidgardID neutralSubraceId;
     std::size_t zonesTotal{}; // Zones with capital town only
 };
+
+} // namespace rsg

@@ -2,6 +2,8 @@
 
 #include "site.h"
 
+namespace rsg {
+
 class Trainer : public Site
 {
 public:
@@ -20,3 +22,5 @@ private:
     void serializeSite(Serializer& serializer, const Map& scenario) const override
     { }
 };
+
+} // namespace rsg

@@ -3,6 +3,8 @@
 #include "serializer.h"
 #include <vector>
 
+namespace rsg {
+
 void Fog::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -22,3 +24,5 @@ void Fog::serialize(Serializer& serializer, const Map& scenario) const
 
     serializer.leaveRecord();
 }
+
+} // namespace rsg

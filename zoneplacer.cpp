@@ -6,6 +6,8 @@
 #include <cmath>
 #include <iostream>
 
+namespace rsg {
+
 void ZonePlacer::placeZones(RandomGenerator* random)
 {
     // TODO: Looks like this could help:
@@ -455,3 +457,5 @@ float ZonePlacer::metric(const Position& a, const Position& b) const
 
     return dx * (1.0f + dx * (0.1f + dx * 0.01f)) + dy * (1.618f + dy * (-0.1618f + dy * 0.01618f));
 }
+
+} // namespace rsg

@@ -10,6 +10,8 @@
 #include <set>
 #include <vector>
 
+namespace rsg {
+
 struct RequiredItemInfo
 {
     CMidgardID itemId;
@@ -161,3 +163,5 @@ struct ZoneOptions
     MonsterStrength monsterStrength{MonsterStrength::ZoneNormal};
     int size{1}; // Zone size
 };
+
+} // namespace rsg

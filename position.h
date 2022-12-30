@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <ostream>
 
+namespace rsg {
+
 // Represents point on a 2D-plane
 struct Position
 {
@@ -153,3 +155,5 @@ static inline Position findClosestTile(const Container& container, const Positio
 
     return result;
 }
+
+} // namespace rsg

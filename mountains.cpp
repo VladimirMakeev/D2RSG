@@ -1,6 +1,8 @@
 #include "mountains.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Mountains::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -26,3 +28,5 @@ int Mountains::add(const Position& position, const Position& size, int image)
     mountains[id] = Entry{position, size, image, RaceType::Neutral};
     return id;
 }
+
+} // namespace rsg

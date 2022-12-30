@@ -1,6 +1,8 @@
 #include "scenariovariables.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void ScenarioVariables::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -12,3 +14,5 @@ void ScenarioVariables::serialize(Serializer& serializer, const Map& scenario) c
 
     serializer.leaveRecord();
 }
+
+} // namespace rsg

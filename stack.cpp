@@ -1,6 +1,8 @@
 #include "stack.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Stack::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -36,3 +38,5 @@ void Stack::serialize(Serializer& serializer, const Map& scenario) const
     serializer.serialize("NBBATTLE", nbBattle);
     serializer.leaveRecord();
 }
+
+} // namespace rsg

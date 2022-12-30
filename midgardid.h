@@ -3,6 +3,8 @@
 #include <array>
 #include <cstdint>
 
+namespace rsg {
+
 class CMidgardID
 {
 public:
@@ -175,3 +177,5 @@ struct CMidgardIDHash
         return static_cast<std::size_t>(id.value);
     }
 };
+
+} // namespace rsg

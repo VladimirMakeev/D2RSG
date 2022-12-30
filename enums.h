@@ -1,5 +1,7 @@
 #pragma once
 
+namespace rsg {
+
 // Same as LRace.dbf
 enum class RaceType
 {
@@ -230,3 +232,5 @@ enum class WaterContent
     Normal,
     Islands,
 };
+
+} // namespace rsg

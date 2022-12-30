@@ -2,6 +2,8 @@
 #include <charconv>
 #include <fstream>
 
+namespace rsg {
+
 bool Dbf::Record::value(std::string_view& result, std::uint32_t columnIndex) const
 {
     if (!dbf) {
@@ -293,3 +295,5 @@ bool Dbf::readColumn(std::ifstream& stream, Column& column)
     stream.read(reinterpret_cast<char*>(&column), sizeof(Column));
     return true;
 }
+
+} // namespace rsg

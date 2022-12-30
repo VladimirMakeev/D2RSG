@@ -19,6 +19,8 @@
 #include <cassert>
 #include <sstream>
 
+namespace rsg {
+
 Map::Map()
     : MapHeader()
     , scenarioId{"S143SC0000"}
@@ -480,3 +482,5 @@ void Map::createNeutralSubraces()
         insertObject(std::move(subrace));
     }
 }
+
+} // namespace rsg

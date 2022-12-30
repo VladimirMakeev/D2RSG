@@ -1,6 +1,8 @@
 #include "turnsummary.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void TurnSummary::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -12,3 +14,5 @@ void TurnSummary::serialize(Serializer& serializer, const Map& scenario) const
 
     serializer.leaveRecord();
 }
+
+} // namespace rsg

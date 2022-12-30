@@ -4,6 +4,8 @@
 #include <utility>
 #include <vector>
 
+namespace rsg {
+
 class Merchant : public Site
 {
 public:
@@ -25,3 +27,5 @@ private:
 
     std::vector<std::pair<CMidgardID, std::uint32_t /* count */>> items;
 };
+
+} // namespace rsg

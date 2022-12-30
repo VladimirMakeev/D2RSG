@@ -12,6 +12,8 @@
 // argv[3] - path where save created map
 int main(int argc, char* argv[])
 {
+    using namespace rsg;
+
     assert(argc == 4);
 
     const std::filesystem::path gameFolder{argv[2]};

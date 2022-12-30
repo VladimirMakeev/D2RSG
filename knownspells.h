@@ -3,6 +3,8 @@
 #include "scenarioobject.h"
 #include <set>
 
+namespace rsg {
+
 class KnownSpells : public ScenarioObject
 {
 public:
@@ -24,3 +26,5 @@ public:
 private:
     std::set<CMidgardID> spells;
 };
+
+} // namespace rsg

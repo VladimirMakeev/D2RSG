@@ -5,6 +5,8 @@
 #include "mapelement.h"
 #include "scenarioobject.h"
 
+namespace rsg {
+
 class Crystal
     : public ScenarioObject
     , public MapElement
@@ -38,3 +40,5 @@ private:
     AiPriority aiPriority;
     ResourceType resourceType{ResourceType::Gold};
 };
+
+} // namespace rsg

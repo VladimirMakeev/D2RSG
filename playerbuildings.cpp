@@ -1,6 +1,8 @@
 #include "playerbuildings.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void PlayerBuildings::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -12,3 +14,5 @@ void PlayerBuildings::serialize(Serializer& serializer, const Map& scenario) con
 
     serializer.leaveRecord();
 }
+
+} // namespace rsg

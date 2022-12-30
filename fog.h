@@ -2,6 +2,8 @@
 
 #include "scenarioobject.h"
 
+namespace rsg {
+
 class Fog : public ScenarioObject
 {
 public:
@@ -18,3 +20,5 @@ public:
 
     void serialize(Serializer& serializer, const Map& scenario) const override;
 };
+
+} // namespace rsg

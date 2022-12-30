@@ -3,6 +3,8 @@
 #include <cctype>
 #include <cstdio>
 
+namespace rsg {
+
 static bool readCurrencyPart(std::int16_t& currency, const char* string, Currency::Type type)
 {
     currency = 0;
@@ -146,3 +148,5 @@ Currency Currency::fromString(const std::string_view string)
 
     return Currency{gold, life, death, infernal, runic, grove};
 }
+
+} // namespace rsg

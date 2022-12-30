@@ -10,6 +10,8 @@
 #include <set>
 #include <stdexcept>
 
+namespace rsg {
+
 static UnitsInfo unitsInfo{};
 static UnitInfoArray leaders{};
 static UnitInfoArray soldiers{};
@@ -1039,3 +1041,5 @@ bool readGameInfo(const std::filesystem::path& gameFolderPath)
            && readGlobalTexts(globalsFolder) && readEditorInterfaceTexts(interfDataFolder)
            && readCityNames(scenDataFolder) && readSiteTexts(scenDataFolder);
 }
+
+} // namespace rsg

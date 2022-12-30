@@ -3,6 +3,8 @@
 #include "mapelement.h"
 #include "scenarioobject.h"
 
+namespace rsg {
+
 class Road
     : public ScenarioObject
     , public MapElement
@@ -35,3 +37,5 @@ public:
 private:
     std::uint8_t index{};
 };
+
+} // namespace rsg

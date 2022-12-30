@@ -1,11 +1,13 @@
 #pragma once
 
-#include "zoneoptions.h"
 #include "gameinfo.h"
+#include "zoneoptions.h"
 #include <memory>
 #include <set>
 #include <sol/sol.hpp>
 #include <string>
+
+namespace rsg {
 
 // Template settings.
 // Everything except name and description player can change
@@ -67,3 +69,5 @@ struct MapTemplate
     MapTemplateSettings settings;
     MapTemplateContents contents;
 };
+
+} // namespace rsg

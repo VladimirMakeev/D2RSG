@@ -5,6 +5,8 @@
 #include <set>
 #include <vector>
 
+namespace rsg {
+
 /** Scenario generator settings that are global. */
 struct GeneratorSettings
 {
@@ -59,3 +61,5 @@ struct GeneratorSettings
 bool readGeneratorSettings(const std::filesystem::path& gameFolderPath);
 
 const GeneratorSettings& getGeneratorSettings();
+
+} // namespace rsg

@@ -4,8 +4,10 @@
 #include <QThread>
 #include <string>
 
+namespace rsg {
 class MapGenerator;
 class Map;
+}
 
 class MapGeneratorThread : public QThread
 {
@@ -14,13 +16,13 @@ class MapGeneratorThread : public QThread
     void run() override;
 
 public:
-    explicit MapGeneratorThread(MapGenerator* generator, QObject *parent = nullptr);
+    explicit MapGeneratorThread(rsg::MapGenerator* generator, QObject *parent = nullptr);
 
 signals:
-    void mapGenerated(Map* scenarioMap, const QString& error);
+    void mapGenerated(rsg::Map* scenarioMap, const QString& error);
 
 private:
-    MapGenerator* generator;
+    rsg::MapGenerator* generator;
 };
 
 #endif // MAPGENERATORWORKER_H

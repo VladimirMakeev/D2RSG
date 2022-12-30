@@ -3,6 +3,8 @@
 #include "midgardid.h"
 #include <memory>
 
+namespace rsg {
+
 class Map;
 class Serializer;
 
@@ -31,3 +33,5 @@ protected:
 };
 
 using ScenarioObjectPtr = std::unique_ptr<ScenarioObject>;
+
+} // namespace rsg

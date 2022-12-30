@@ -26,6 +26,8 @@
 #include <iterator>
 #include <sstream>
 
+namespace rsg {
+
 void TemplateZone::setCenter(const VPosition& value)
 {
     // Wrap zone around (0, 1) square.
@@ -3189,3 +3191,5 @@ bool TemplateZone::createRoad(const Position& source, const Position& destinatio
     std::cout << "Failed create road from " << source << " to " << destination << '\n';
     return false;
 }
+
+} // namespace rsg

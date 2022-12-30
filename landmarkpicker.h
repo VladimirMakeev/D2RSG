@@ -4,6 +4,8 @@
 #include <functional>
 #include <vector>
 
+namespace rsg {
+
 struct LandmarkInfo;
 class Rng;
 
@@ -24,3 +26,5 @@ LandmarkInfo* pickLandmark(LandmarkType landmarkType,
 LandmarkInfo* pickLandmark(RaceType raceType, Rng& random, const LandmarkFilterList& filters);
 // Pick random mountain landmark
 LandmarkInfo* pickMountainLandmark(Rng& random, const LandmarkFilterList& filters);
+
+} // namespace rsg

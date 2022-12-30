@@ -2,6 +2,8 @@
 #include "gameinfo.h"
 #include "randomgenerator.h"
 
+namespace rsg {
+
 static SpellInfo* pickSpell(const SpellInfoArray& spellsPool,
                             Rng& random,
                             const SpellFilterList& filters)
@@ -30,3 +32,5 @@ SpellInfo* pickSpell(SpellType spellType, Rng& random, const SpellFilterList& fi
 {
     return pickSpell(getSpells(spellType), random, filters);
 }
+
+} // namespace rsg

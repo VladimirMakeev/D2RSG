@@ -7,6 +7,8 @@
 #include <utility>
 #include <vector>
 
+namespace rsg {
+
 namespace mqdb {
 
 /** Header of MQDB (.ff) file. */
@@ -208,3 +210,5 @@ public:
 };
 
 } // namespace mqdb
+
+} // namespace rsg

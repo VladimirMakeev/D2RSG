@@ -3,6 +3,8 @@
 #include "midgardid.h"
 #include <vector>
 
+namespace rsg {
+
 class Serializer;
 class Map;
 
@@ -20,3 +22,5 @@ public:
 private:
     std::vector<CMidgardID> items;
 };
+
+} // namespace rsg

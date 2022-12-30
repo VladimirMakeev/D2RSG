@@ -1,6 +1,8 @@
 #include "spellcast.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void SpellCast::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -13,3 +15,5 @@ void SpellCast::serialize(Serializer& serializer, const Map& scenario) const
 
     serializer.leaveRecord();
 }
+
+} // namespace rsg

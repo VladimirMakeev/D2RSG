@@ -6,6 +6,8 @@
 #include <memory>
 #include <set>
 
+namespace rsg {
+
 struct TemplateZone;
 class Map;
 class MapGenerator;
@@ -304,3 +306,5 @@ protected:
 private:
     Ruin* ruin;
 };
+
+} // namespace rsg

@@ -1,6 +1,8 @@
 #include "item.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Item::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -8,3 +10,5 @@ void Item::serialize(Serializer& serializer, const Map& scenario) const
     serializer.serialize("ITEM_TYPE", itemTypeId);
     serializer.leaveRecord();
 }
+
+} // namespace rsg

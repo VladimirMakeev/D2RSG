@@ -3,6 +3,8 @@
 #include "enums.h"
 #include <limits>
 
+namespace rsg {
+
 struct TileInfo
 {
     TileInfo() = default;
@@ -95,3 +97,5 @@ private:
     GroundType groundType{GroundType::Plain};
     bool hasRoad{};
 };
+
+} // namespace rsg

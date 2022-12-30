@@ -4,6 +4,8 @@
 #include "enums.h"
 #include "scenarioobject.h"
 
+namespace rsg {
+
 class Player : public ScenarioObject
 {
 public:
@@ -88,3 +90,5 @@ private:
     CMidgardID raceId;
     CMidgardID lordId;
 };
+
+} // namespace rsg

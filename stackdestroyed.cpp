@@ -1,6 +1,8 @@
 #include "stackdestroyed.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void StackDestroyed::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -12,3 +14,5 @@ void StackDestroyed::serialize(Serializer& serializer, const Map& scenario) cons
 
     serializer.leaveRecord();
 }
+
+} // namespace rsg

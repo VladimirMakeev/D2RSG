@@ -4,6 +4,8 @@
 #include "generatorsettings.h"
 #include "randomgenerator.h"
 
+namespace rsg {
+
 ItemInfo* pickItem(const std::vector<ItemInfo*>& itemPool,
                    Rng& random,
                    const ItemFilterList& filters)
@@ -42,3 +44,5 @@ bool noForbiddenItem(const ItemInfo* info)
 {
     return contains(getGeneratorSettings().forbiddenItems, info->itemId);
 }
+
+} // namespace rsg

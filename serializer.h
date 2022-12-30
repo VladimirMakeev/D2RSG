@@ -7,6 +7,8 @@
 #include <fstream>
 #include <vector>
 
+namespace rsg {
+
 class CMidgardID;
 class Currency;
 struct Position;
@@ -51,3 +53,5 @@ private:
     std::ofstream stream;
     bool insideRecord{false};
 };
+
+} // namespace rsg

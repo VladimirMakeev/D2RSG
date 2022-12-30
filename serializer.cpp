@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <stdexcept>
 
+namespace rsg {
+
 Serializer::Serializer(const std::filesystem::path& scenarioFilePath)
     : stream{scenarioFilePath, std::ios_base::binary}
 {
@@ -230,3 +232,5 @@ void Serializer::serializeString(const char* value, std::size_t bytesToWrite)
     std::vector<char> padding(bytesToWrite - length, '\0');
     stream.write(padding.data(), padding.size());
 }
+
+} // namespace rsg

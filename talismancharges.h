@@ -4,6 +4,8 @@
 #include <utility>
 #include <vector>
 
+namespace rsg {
+
 class TalismanCharges : public ScenarioObject
 {
 public:
@@ -27,3 +29,5 @@ public:
 private:
     std::vector<std::pair<CMidgardID, std::uint32_t /* count */>> charges;
 };
+
+} // namespace rsg

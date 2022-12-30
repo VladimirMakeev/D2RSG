@@ -1,6 +1,8 @@
 #include "mercenary.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Mercenary::addUnit(const CMidgardID& unitId, int level, bool unique)
 {
     units.push_back({unitId, level, unique});
@@ -16,3 +18,5 @@ void Mercenary::serializeSite(Serializer& serializer, const Map& scenario) const
         serializer.serialize("UNIT_UNIQ", unit.unique);
     }
 }
+
+} // namespace rsg

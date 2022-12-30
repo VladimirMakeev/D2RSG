@@ -1,6 +1,8 @@
 #include "site.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Site::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -20,3 +22,5 @@ void Site::serialize(Serializer& serializer, const Map& scenario) const
     serializer.serialize(idString.data(), 0);
     serializer.leaveRecord();
 }
+
+} // namespace rsg

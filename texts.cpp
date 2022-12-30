@@ -3,6 +3,8 @@
 #include "randomgenerator.h"
 #include <cassert>
 
+namespace rsg {
+
 static const char* emptyName = "Guard";
 
 const char* getUnitName(const UnitInfo& info, Rng& rand)
@@ -41,3 +43,5 @@ const char* getUnitName(const UnitInfo& info, Rng& rand)
 
     return names[rand.getInt64Range(0, names.size() - 1)()].c_str();
 }
+
+} // namespace rsg

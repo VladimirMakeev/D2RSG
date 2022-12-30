@@ -3,6 +3,8 @@
 #include "scenarioobject.h"
 #include <vector>
 
+namespace rsg {
+
 class Diplomacy : public ScenarioObject
 {
 public:
@@ -31,3 +33,5 @@ private:
 
     std::vector<Entry> relations;
 };
+
+} // namespace rsg

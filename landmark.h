@@ -3,6 +3,8 @@
 #include "mapelement.h"
 #include "scenarioobject.h"
 
+namespace rsg {
+
 class Landmark
     : public ScenarioObject
     , public MapElement
@@ -30,3 +32,5 @@ public:
 private:
     CMidgardID landmarkTypeId;
 };
+
+} // namespace rsg

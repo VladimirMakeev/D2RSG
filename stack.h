@@ -7,6 +7,8 @@
 #include "mapelement.h"
 #include "scenarioobject.h"
 
+namespace rsg {
+
 class Stack
     : public ScenarioObject
     , public MapElement
@@ -141,3 +143,5 @@ private:
     bool invisible{};
     bool leaderAlive{true};
 };
+
+} // namespace rsg

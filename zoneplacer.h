@@ -6,6 +6,8 @@
 #include "zoneoptions.h"
 #include <map>
 
+namespace rsg {
+
 using ZonesMap = std::map<TemplateZoneId, std::shared_ptr<TemplateZone>>;
 using ZoneVector = std::vector<std::pair<TemplateZoneId, std::shared_ptr<TemplateZone>>>;
 using ForceVector = std::map<std::shared_ptr<TemplateZone>, VPosition>;
@@ -57,3 +59,5 @@ private:
     float gravityConstant{};
     float stiffnessConstant{};
 };
+
+} // namespace rsg

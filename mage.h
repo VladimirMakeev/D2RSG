@@ -3,6 +3,8 @@
 #include "site.h"
 #include <set>
 
+namespace rsg {
+
 class Mage : public Site
 {
 public:
@@ -24,3 +26,5 @@ private:
 
     std::set<CMidgardID> spells;
 };
+
+} // namespace rsg

@@ -7,6 +7,8 @@
 #include <lua.hpp>
 #include <sol/sol.hpp>
 
+namespace rsg {
+
 using OptionalTable = sol::optional<sol::table>;
 using OptionalTableArray = sol::optional<std::vector<sol::table>>;
 
@@ -728,3 +730,5 @@ void readTemplateContents(MapTemplate& mapTemplate)
         throw TemplateException(std::string("Could not get template contents: ") + err.what());
     }
 }
+
+} // namespace rsg

@@ -4,6 +4,8 @@
 #include <functional>
 #include <vector>
 
+namespace rsg {
+
 struct SpellInfo;
 class Rng;
 
@@ -16,3 +18,5 @@ using SpellFilterList = std::initializer_list<SpellFilterFunc>;
 SpellInfo* pickSpell(Rng& random, const SpellFilterList& filters);
 // Picks random spell of specific type
 SpellInfo* pickSpell(SpellType spellType, Rng& random, const SpellFilterList& filters);
+
+} // namespace rsg

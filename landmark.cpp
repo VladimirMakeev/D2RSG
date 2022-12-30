@@ -1,6 +1,8 @@
 #include "landmark.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Landmark::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -11,3 +13,5 @@ void Landmark::serialize(Serializer& serializer, const Map& scenario) const
     // serializer.serialize("DESC_TXT", "");
     serializer.leaveRecord();
 }
+
+} // namespace rsg

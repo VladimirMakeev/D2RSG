@@ -3,6 +3,8 @@
 #include "mapelement.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Plan::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -32,3 +34,5 @@ void Plan::add(const MapElement& mapElement, const CMidgardID& mapElementId)
         }
     }
 }
+
+} // namespace rsg

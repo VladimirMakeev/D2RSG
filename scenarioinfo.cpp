@@ -3,6 +3,8 @@
 #include "serializer.h"
 #include <cstdio>
 
+namespace rsg {
+
 // Serializes long strings by splitting them at max into 5 parts.
 // Each part is at most 253 characters long and ends with '_' separator if not empty.
 static void serializeLongString(Serializer& serializer,
@@ -111,3 +113,5 @@ void ScenarioInfo::setSeed(std::uint32_t value)
 {
     seed = value;
 }
+
+} // namespace rsg

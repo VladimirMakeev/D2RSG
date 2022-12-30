@@ -4,6 +4,8 @@
 #include <array>
 #include <vector>
 
+namespace rsg {
+
 class Serializer;
 class Map;
 
@@ -32,3 +34,5 @@ private:
     std::vector<CMidgardID> units;
     std::array<CMidgardID, groupSize> positions{};
 };
+
+} // namespace rsg

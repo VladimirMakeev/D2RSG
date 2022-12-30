@@ -10,6 +10,8 @@
 #include <string_view>
 #include <vector>
 
+namespace rsg {
+
 class Dbf
 {
 public:
@@ -266,5 +268,7 @@ private:
     std::filesystem::path dbfFilePath;
     bool valid{};
 };
+
+} // namespace rsg
 
 #endif // DBF_H

@@ -2,6 +2,8 @@
 
 #include "scenarioobject.h"
 
+namespace rsg {
+
 class Item : public ScenarioObject
 {
 public:
@@ -31,3 +33,5 @@ public:
 private:
     CMidgardID itemTypeId;
 };
+
+} // namespace rsg

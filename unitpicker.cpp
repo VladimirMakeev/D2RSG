@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <iterator>
 
+namespace rsg {
+
 static UnitInfo* pick(const UnitInfoArray& unitPool, Rng& random, const UnitFilterList& filters)
 {
     UnitInfoArray pool{unitPool};
@@ -71,3 +73,5 @@ bool noSupport(const UnitInfo* info)
 {
     return isSupport(*info);
 }
+
+} // namespace rsg

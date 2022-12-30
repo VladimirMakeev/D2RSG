@@ -12,6 +12,8 @@
 #include "templatezone.h"
 #include "village.h"
 
+namespace rsg {
+
 bool Decoration::decorate(TemplateZone& zone, MapGenerator& mapGenerator, Map& map, Rng& rand)
 {
     auto decorationsArea{getArea(zone, mapGenerator, map, rand)};
@@ -497,3 +499,5 @@ TerrainType RuinDecoration::getForestsTerrain(TemplateZone&, MapGenerator&, Map&
 {
     return TerrainType::Neutral;
 }
+
+} // namespace rsg

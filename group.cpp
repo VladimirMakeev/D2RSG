@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <iterator>
 
+namespace rsg {
+
 bool Group::addLeader(const CMidgardID& leaderId, std::size_t position, bool bigUnit)
 {
     if (!units.empty()) {
@@ -100,3 +102,5 @@ const CMidgardID& Group::getUnitId(std::size_t position) const
 
     return positions[position];
 }
+
+} // namespace rsg

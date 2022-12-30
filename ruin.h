@@ -7,6 +7,8 @@
 #include "scenarioobject.h"
 #include <string>
 
+namespace rsg {
+
 class Ruin
     : public ScenarioObject
     , public MapElement
@@ -96,3 +98,5 @@ private:
     CMidgardID looterId;
     AiPriority aiPriority;
 };
+
+} // namespace rsg

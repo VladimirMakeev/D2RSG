@@ -2,6 +2,8 @@
 #include "serializer.h"
 #include <cassert>
 
+namespace rsg {
+
 void MapBlock::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -51,3 +53,5 @@ void MapBlock::setTreeImage(const Position& tile, std::uint32_t image)
     t &= ~(0x3fu << 26);
     t |= (image & 0x3fu) << 26;
 }
+
+} // namespace rsg

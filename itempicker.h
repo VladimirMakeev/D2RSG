@@ -4,6 +4,8 @@
 #include <functional>
 #include <vector>
 
+namespace rsg {
+
 struct ItemInfo;
 class Rng;
 
@@ -27,3 +29,5 @@ ItemInfo* pickItem(ItemType itemType, Rng& random, const ItemFilterList& filters
 bool noSpecialItem(const ItemInfo* info);
 // Removes forbidden items from pick
 bool noForbiddenItem(const ItemInfo* info);
+
+} // namespace rsg

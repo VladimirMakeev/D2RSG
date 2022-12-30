@@ -2,6 +2,8 @@
 
 #include <functional>
 
+namespace rsg {
+
 struct UnitInfo;
 class Rng;
 
@@ -30,3 +32,5 @@ bool noRanged(const UnitInfo* info);
 bool noMelee(const UnitInfo* info);
 // Removes non-attacking units
 bool noSupport(const UnitInfo* info);
+
+} // namespace rsg

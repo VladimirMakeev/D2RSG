@@ -2,6 +2,8 @@
 #include <array>
 #include <stdexcept>
 
+namespace rsg {
+
 namespace mqdb {
 
 #define FFSIGNATURE(a, b, c, d)                                                                    \
@@ -343,3 +345,5 @@ bool Mqdb::getRecordData(const TocRecord& record, std::vector<char>& data)
 }
 
 } // namespace mqdb
+
+} // namespace rsg

@@ -9,6 +9,8 @@
 #include <thread>
 #include <vector>
 
+namespace rsg {
+
 template <typename T>
 struct RandomValue
 {
@@ -153,3 +155,5 @@ static inline auto getRandomItem(const T& container, Rng& rand)
 
     return tmp[0];
 }
+
+} // namespace rsg

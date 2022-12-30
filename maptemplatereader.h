@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+namespace rsg {
+
 struct MapTemplate;
 
 // Reads scenario template (.lua) file from specified path.
@@ -13,3 +15,5 @@ MapTemplate* readTemplateSettings(const std::filesystem::path& templatePath);
 // Populates MapTemplateContents depending on actual MapTemplateSettings.
 // Throws exception in case of errors.
 void readTemplateContents(MapTemplate& mapTemplate);
+
+} // namespace rsg

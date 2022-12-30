@@ -16,6 +16,8 @@
 #include <memory>
 #include <queue>
 
+namespace rsg {
+
 class MapGenerator;
 
 enum class ObjectPlacingResult
@@ -288,3 +290,5 @@ private:
     std::vector<RoadInfo> roads; // All tiles with roads
     CMidgardID ownerId{emptyId}; // Player assigned to zone
 };
+
+} // namespace rsg

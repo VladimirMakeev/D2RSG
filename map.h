@@ -13,6 +13,8 @@
 #include <unordered_map>
 #include <vector>
 
+namespace rsg {
+
 class Plan;
 class MapElement;
 class Diplomacy;
@@ -160,3 +162,5 @@ private:
 };
 
 using MapPtr = std::unique_ptr<Map>;
+
+} // namespace rsg

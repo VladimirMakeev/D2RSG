@@ -7,6 +7,8 @@
 #include <utility>
 #include <vector>
 
+namespace rsg {
+
 const CMidgardID invalidId{0x3f0000u};
 const CMidgardID emptyId{0u};
 
@@ -254,3 +256,5 @@ std::uint32_t CMidgardID::fromParts(Category category,
     return (static_cast<std::uint32_t>(category) << 30) | (std::uint32_t{categoryIndex} << 22)
            | ((static_cast<std::uint32_t>(type) & 0x3f) << 16) | typeIndex;
 }
+
+} // namespace rsg

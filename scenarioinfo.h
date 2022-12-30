@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <string>
 
+namespace rsg {
+
 class ScenarioInfo : public ScenarioObject
 {
 public:
@@ -48,3 +50,5 @@ private:
     DifficultyType scenarioDifficulty{DifficultyType::VeryHard};
     DifficultyType gameDifficulty{DifficultyType::Average};
 };
+
+} // namespace rsg

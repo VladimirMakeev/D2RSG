@@ -1,6 +1,8 @@
 #include "bag.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Bag::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -11,3 +13,5 @@ void Bag::serialize(Serializer& serializer, const Map& scenario) const
     inventory.serialize(serializer, scenario, objectId);
     serializer.leaveRecord();
 }
+
+} // namespace rsg

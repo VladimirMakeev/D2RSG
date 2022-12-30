@@ -12,8 +12,10 @@
 #include <QDebug>
 #include <QComboBox>
 
-static const char* getRaceLabel(RaceType race)
+static const char* getRaceLabel(rsg::RaceType race)
 {
+    using namespace rsg;
+
     switch (race) {
     case RaceType::Human: return "empire.png";
     case RaceType::Dwarf: return "dwarf.png";
@@ -26,8 +28,10 @@ static const char* getRaceLabel(RaceType race)
     }
 }
 
-static int getComboBoxIndex(RaceType race)
+static int getComboBoxIndex(rsg::RaceType race)
 {
+    using namespace rsg;
+
     switch (race) {
     case RaceType::Human: return 1;
     case RaceType::Dwarf: return 2;
@@ -40,8 +44,10 @@ static int getComboBoxIndex(RaceType race)
     }
 }
 
-static RaceType comboBoxIndexToRace(int index)
+static rsg::RaceType comboBoxIndexToRace(int index)
 {
+    using namespace rsg;
+
     switch (index) {
     case 1: return RaceType::Human;
     case 2: return RaceType::Dwarf;
@@ -77,7 +83,7 @@ MapGeneratorApp::~MapGeneratorApp()
     delete ui;
 }
 
-void MapGeneratorApp::onScenarioMapGenerated(Map *scenarioMap, const QString &error)
+void MapGeneratorApp::onScenarioMapGenerated(rsg::Map *scenarioMap, const QString &error)
 {
     // Enable buttons
     enableButtons();
@@ -115,6 +121,8 @@ void MapGeneratorApp::onRaceSelected(int comboBoxIndex)
         ui->race3Label,
         ui->race4Label
     };
+
+    using namespace rsg;
 
     QComboBox* comboBox = qobject_cast<QComboBox*>(sender());
     const RaceType selectedRace = comboBoxIndexToRace(comboBoxIndex);
@@ -178,13 +186,13 @@ bool MapGeneratorApp::readGameInfo(const std::filesystem::path &gameFolder)
         return false;
     }
 
-    return ::readGameInfo(gameFolder);
+    return rsg::readGameInfo(gameFolder);
 }
 
 void MapGeneratorApp::readTemplateAndUpdateUi(const std::filesystem::path& templatePath)
 {
     try {
-        MapTemplate* tmplt = readTemplateSettings(templatePath);
+        rsg::MapTemplate* tmplt = rsg::readTemplateSettings(templatePath);
 
         mapTemplate.reset(tmplt);
         templateFilePath = templatePath;
@@ -398,7 +406,7 @@ void MapGeneratorApp::updateRaceButtons()
 
         comboBoxes[i]->setEnabled(true);
         // Choose random race by default
-        comboBoxes[i]->setCurrentIndex(getComboBoxIndex(RaceType::Random));
+        comboBoxes[i]->setCurrentIndex(getComboBoxIndex(rsg::RaceType::Random));
     }
 }
 
@@ -473,6 +481,8 @@ std::time_t MapGeneratorApp::getScenarioSeed()
 
 void MapGeneratorApp::updatePreviewImages()
 {
+    using namespace rsg;
+
     const size_t width = static_cast<size_t>(options.size);
     const size_t height = static_cast<size_t>(options.size);
     const auto pixelsTotal{width * height};
@@ -550,7 +560,7 @@ void MapGeneratorApp::updatePreviewImages()
     ui->contentsImage->setPixmap(contentPixmap.scaled(288, 288));
 }
 
-void MapGeneratorApp::getSelectedRaces(std::vector<RaceType>& races, int maxPlayers)
+void MapGeneratorApp::getSelectedRaces(std::vector<rsg::RaceType>& races, int maxPlayers)
 {
     /*QCheckBox* checkBoxes[4] = {
         ui->race1CheckBox,
@@ -598,6 +608,8 @@ void MapGeneratorApp::on_generateButton_clicked()
         return;
     }
 
+    using namespace rsg;
+
     const auto seed = getScenarioSeed();
     const auto seedString = std::to_string(seed);
 
@@ -618,7 +630,7 @@ void MapGeneratorApp::on_generateButton_clicked()
             + "%.";
     options.size = settings.size;
     // Create generator
-    generator = std::make_unique<MapGenerator>(options, seed);
+    generator = std::make_unique<rsg::MapGenerator>(options, seed);
 
     try {
         // Cleanup previous contents, if any

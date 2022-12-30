@@ -1,6 +1,8 @@
 #include "questlog.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void QuestLog::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -12,3 +14,5 @@ void QuestLog::serialize(Serializer& serializer, const Map& scenario) const
 
     serializer.leaveRecord();
 }
+
+} // namespace rsg

@@ -4,6 +4,8 @@
 #include "scenarioobject.h"
 #include <string>
 
+namespace rsg {
+
 class SubRace : public ScenarioObject
 {
 public:
@@ -57,3 +59,5 @@ private:
     int number{};
     int banner{};
 };
+
+} // namespace rsg

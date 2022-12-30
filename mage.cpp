@@ -1,6 +1,8 @@
 #include "mage.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Mage::addSpell(const CMidgardID& spellId)
 {
     spells.insert(spellId);
@@ -14,3 +16,5 @@ void Mage::serializeSite(Serializer& serializer, const Map& scenario) const
         serializer.serialize("SPELL_ID", spell);
     }
 }
+
+} // namespace rsg

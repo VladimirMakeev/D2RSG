@@ -1,6 +1,8 @@
 #include "player.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Player::serialize(Serializer& serializer, const Map&) const
 {
     serializer.enterRecord();
@@ -33,3 +35,5 @@ void Player::serialize(Serializer& serializer, const Map&) const
     serializer.serialize("EXMAPTURN3", 0);
     serializer.leaveRecord();
 }
+
+} // namespace rsg

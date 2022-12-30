@@ -14,7 +14,7 @@ void MapGeneratorThread::run()
     }
 }
 
-MapGeneratorThread::MapGeneratorThread(MapGenerator *generator, QObject *parent)
+MapGeneratorThread::MapGeneratorThread(rsg::MapGenerator *generator, QObject *parent)
     : QThread(parent)
     , generator{generator}
 {

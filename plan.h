@@ -4,6 +4,8 @@
 #include "scenarioobject.h"
 #include <vector>
 
+namespace rsg {
+
 class MapElement;
 
 class Plan : public ScenarioObject
@@ -33,3 +35,5 @@ private:
 
     std::vector<Entry> entries;
 };
+
+} // namespace rsg

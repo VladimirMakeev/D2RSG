@@ -3,6 +3,8 @@
 #include "position.h"
 #include <set>
 
+namespace rsg {
+
 // Base class for scenario map objects that can be interacted with
 class MapElement
 {
@@ -103,3 +105,5 @@ protected:
     Position position; // Top-left corner of the object
     Position size;     // Size of object in tiles
 };
+
+} // namespace rsg

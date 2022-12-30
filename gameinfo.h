@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <vector>
 
+namespace rsg {
+
 // Brief information about unit from GUnits, GAttacks and LAttR.dbf
 struct UnitInfo
 {
@@ -260,3 +262,5 @@ const SiteTexts& getTrainerTexts();
 bool readSiteTexts(const std::filesystem::path& scenDataFolderPath);
 
 bool readGameInfo(const std::filesystem::path& gameFolderPath);
+
+} // namespace rsg

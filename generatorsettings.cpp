@@ -8,6 +8,8 @@
 #include <sol/sol.hpp>
 #include <string>
 
+namespace rsg {
+
 using OptionalTable = sol::optional<sol::table>;
 using StringSet = std::set<std::string>;
 
@@ -271,3 +273,5 @@ const GeneratorSettings& getGeneratorSettings()
 {
     return generatorSettings;
 }
+
+} // namespace rsg

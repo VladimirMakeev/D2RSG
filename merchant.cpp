@@ -1,6 +1,8 @@
 #include "merchant.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Merchant::addItem(const CMidgardID& itemId, std::uint32_t count)
 {
     items.push_back({itemId, count});
@@ -26,3 +28,5 @@ void Merchant::serializeSite(Serializer& serializer, const Map& scenario) const
 
     serializer.serialize("MISSION", false);
 }
+
+} // namespace rsg

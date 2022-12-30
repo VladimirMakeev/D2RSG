@@ -3,6 +3,8 @@
 #include <cmath>
 #include <ostream>
 
+namespace rsg {
+
 // Represents virtual position inside (0 : 1) area for random map generator
 struct VPosition
 {
@@ -92,3 +94,5 @@ struct VPosition
     float x{};
     float y{};
 };
+
+} // namespace rsg

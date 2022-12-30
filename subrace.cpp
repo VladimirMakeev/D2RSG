@@ -1,6 +1,8 @@
 #include "subrace.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void SubRace::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -12,3 +14,5 @@ void SubRace::serialize(Serializer& serializer, const Map& scenario) const
     serializer.serialize("BANNER", banner);
     serializer.leaveRecord();
 }
+
+} // namespace rsg

@@ -1,6 +1,8 @@
 #include "village.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Village::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -22,3 +24,5 @@ void Village::serialize(Serializer& serializer, const Map& scenario) const
     serializer.serialize("RIOT_T", riotTurn);
     serializer.leaveRecord();
 }
+
+} // namespace rsg

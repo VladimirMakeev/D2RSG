@@ -1,6 +1,8 @@
 #include "unit.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Unit::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -25,3 +27,5 @@ void Unit::serialize(Serializer& serializer, const Map& scenario) const
     serializer.serialize("XP", xp);
     serializer.leaveRecord();
 }
+
+} // namespace rsg

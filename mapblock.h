@@ -5,6 +5,8 @@
 #include "scenarioobject.h"
 #include <array>
 
+namespace rsg {
+
 class MapBlock : public ScenarioObject
 {
 public:
@@ -40,3 +42,5 @@ private:
     std::array<std::uint32_t, 32> tiles{};
     Position position;
 };
+
+} // namespace rsg

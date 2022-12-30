@@ -5,6 +5,8 @@
 #include <filesystem>
 #include <vector>
 
+namespace rsg {
+
 struct RgbColor
 {
     RgbColor() = default;
@@ -39,3 +41,5 @@ private:
     std::size_t width;
     std::size_t height;
 };
+
+} // namespace rsg

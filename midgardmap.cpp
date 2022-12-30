@@ -2,6 +2,8 @@
 #include "map.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void MidgardMap::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -13,3 +15,5 @@ void MidgardMap::serialize(Serializer& serializer, const Map& scenario) const
 
     serializer.leaveRecord();
 }
+
+} // namespace rsg

@@ -1,6 +1,8 @@
 #include "inventory.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Inventory::serialize(Serializer& serializer,
                           const Map& scenario,
                           const CMidgardID& inventoryId) const
@@ -19,3 +21,5 @@ void Inventory::add(const CMidgardID& itemId)
 {
     items.push_back(itemId);
 }
+
+} // namespace rsg

@@ -5,6 +5,8 @@
 #include "scenarioobject.h"
 #include <map>
 
+namespace rsg {
+
 class Mountains : public ScenarioObject
 {
 public:
@@ -35,3 +37,5 @@ private:
     std::map<int, Entry> mountains;
     int freeEntryId{};
 };
+
+} // namespace rsg

@@ -1,6 +1,8 @@
 #include "knownspells.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void KnownSpells::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -21,3 +23,5 @@ void KnownSpells::add(const CMidgardID& spellId)
 {
     spells.insert(spellId);
 }
+
+} // namespace rsg

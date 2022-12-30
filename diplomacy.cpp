@@ -1,6 +1,8 @@
 #include "diplomacy.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Diplomacy::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -23,3 +25,5 @@ void Diplomacy::add(const CMidgardID& race1, const CMidgardID& race2, std::uint3
 {
     relations.push_back({race1, race2, relation});
 }
+
+} // namespace rsg

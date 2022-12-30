@@ -1,6 +1,8 @@
 #include "talismancharges.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void TalismanCharges::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -22,3 +24,5 @@ void TalismanCharges::addTalisman(const CMidgardID& itemId)
 {
     charges.push_back({itemId, talismanChargesMax});
 }
+
+} // namespace rsg

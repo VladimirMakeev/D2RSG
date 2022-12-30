@@ -1,6 +1,8 @@
 #include "fortification.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Fortification::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.serialize("CITY_ID", objectId);
@@ -14,3 +16,5 @@ void Fortification::serialize(Serializer& serializer, const Map& scenario) const
     inventory.serialize(serializer, scenario, objectId);
     serializer.serialize("AIPRIORITY", static_cast<std::uint32_t>(aiPriority.getPriority()));
 }
+
+} // namespace rsg

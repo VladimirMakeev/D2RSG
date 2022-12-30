@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <string_view>
 
+namespace rsg {
+
 class Currency
 {
 public:
@@ -66,3 +68,5 @@ private:
     std::int16_t groveMana{};
     std::int16_t gold{};
 };
+
+} // namespace rsg

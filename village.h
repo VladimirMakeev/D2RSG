@@ -2,6 +2,8 @@
 
 #include "fortification.h"
 
+namespace rsg {
+
 class Village : public Fortification
 {
 public:
@@ -35,3 +37,5 @@ private:
     int tier{1};
     int riotTurn{};
 };
+
+} // namespace rsg

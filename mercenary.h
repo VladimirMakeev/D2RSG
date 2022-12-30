@@ -3,6 +3,8 @@
 #include "site.h"
 #include <vector>
 
+namespace rsg {
+
 class Mercenary : public Site
 {
 public:
@@ -31,3 +33,5 @@ private:
 
     std::vector<Entry> units;
 };
+
+} // namespace rsg

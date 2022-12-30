@@ -7,6 +7,8 @@
 #include "scenarioobject.h"
 #include <string>
 
+namespace rsg {
+
 // Base class for scenario cities
 class Fortification
     : public ScenarioObject
@@ -122,3 +124,5 @@ protected:
     CMidgardID stackId;
     AiPriority aiPriority;
 };
+
+} // namespace rsg

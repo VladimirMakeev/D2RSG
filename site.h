@@ -6,6 +6,8 @@
 #include <array>
 #include <string>
 
+namespace rsg {
+
 class Site
     : public ScenarioObject
     , public MapElement
@@ -60,3 +62,5 @@ protected:
     int imgIso{};
     std::array<char, 9> imgIntf{};
 };
+
+} // namespace rsg

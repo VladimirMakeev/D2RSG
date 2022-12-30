@@ -1,6 +1,8 @@
 #include "ruin.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Ruin::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -22,3 +24,5 @@ void Ruin::serialize(Serializer& serializer, const Map& scenario) const
     group.serialize(serializer, scenario, objectId);
     serializer.leaveRecord();
 }
+
+} // namespace rsg

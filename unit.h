@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+namespace rsg {
+
 class Unit : public ScenarioObject
 {
 public:
@@ -71,3 +73,5 @@ private:
     bool dynlevel{};
     bool transformed{};
 };
+
+} // namespace rsg

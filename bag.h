@@ -5,6 +5,8 @@
 #include "mapelement.h"
 #include "scenarioobject.h"
 
+namespace rsg {
+
 class Bag
     : public ScenarioObject
     , public MapElement
@@ -39,3 +41,5 @@ private:
     AiPriority aiPriority;
     int image{};
 };
+
+} // namespace rsg

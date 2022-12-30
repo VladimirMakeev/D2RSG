@@ -2,6 +2,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+namespace rsg {
+
 static std::string trimSpaces(const std::string_view& view)
 {
     const auto begin = view.find_first_not_of(" ");
@@ -22,3 +24,5 @@ std::string translate(const std::string_view& string, std::uint8_t length)
 
     return trimSpaces(std::string_view(buffer));
 }
+
+} // namespace rsg

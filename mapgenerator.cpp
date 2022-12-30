@@ -14,6 +14,8 @@
 #include <sstream>
 #include <stdexcept>
 
+namespace rsg {
+
 std::pair<CMidgardID, CMidgardID> MapGenerator::createPlayer(RaceType race)
 {
     auto playerId{createId(CMidgardID::Type::Player)};
@@ -659,3 +661,5 @@ void MapGenerator::debugTiles(const char* fileName) const
     Image zonesImage(mapSize, mapSize, pixels);
     zonesImage.write(fileName);
 }
+
+} // namespace rsg

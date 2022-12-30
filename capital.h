@@ -2,6 +2,8 @@
 
 #include "fortification.h"
 
+namespace rsg {
+
 class Capital : public Fortification
 {
 public:
@@ -18,3 +20,5 @@ public:
 
     void serialize(Serializer& serializer, const Map& scenario) const override;
 };
+
+} // namespace rsg

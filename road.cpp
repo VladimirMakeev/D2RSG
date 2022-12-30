@@ -1,6 +1,8 @@
 #include "road.h"
 #include "serializer.h"
 
+namespace rsg {
+
 void Road::serialize(Serializer& serializer, const Map& scenario) const
 {
     serializer.enterRecord();
@@ -14,3 +16,5 @@ void Road::serialize(Serializer& serializer, const Map& scenario) const
     serializer.serialize("POS_X", "POS_Y", position);
     serializer.leaveRecord();
 }
+
+} // namespace rsg

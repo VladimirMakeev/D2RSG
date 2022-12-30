@@ -21,7 +21,7 @@ public:
     ~MapGeneratorApp();
 
 public slots:
-    void onScenarioMapGenerated(Map* scenarioMap, const QString& error);
+    void onScenarioMapGenerated(rsg::Map* scenarioMap, const QString& error);
     void seedPlaceholderUpdate();
     void onRaceSelected(int comboBoxIndex);
 
@@ -68,21 +68,21 @@ private:
     std::time_t getScenarioSeed();
 
     void updatePreviewImages();
-    void getSelectedRaces(std::vector<RaceType>& races, int maxPlayers);
+    void getSelectedRaces(std::vector<rsg::RaceType>& races, int maxPlayers);
 
     Ui::MapGeneratorApp *ui;
 
     QTimer seedPlaceholderTimer;
     int seedPlaceholderUpdateTime{1000};
 
-    using MapTemplatePtr = std::unique_ptr<MapTemplate>;
+    using MapTemplatePtr = std::unique_ptr<rsg::MapTemplate>;
     MapTemplatePtr mapTemplate;
-    MapGenOptions options;
+    rsg::MapGenOptions options;
 
-    using MapGeneratorPtr = std::unique_ptr<MapGenerator>;
+    using MapGeneratorPtr = std::unique_ptr<rsg::MapGenerator>;
     MapGeneratorPtr generator;
 
-    MapPtr scenario;
+    rsg::MapPtr scenario;
     std::filesystem::path templateFilePath;
     bool radioButtons[5];
 };

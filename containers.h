@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+namespace rsg {
+
 // Returns true if container contains specified item
 template <typename Container, typename Item>
 static inline bool contains(const Container& container, const Item& item)
@@ -21,3 +23,5 @@ static inline bool eraseIfPresent(Container& container, const Item& item)
 
     return false;
 }
+
+} // namespace rsg

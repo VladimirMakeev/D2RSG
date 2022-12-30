@@ -2,6 +2,8 @@
 #include "gameinfo.h"
 #include "randomgenerator.h"
 
+namespace rsg {
+
 LandmarkInfo* pickLandmark(const std::vector<LandmarkInfo*>& landmarkPool,
                            Rng& random,
                            const LandmarkFilterList& filters)
@@ -37,3 +39,5 @@ LandmarkInfo* pickMountainLandmark(Rng& random, const LandmarkFilterList& filter
 {
     return pickLandmark(getMountainLandmarks(), random, filters);
 }
+
+} // namespace rsg
