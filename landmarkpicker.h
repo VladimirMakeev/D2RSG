@@ -7,7 +7,7 @@
 namespace rsg {
 
 struct LandmarkInfo;
-class Rng;
+class RandomGenerator;
 
 // Filter that decides whether landmark should be discarded from pick or not.
 // Returns true for landmark that should be removed from pick pool
@@ -16,15 +16,17 @@ using LandmarkFilterList = std::initializer_list<LandmarkFilterFunc>;
 
 // Pick random landmark from specified pool
 LandmarkInfo* pickLandmark(const std::vector<LandmarkInfo*>& landmarkPool,
-                           Rng& random,
+                           RandomGenerator& random,
                            const LandmarkFilterList& filters);
 // Pick random landmark of specified type
 LandmarkInfo* pickLandmark(LandmarkType landmarkType,
-                           Rng& random,
+                           RandomGenerator& random,
                            const LandmarkFilterList& filters);
 // Pick random landmark visually appropriate for specified race
-LandmarkInfo* pickLandmark(RaceType raceType, Rng& random, const LandmarkFilterList& filters);
+LandmarkInfo* pickLandmark(RaceType raceType,
+                           RandomGenerator& random,
+                           const LandmarkFilterList& filters);
 // Pick random mountain landmark
-LandmarkInfo* pickMountainLandmark(Rng& random, const LandmarkFilterList& filters);
+LandmarkInfo* pickMountainLandmark(RandomGenerator& random, const LandmarkFilterList& filters);
 
 } // namespace rsg

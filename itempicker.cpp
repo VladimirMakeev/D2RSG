@@ -7,7 +7,7 @@
 namespace rsg {
 
 ItemInfo* pickItem(const std::vector<ItemInfo*>& itemPool,
-                   Rng& random,
+                   RandomGenerator& random,
                    const ItemFilterList& filters)
 {
     ItemInfoArray pool{itemPool};
@@ -25,12 +25,12 @@ ItemInfo* pickItem(const std::vector<ItemInfo*>& itemPool,
     return pool[index];
 }
 
-ItemInfo* pickItem(Rng& random, const ItemFilterList& filters)
+ItemInfo* pickItem(RandomGenerator& random, const ItemFilterList& filters)
 {
     return pickItem(getItems(), random, filters);
 }
 
-ItemInfo* pickItem(ItemType itemType, Rng& random, const ItemFilterList& filters)
+ItemInfo* pickItem(ItemType itemType, RandomGenerator& random, const ItemFilterList& filters)
 {
     return pickItem(getItems(itemType), random, filters);
 }

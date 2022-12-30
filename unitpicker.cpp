@@ -8,7 +8,9 @@
 
 namespace rsg {
 
-static UnitInfo* pick(const UnitInfoArray& unitPool, Rng& random, const UnitFilterList& filters)
+static UnitInfo* pick(const UnitInfoArray& unitPool,
+                      RandomGenerator& random,
+                      const UnitFilterList& filters)
 {
     UnitInfoArray pool{unitPool};
 
@@ -25,12 +27,12 @@ static UnitInfo* pick(const UnitInfoArray& unitPool, Rng& random, const UnitFilt
     return pool[index];
 }
 
-UnitInfo* pickLeader(Rng& random, const UnitFilterList& filters)
+UnitInfo* pickLeader(RandomGenerator& random, const UnitFilterList& filters)
 {
     return pick(getLeaders(), random, filters);
 }
 
-UnitInfo* pickUnit(Rng& random, const UnitFilterList& filters)
+UnitInfo* pickUnit(RandomGenerator& random, const UnitFilterList& filters)
 {
     return pick(getSoldiers(), random, filters);
 }

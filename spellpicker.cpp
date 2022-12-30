@@ -5,7 +5,7 @@
 namespace rsg {
 
 static SpellInfo* pickSpell(const SpellInfoArray& spellsPool,
-                            Rng& random,
+                            RandomGenerator& random,
                             const SpellFilterList& filters)
 {
     SpellInfoArray pool{spellsPool};
@@ -23,12 +23,12 @@ static SpellInfo* pickSpell(const SpellInfoArray& spellsPool,
     return pool[index];
 }
 
-SpellInfo* pickSpell(Rng& random, const SpellFilterList& filters)
+SpellInfo* pickSpell(RandomGenerator& random, const SpellFilterList& filters)
 {
     return pickSpell(getSpells(), random, filters);
 }
 
-SpellInfo* pickSpell(SpellType spellType, Rng& random, const SpellFilterList& filters)
+SpellInfo* pickSpell(SpellType spellType, RandomGenerator& random, const SpellFilterList& filters)
 {
     return pickSpell(getSpells(spellType), random, filters);
 }

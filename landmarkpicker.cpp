@@ -5,7 +5,7 @@
 namespace rsg {
 
 LandmarkInfo* pickLandmark(const std::vector<LandmarkInfo*>& landmarkPool,
-                           Rng& random,
+                           RandomGenerator& random,
                            const LandmarkFilterList& filters)
 {
     LandmarkInfoArray pool{landmarkPool};
@@ -24,18 +24,20 @@ LandmarkInfo* pickLandmark(const std::vector<LandmarkInfo*>& landmarkPool,
 }
 
 LandmarkInfo* pickLandmark(LandmarkType landmarkType,
-                           Rng& random,
+                           RandomGenerator& random,
                            const LandmarkFilterList& filters)
 {
     return pickLandmark(getLandmarks(landmarkType), random, filters);
 }
 
-LandmarkInfo* pickLandmark(RaceType raceType, Rng& random, const LandmarkFilterList& filters)
+LandmarkInfo* pickLandmark(RaceType raceType,
+                           RandomGenerator& random,
+                           const LandmarkFilterList& filters)
 {
     return pickLandmark(getLandmarks(raceType), random, filters);
 }
 
-LandmarkInfo* pickMountainLandmark(Rng& random, const LandmarkFilterList& filters)
+LandmarkInfo* pickMountainLandmark(RandomGenerator& random, const LandmarkFilterList& filters)
 {
     return pickLandmark(getMountainLandmarks(), random, filters);
 }

@@ -33,30 +33,13 @@ struct RandomValue
     }
 };
 
-using RandI64 = std::function<std::int64_t()>;
-using Rand = std::function<double()>;
-using RandEngine = std::mt19937;
-
-class Rng
+class RandomGenerator
 {
 public:
-    virtual ~Rng() = default;
+    using RandI64 = std::function<std::int64_t()>;
+    using Rand = std::function<double()>;
+    using Engine = std::mt19937;
 
-    virtual RandI64 getInt64Range(std::int64_t min, std::int64_t max) = 0;
-    virtual Rand getDoubleRange(double min, double max) = 0;
-
-    RandEngine& getEngine()
-    {
-        return rand;
-    }
-
-protected:
-    RandEngine rand;
-};
-
-class RandomGenerator : public Rng
-{
-public:
     using Int64Dist = std::uniform_int_distribution<std::int64_t>;
     using RealDist = std::uniform_real_distribution<double>;
 
@@ -65,14 +48,12 @@ public:
         resetSeed();
     }
 
-    ~RandomGenerator() override = default;
-
-    RandI64 getInt64Range(std::int64_t min, std::int64_t max) override
+    RandI64 getInt64Range(std::int64_t min, std::int64_t max)
     {
         return std::bind(Int64Dist(min, max), std::ref(rand));
     }
 
-    Rand getDoubleRange(double min, double max) override
+    Rand getDoubleRange(double min, double max)
     {
         return std::bind(RealDist(min, max), std::ref(rand));
     }
@@ -100,10 +81,18 @@ public:
     {
         rand.seed(seed);
     }
+
+    Engine& getEngine()
+    {
+        return rand;
+    }
+
+private:
+    Engine rand;
 };
 
 template <typename T>
-static inline void randomShuffle(std::vector<T>& container, Rng& rand)
+static inline void randomShuffle(std::vector<T>& container, RandomGenerator& rand)
 {
     std::size_t i = 0;
     for (auto it = container.rbegin(); it != container.rend(); ++it, ++i) {
@@ -112,7 +101,8 @@ static inline void randomShuffle(std::vector<T>& container, Rng& rand)
 }
 
 template <typename Container>
-static inline auto nextItem(Container& container, Rng& rand) -> decltype(container.begin())
+static inline auto nextItem(Container& container, RandomGenerator& rand)
+    -> decltype(container.begin())
 {
     assert(!container.empty());
     return std::next(container.begin(),
@@ -122,7 +112,9 @@ static inline auto nextItem(Container& container, Rng& rand) -> decltype(contain
 // Returns a randomly chosen vector of n positive integers summing exactly to total
 // From:
 // https://stackoverflow.com/questions/3589214/generate-random-numbers-summing-to-a-predefined-value
-static inline std::vector<std::size_t> constrainedSum(std::size_t n, std::size_t total, Rng& rand)
+static inline std::vector<std::size_t> constrainedSum(std::size_t n,
+                                                      std::size_t total,
+                                                      RandomGenerator& rand)
 {
     std::vector<std::size_t> tmp(total);
     std::iota(tmp.begin(), tmp.end(), 1);
@@ -147,7 +139,7 @@ static inline std::vector<std::size_t> constrainedSum(std::size_t n, std::size_t
 }
 
 template <typename T>
-static inline auto getRandomItem(const T& container, Rng& rand)
+static inline auto getRandomItem(const T& container, RandomGenerator& rand)
 {
     std::vector<typename T::value_type> tmp;
 

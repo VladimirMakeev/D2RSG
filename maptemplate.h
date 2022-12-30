@@ -25,7 +25,7 @@ struct MapTemplateSettings
     int forest{}; // Percentage of unused tiles converted to forest after content placement
 
     // Replaces random races with real ones
-    void replaceRandomRaces(Rng& rand)
+    void replaceRandomRaces(RandomGenerator& rand)
     {
         std::set<RaceType> availableRaces{RaceType::Human, RaceType::Undead, RaceType::Heretic,
                                           RaceType::Dwarf, RaceType::Elf};

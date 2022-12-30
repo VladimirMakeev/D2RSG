@@ -7,7 +7,7 @@ namespace rsg {
 
 static const char* emptyName = "Guard";
 
-const char* getUnitName(const UnitInfo& info, Rng& rand)
+const char* getUnitName(const UnitInfo& info, RandomGenerator& rand)
 {
     if (info.unitType != UnitType::Leader) {
         // Only leader units have names

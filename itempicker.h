@@ -7,7 +7,7 @@
 namespace rsg {
 
 struct ItemInfo;
-class Rng;
+class RandomGenerator;
 
 // Filter that decides whether item should be discarded from pick or not.
 // Returns true for item that should be removed from pick pool
@@ -16,12 +16,12 @@ using ItemFilterList = std::initializer_list<ItemFilterFunc>;
 
 // Pick random item from specified pool
 ItemInfo* pickItem(const std::vector<ItemInfo*>& itemPool,
-                   Rng& random,
+                   RandomGenerator& random,
                    const ItemFilterList& filters);
 // Picks any random item after applying filters
-ItemInfo* pickItem(Rng& random, const ItemFilterList& filters);
+ItemInfo* pickItem(RandomGenerator& random, const ItemFilterList& filters);
 // Picks random item of specific type
-ItemInfo* pickItem(ItemType itemType, Rng& random, const ItemFilterList& filters);
+ItemInfo* pickItem(ItemType itemType, RandomGenerator& random, const ItemFilterList& filters);
 
 // These below are predefined filters
 

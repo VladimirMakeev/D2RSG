@@ -29,7 +29,10 @@ public:
 
     // Places landmarks in specified area around map element,
     // then places forest tiles on remaining tiles.
-    virtual bool decorate(TemplateZone& zone, MapGenerator& mapGenerator, Map& map, Rng& rand);
+    virtual bool decorate(TemplateZone& zone,
+                          MapGenerator& mapGenerator,
+                          Map& map,
+                          RandomGenerator& rand);
 
 protected:
     Decoration(const RndValue& landmarks, const RndValue& forests)
@@ -44,7 +47,7 @@ protected:
                                          TemplateZone& zone,
                                          MapGenerator& mapGenerator,
                                          Map& map,
-                                         Rng& rand);
+                                         RandomGenerator& rand);
 
     // Returns list of filters for landmark picker
     virtual const LandmarkFilterList& getLandmarkFilters();
@@ -52,7 +55,7 @@ protected:
     virtual std::set<Position> getArea(TemplateZone& zone,
                                        MapGenerator& mapGenerator,
                                        Map& map,
-                                       Rng& rand);
+                                       RandomGenerator& rand);
     // Returns minimal distance between landmarks.
     // Used for searching best place for specified landmark
     virtual int getMinLandmarkDistance(const LandmarkInfo& info) const;
@@ -61,33 +64,33 @@ protected:
     virtual RaceType getLandmarksRace(TemplateZone& zone,
                                       MapGenerator& mapGenerator,
                                       Map& map,
-                                      Rng& rand);
+                                      RandomGenerator& rand);
 
     // Returns terrain to set under placed landmarks
     virtual TerrainType getLandmarksTerrain(TemplateZone& zone,
                                             MapGenerator& mapGenerator,
                                             Map& map,
-                                            Rng& rand);
+                                            RandomGenerator& rand);
 
     // Returns terrain to set under placed forest tiles
     virtual TerrainType getForestsTerrain(TemplateZone& zone,
                                           MapGenerator& mapGenerator,
                                           Map& map,
-                                          Rng& rand);
+                                          RandomGenerator& rand);
 
     // Places landmarks in specified area
     virtual bool placeLandmarks(std::set<Position>& area,
                                 TemplateZone& zone,
                                 MapGenerator& mapGenerator,
                                 Map& map,
-                                Rng& rand);
+                                RandomGenerator& rand);
 
     // Places forests in specified area
     virtual bool placeForests(std::set<Position>& area,
                               TemplateZone& zone,
                               MapGenerator& mapGenerator,
                               Map& map,
-                              Rng& rand);
+                              RandomGenerator& rand);
 
     RndValue landmarks; // Number of landmark decorations
     RndValue forests;   // Number of forest tiles to create
@@ -111,22 +114,22 @@ protected:
     std::set<Position> getArea(TemplateZone& zone,
                                MapGenerator& mapGenerator,
                                Map& map,
-                               Rng& rand) override;
+                               RandomGenerator& rand) override;
 
     RaceType getLandmarksRace(TemplateZone& zone,
                               MapGenerator& mapGenerator,
                               Map& map,
-                              Rng& rand) override;
+                              RandomGenerator& rand) override;
 
     TerrainType getLandmarksTerrain(TemplateZone& zone,
                                     MapGenerator& mapGenerator,
                                     Map& map,
-                                    Rng& rand) override;
+                                    RandomGenerator& rand) override;
 
     TerrainType getForestsTerrain(TemplateZone& zone,
                                   MapGenerator& mapGenerator,
                                   Map& map,
-                                  Rng& rand) override;
+                                  RandomGenerator& rand) override;
 
 private:
     Capital* capital;
@@ -148,24 +151,24 @@ protected:
     std::set<Position> getArea(TemplateZone& zone,
                                MapGenerator& mapGenerator,
                                Map& map,
-                               Rng& rand) override;
+                               RandomGenerator& rand) override;
 
     int getMinLandmarkDistance(const LandmarkInfo& info) const override;
 
     RaceType getLandmarksRace(TemplateZone& zone,
                               MapGenerator& mapGenerator,
                               Map& map,
-                              Rng& rand) override;
+                              RandomGenerator& rand) override;
 
     TerrainType getLandmarksTerrain(TemplateZone& zone,
                                     MapGenerator& mapGenerator,
                                     Map& map,
-                                    Rng& rand) override;
+                                    RandomGenerator& rand) override;
 
     TerrainType getForestsTerrain(TemplateZone& zone,
                                   MapGenerator& mapGenerator,
                                   Map& map,
-                                  Rng& rand) override;
+                                  RandomGenerator& rand) override;
 
 private:
     Village* village;
@@ -181,7 +184,10 @@ public:
 
     ~CrystalDecoration() override = default;
 
-    bool decorate(TemplateZone& zone, MapGenerator& mapGenerator, Map& map, Rng& rand) override;
+    bool decorate(TemplateZone& zone,
+                  MapGenerator& mapGenerator,
+                  Map& map,
+                  RandomGenerator& rand) override;
 
 protected:
     const LandmarkFilterList& getLandmarkFilters() override;
@@ -189,28 +195,28 @@ protected:
     std::set<Position> getArea(TemplateZone& zone,
                                MapGenerator& mapGenerator,
                                Map& map,
-                               Rng& rand) override;
+                               RandomGenerator& rand) override;
 
     RaceType getLandmarksRace(TemplateZone& zone,
                               MapGenerator& mapGenerator,
                               Map& map,
-                              Rng& rand) override;
+                              RandomGenerator& rand) override;
 
     TerrainType getLandmarksTerrain(TemplateZone& zone,
                                     MapGenerator& mapGenerator,
                                     Map& map,
-                                    Rng& rand) override;
+                                    RandomGenerator& rand) override;
 
     TerrainType getForestsTerrain(TemplateZone& zone,
                                   MapGenerator& mapGenerator,
                                   Map& map,
-                                  Rng& rand) override;
+                                  RandomGenerator& rand) override;
 
     bool placeForests(std::set<Position>& area,
                       TemplateZone& zone,
                       MapGenerator& mapGenerator,
                       Map& map,
-                      Rng& rand) override;
+                      RandomGenerator& rand) override;
 
     Crystal* crystal;
 };
@@ -225,7 +231,10 @@ public:
 
     ~CapturedCrystalDecoration() override = default;
 
-    bool decorate(TemplateZone& zone, MapGenerator& mapGenerator, Map& map, Rng& rand) override;
+    bool decorate(TemplateZone& zone,
+                  MapGenerator& mapGenerator,
+                  Map& map,
+                  RandomGenerator& rand) override;
 
 private:
     TerrainType terrain;
@@ -247,24 +256,24 @@ protected:
     std::set<Position> getArea(TemplateZone& zone,
                                MapGenerator& mapGenerator,
                                Map& map,
-                               Rng& rand) override;
+                               RandomGenerator& rand) override;
 
     int getMinLandmarkDistance(const LandmarkInfo& info) const override;
 
     RaceType getLandmarksRace(TemplateZone& zone,
                               MapGenerator& mapGenerator,
                               Map& map,
-                              Rng& rand) override;
+                              RandomGenerator& rand) override;
 
     TerrainType getLandmarksTerrain(TemplateZone& zone,
                                     MapGenerator& mapGenerator,
                                     Map& map,
-                                    Rng& rand) override;
+                                    RandomGenerator& rand) override;
 
     TerrainType getForestsTerrain(TemplateZone& zone,
                                   MapGenerator& mapGenerator,
                                   Map& map,
-                                  Rng& rand) override;
+                                  RandomGenerator& rand) override;
 
 private:
     Site* site;
@@ -284,24 +293,24 @@ protected:
     std::set<Position> getArea(TemplateZone& zone,
                                MapGenerator& mapGenerator,
                                Map& map,
-                               Rng& rand) override;
+                               RandomGenerator& rand) override;
 
     int getMinLandmarkDistance(const LandmarkInfo& info) const override;
 
     RaceType getLandmarksRace(TemplateZone& zone,
                               MapGenerator& mapGenerator,
                               Map& map,
-                              Rng& rand) override;
+                              RandomGenerator& rand) override;
 
     TerrainType getLandmarksTerrain(TemplateZone& zone,
                                     MapGenerator& mapGenerator,
                                     Map& map,
-                                    Rng& rand) override;
+                                    RandomGenerator& rand) override;
 
     TerrainType getForestsTerrain(TemplateZone& zone,
                                   MapGenerator& mapGenerator,
                                   Map& map,
-                                  Rng& rand) override;
+                                  RandomGenerator& rand) override;
 
 private:
     Ruin* ruin;

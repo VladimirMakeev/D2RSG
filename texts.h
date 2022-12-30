@@ -3,8 +3,8 @@
 namespace rsg {
 
 struct UnitInfo;
-class Rng;
+class RandomGenerator;
 
-const char* getUnitName(const UnitInfo& info, Rng& rand);
+const char* getUnitName(const UnitInfo& info, RandomGenerator& rand);
 
 } // namespace rsg

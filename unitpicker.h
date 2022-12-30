@@ -5,7 +5,7 @@
 namespace rsg {
 
 struct UnitInfo;
-class Rng;
+class RandomGenerator;
 
 // Filter that decides whether unit should be discarded from pick or not.
 // Returns true for unit that should be removed from pick pool
@@ -13,10 +13,10 @@ using UnitFilterFunc = std::function<bool(const UnitInfo*)>;
 using UnitFilterList = std::initializer_list<UnitFilterFunc>;
 
 // Picks random leader from list after applying filters
-UnitInfo* pickLeader(Rng& random, const UnitFilterList& filters);
+UnitInfo* pickLeader(RandomGenerator& random, const UnitFilterList& filters);
 
 // Picks random soldier from list after applying filters
-UnitInfo* pickUnit(Rng& random, const UnitFilterList& filters);
+UnitInfo* pickUnit(RandomGenerator& random, const UnitFilterList& filters);
 
 // These below are predefined filters
 
