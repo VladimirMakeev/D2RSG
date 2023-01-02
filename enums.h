@@ -186,6 +186,19 @@ enum class DifficultyType
     VeryHard,
 };
 
+// Stack view and movement direction
+enum class Facing
+{
+    Southwest,
+    West,
+    Northwest,
+    North,
+    Northeast,
+    East,
+    Southeast,
+    South,
+};
+
 // Internal generator use only
 enum class MapFormat
 {

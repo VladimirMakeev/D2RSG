@@ -15,7 +15,7 @@ void Stack::serialize(Serializer& serializer, const Map& scenario) const
     serializer.serialize("POS_X", "POS_Y", position);
     serializer.serialize("MORALE", morale);
     serializer.serialize("MOVE", move);
-    serializer.serialize("FACING", facing);
+    serializer.serialize("FACING", static_cast<std::uint32_t>(facing));
     serializer.serialize("BANNER", bannerId);
     serializer.serialize("TOME", tomeId);
     serializer.serialize("BATTLE1", battle1Id);

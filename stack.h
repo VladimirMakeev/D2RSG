@@ -83,7 +83,7 @@ public:
         move = value;
     }
 
-    void setFacing(int value)
+    void setFacing(Facing value)
     {
         facing = value;
     }
@@ -133,7 +133,7 @@ private:
     AiPriority aiPriority;
     int morale{};
     int move{};
-    int facing{};
+    Facing facing{Facing::South};
     int upgradeCount{};
     OrderType order{OrderType::Stand};
     int aiOrder{1};

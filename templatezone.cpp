@@ -28,6 +28,14 @@
 
 namespace rsg {
 
+static Facing getRandomFacing(RandomGenerator& rand)
+{
+    const int minFacing{static_cast<int>(Facing::Southwest)};
+    const int maxFacing{static_cast<int>(Facing::South)};
+
+    return static_cast<Facing>(rand.nextInteger(minFacing, maxFacing));
+}
+
 void TemplateZone::setCenter(const VPosition& value)
 {
     // Wrap zone around (0, 1) square.
@@ -1266,7 +1274,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(const UnitInfo& leaderInfo,
     auto stack{std::make_unique<Stack>(stackId)};
 
     stack->setMove(leaderInfo.move);
-    stack->setFacing((int)rand.getInt64Range(0, 7)());
+    stack->setFacing(getRandomFacing(rand));
 
     // Create leader unit
     auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
