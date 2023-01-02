@@ -7,6 +7,8 @@
 
 namespace rsg {
 
+class RandomGenerator;
+
 /** Scenario generator settings that are global. */
 struct GeneratorSettings
 {
@@ -56,10 +58,15 @@ struct GeneratorSettings
     ObjectImages mages;
     ObjectImages trainers;
     ObjectImages mercenaries;
+
+    // Maximum tree image index that is supported by all races. From IsoTerrn.ff
+    std::uint8_t maxTreeImageIndex{};
 };
 
 bool readGeneratorSettings(const std::filesystem::path& gameFolderPath);
 
 const GeneratorSettings& getGeneratorSettings();
+
+std::uint8_t getRandomTreeImageIndex(RandomGenerator& rand);
 
 } // namespace rsg

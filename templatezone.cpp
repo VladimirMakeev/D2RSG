@@ -249,7 +249,7 @@ void TemplateZone::createObstacles()
     // rest for the forests, check mountains in the zone, place near them. Also pick random tiles
     // and place around
 
-    // Place forests, for now
+    // Place forests
     const int forests = mapGenerator->mapGenOptions.mapTemplate->settings.forest;
 
     if (forests == 0) {
@@ -265,7 +265,6 @@ void TemplateZone::createObstacles()
 
     auto& rand{mapGenerator->randomGenerator};
 
-    // Place forests, for now
     for (auto& tile : tileInfo) {
         if (mapGenerator->isPossible(tile)) {
             if (mapGenerator->isRoad(tile)) {
@@ -283,9 +282,9 @@ void TemplateZone::createObstacles()
             mapGenerator->setOccupied(tile, TileType::Used);
 
             auto& mapTile = mapGenerator->map->getTile(tile);
-            // For tests!
+
             mapTile.setTerrainGround(TerrainType::Neutral, GroundType::Forest);
-            mapTile.treeImage = (std::uint8_t)rand.getInt64Range(0, 19)();
+            mapTile.treeImage = getRandomTreeImageIndex(rand);
         }
     }
 }

@@ -3,6 +3,7 @@
 #include "containers.h"
 #include "crystal.h"
 #include "gameinfo.h"
+#include "generatorsettings.h"
 #include "landmark.h"
 #include "map.h"
 #include "mapgenerator.h"
@@ -177,7 +178,7 @@ bool Decoration::placeForests(std::set<Position>& area,
 
         auto& tile{map.getTile(forestTile)};
         tile.setTerrainGround(forestTerrain, GroundType::Forest);
-        tile.treeImage = (std::uint8_t)rand.getInt64Range(0, 19)();
+        tile.treeImage = getRandomTreeImageIndex(rand);
 
         mapGenerator.setOccupied(forestTile, TileType::Used);
     }
@@ -412,7 +413,7 @@ bool CrystalDecoration::placeForests(std::set<Position>& area,
 
         auto& tile{map.getTile(forestTile)};
         tile.setTerrainGround(forestTerrain, GroundType::Forest);
-        tile.treeImage = (std::uint8_t)rand.getInt64Range(0, 19)();
+        tile.treeImage = getRandomTreeImageIndex(rand);
 
         mapGenerator.setOccupied(forestTile, TileType::Used);
 

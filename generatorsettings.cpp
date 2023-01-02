@@ -1,5 +1,6 @@
 #include "generatorsettings.h"
 #include "mqdb.h"
+#include "randomgenerator.h"
 #include <algorithm>
 #include <charconv>
 #include <fstream>
@@ -9,6 +10,10 @@
 #include <string>
 
 namespace rsg {
+
+static const char mountainPrefix[] = "MOMNE";
+// Keep order the same as in RaceType
+static const char* treePrefixes[6] = {"HUF", "UNF", "HEF", "DWF", "NEF", "ELF"};
 
 using OptionalTable = sol::optional<sol::table>;
 using StringSet = std::set<std::string>;
@@ -161,8 +166,8 @@ static void readScriptSettings(sol::state& lua)
     readObjectImages(generatorSettings.mercenaries, settings, "mercenaries", "g000si0000merc");
 }
 
-static void readFFFile(const std::filesystem::path& ffFilePath,
-                       void (*processRecord)(const std::string& recordName))
+static void processFFFileRecords(const std::filesystem::path& ffFilePath,
+                                 void (*processRecord)(const std::string& recordName))
 {
     mqdb::Mqdb file(ffFilePath, false);
     const std::vector<std::string>& recordNames = file.indexData.images.names;
@@ -173,16 +178,9 @@ static void readFFFile(const std::filesystem::path& ffFilePath,
 }
 
 // Get mountain data from 'MOMNE<size><image>' record names
-static void processMountainRecord(const std::string& recordName)
+static void processMountainRecord(const std::string& recordName, std::size_t pos)
 {
-    static const char prefix[] = "MOMNE";
-
-    const std::size_t pos = recordName.find(prefix);
-    if (pos == std::string::npos) {
-        return;
-    }
-
-    const char* start = recordName.data() + pos + std::size(prefix) - 1;
+    const char* start = recordName.data() + pos + std::size(mountainPrefix) - 1;
 
     GeneratorSettings::Mountain mountain;
     auto [p1, sizeError] = std::from_chars(start, start + 2, mountain.size, 10);
@@ -196,6 +194,50 @@ static void processMountainRecord(const std::string& recordName)
     }
 
     generatorSettings.mountains.push_back(mountain);
+}
+
+static void processTerrainRecords(const std::filesystem::path& isoTerrnFilePath)
+{
+    mqdb::Mqdb file(isoTerrnFilePath, false);
+    const std::vector<std::string>& recordNames = file.indexData.images.names;
+
+    // Maximum tree image index for each race
+    // Same order as in RaceType
+    std::uint8_t treeMaxIndices[6] = {0};
+
+    for (const auto& recordName : recordNames) {
+        // Check for mountain records
+        const std::size_t mountainPrefixPos = recordName.find(mountainPrefix);
+        if (mountainPrefixPos != std::string::npos) {
+            processMountainRecord(recordName, mountainPrefixPos);
+            continue;
+        }
+
+        // Check for tree image records '<race>F<index><index 2>'.
+        // Determine max value of 'index 2' for each race
+        for (int i = 0; i < 6; ++i) {
+            const std::size_t pos = recordName.find(treePrefixes[i]);
+            if (pos == std::string::npos) {
+                continue;
+            }
+
+            const char* start = recordName.data() + pos + std::strlen(treePrefixes[i]);
+
+            std::uint8_t index{};
+            auto [p, error] = std::from_chars(start + 2, start + 4, index, 10);
+            if (error != std::errc()) {
+                throw std::runtime_error("Could not read tree image index from record name");
+            }
+
+            treeMaxIndices[i] = std::max(treeMaxIndices[i], index);
+            // Processed, nothing to do here
+            break;
+        }
+    }
+
+    // Choose minimal value from all races maximums
+    generatorSettings.maxTreeImageIndex = *std::min_element(std::begin(treeMaxIndices),
+                                                            std::end(treeMaxIndices));
 }
 
 // Get bag images from 'G000BG0000<terrain><image>' record names
@@ -259,8 +301,9 @@ bool readGeneratorSettings(const std::filesystem::path& gameFolderPath)
         readScriptSettings(lua);
 
         const std::filesystem::path imagesPath = gameFolderPath / "Imgs";
-        readFFFile(imagesPath / "IsoTerrn.ff", processMountainRecord);
-        readFFFile(imagesPath / "IsoCmon.ff", processBagRecord);
+
+        processTerrainRecords(imagesPath / "IsoTerrn.ff");
+        processFFFileRecords(imagesPath / "IsoCmon.ff", processBagRecord);
     } catch (const std::exception& e) {
         std::cerr << "Could not read generator settings: " << e.what() << '\n';
         return false;
@@ -272,6 +315,11 @@ bool readGeneratorSettings(const std::filesystem::path& gameFolderPath)
 const GeneratorSettings& getGeneratorSettings()
 {
     return generatorSettings;
+}
+
+std::uint8_t getRandomTreeImageIndex(RandomGenerator& rand)
+{
+    return rand.nextInteger(std::uint8_t{0}, getGeneratorSettings().maxTreeImageIndex);
 }
 
 } // namespace rsg
