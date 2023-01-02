@@ -116,8 +116,8 @@ bool Decoration::placeLandmarks(std::set<Position>& area,
                                 Map& map,
                                 RandomGenerator& rand)
 {
-    const auto landmarksTotal{(std::size_t)rand.getInt64Range(landmarks.min, landmarks.max)()};
-    const auto landmarkFilters{getLandmarkFilters()};
+    const std::size_t landmarksTotal{rand.pickValue(landmarks)};
+    const auto& landmarkFilters{getLandmarkFilters()};
 
     for (std::size_t i = 0; i < landmarksTotal; ++i) {
         const auto landmarkRace{getLandmarksRace(zone, mapGenerator, map, rand)};
@@ -165,7 +165,7 @@ bool Decoration::placeForests(std::set<Position>& area,
                               RandomGenerator& rand)
 {
     // Pick number of forests
-    const auto forestsTotal{(std::size_t)rand.getInt64Range(forests.min, forests.max)()};
+    const std::size_t forestsTotal{rand.pickValue(forests)};
 
     std::vector<Position> forestTiles(area.begin(), area.end());
     randomShuffle(forestTiles, rand);
@@ -400,7 +400,7 @@ bool CrystalDecoration::placeForests(std::set<Position>& area,
                                      RandomGenerator& rand)
 {
     // Pick number of forests
-    const auto forestsTotal{(std::size_t)rand.getInt64Range(forests.min, forests.max)()};
+    const std::size_t forestsTotal{rand.pickValue(forests)};
 
     std::vector<Position> forestTiles(area.begin(), area.end());
     randomShuffle(forestTiles, rand);

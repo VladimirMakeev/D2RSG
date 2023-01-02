@@ -7,10 +7,12 @@
 #include <numeric>
 #include <random>
 #include <thread>
+#include <type_traits>
 #include <vector>
 
 namespace rsg {
 
+// Represents range for random generator to pick value from.
 template <typename T>
 struct RandomValue
 {
@@ -40,29 +42,54 @@ public:
     using Rand = std::function<double()>;
     using Engine = std::mt19937;
 
-    using Int64Dist = std::uniform_int_distribution<std::int64_t>;
-    using RealDist = std::uniform_real_distribution<double>;
-
     RandomGenerator()
     {
         resetSeed();
     }
 
+    // Returns random integer value according to its range
+    template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
+    T pickValue(const RandomValue<T>& value)
+    {
+        return static_cast<T>(getInt64Range(value.min, value.max)());
+    }
+
+    // Returns floating point value according to its range
+    template <typename T, std::enable_if_t<std::is_floating_point<T>::value, bool> = true>
+    T pickValue(const RandomValue<T>& value)
+    {
+        return static_cast<T>(getDoubleRange(value.min, value.max)());
+    }
+
+    // Returns functor that produces random integer values in [min : max] range
     RandI64 getInt64Range(std::int64_t min, std::int64_t max)
     {
-        return std::bind(Int64Dist(min, max), std::ref(rand));
+        using Distribution = std::uniform_int_distribution<std::int64_t>;
+
+        return std::bind(Distribution(min, max), std::ref(engine));
     }
 
+    // Returns functor that produces random floating point values in [min : max] range
     Rand getDoubleRange(double min, double max)
     {
-        return std::bind(RealDist(min, max), std::ref(rand));
+        using Distribution = std::uniform_real_distribution<double>;
+
+        return std::bind(Distribution(min, max), std::ref(engine));
     }
 
+    template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
+    T nextInteger(T min, T max)
+    {
+        return static_cast<T>(getInt64Range(min, max)());
+    }
+
+    // Returns random floating point value in [min : max] range
     double nextDouble(double min, double max)
     {
         return getDoubleRange(min, max)();
     }
 
+    // Returns true with chance specified by percent
     bool chance(int percent)
     {
         percent = std::clamp(percent, 0, 100);
@@ -79,16 +106,16 @@ public:
 
     void setSeed(std::size_t seed)
     {
-        rand.seed(seed);
+        engine.seed(seed);
     }
 
     Engine& getEngine()
     {
-        return rand;
+        return engine;
     }
 
 private:
-    Engine rand;
+    Engine engine;
 };
 
 template <typename T>

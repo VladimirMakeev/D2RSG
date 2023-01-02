@@ -1113,7 +1113,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
 
     auto& rand{mapGenerator->randomGenerator};
 
-    int strength = (int)rand.getInt64Range(stackValue.min, stackValue.max)();
+    int strength = static_cast<int>(rand.pickValue(stackValue));
 
     // Roll number of units
     int soldiersStrength{strength - getMinLeaderValue()};
@@ -1604,7 +1604,7 @@ Village* TemplateZone::placeCity(const Position& position,
         std::set<int> positions;
         GroupUnits units = {{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
 
-        auto value{(std::size_t)rand.getInt64Range(garrisonValue.min, garrisonValue.max)()};
+        const std::size_t value{rand.pickValue(garrisonValue)};
         auto values{constrainedSum(cityInfo.tier, value, rand)};
 
         switch (cityInfo.tier) {
@@ -1721,7 +1721,7 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
     // Generate random spells of specified types
     if (mageInfo.value) {
         const auto& value{mageInfo.value};
-        const int desiredValue{(int)rand.getInt64Range(value.min, value.max)()};
+        const int desiredValue{static_cast<int>(rand.pickValue(value))};
         int currentValue{};
 
         std::set<CMidgardID> pickedSpells;
@@ -1795,7 +1795,7 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
     // Generate random mercenary units of specified subraces
     if (mercInfo.value) {
         const auto& value{mercInfo.value};
-        int desiredValue{(int)rand.getInt64Range(value.min, value.max)()};
+        const int desiredValue{static_cast<int>(rand.pickValue(value))};
         int currentValue{};
 
         auto noWrongType = [types = &mercInfo.subraceTypes](const UnitInfo* info) {
@@ -1870,7 +1870,7 @@ Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo
         std::set<int> positions = {0, 1, 2, 3, 4, 5};
         GroupUnits units = {{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
 
-        auto value{(std::size_t)rand.getInt64Range(guardValue.min, guardValue.max)()};
+        const std::size_t value{rand.pickValue(guardValue)};
         auto values{constrainedSum(maxRuinUnits, value, rand)};
 
         createGroup(unusedValue, positions, units, values, ruinInfo.guard.subraceTypes);
@@ -1881,7 +1881,7 @@ Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo
 
     const auto& gold{ruinInfo.gold};
     if (gold) {
-        const auto goldValue{(int)rand.getInt64Range(gold.min, gold.max)()};
+        const std::uint16_t goldValue{rand.pickValue(gold)};
 
         Currency cash;
         cash.set(Currency::Type::Gold, goldValue);
@@ -1949,7 +1949,7 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
             continue;
         }
 
-        const int amount{(int)rand.getInt64Range(item.amount.min, item.amount.max)()};
+        const int amount{static_cast<int>(rand.pickValue(item.amount))};
         if (amount > 0) {
             // User can specify [0 : 1+] amount of required items,
             // make sure we only add valid amount
@@ -1960,7 +1960,7 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
     // Create random items of specified types and value
     const auto& value{loot.value};
     if (value) {
-        int desiredValue{(int)rand.getInt64Range(value.min, value.max)()};
+        const int desiredValue{static_cast<int>(rand.pickValue(value))};
         int currentValue{};
 
         auto noWrongType = [types = &loot.itemTypes, forMerchant](const ItemInfo* info) {
@@ -2225,8 +2225,8 @@ void TemplateZone::placeCapital()
         }
 
         const auto& garrisonValue{garrison.value};
-        auto value{(std::size_t)rand.getInt64Range(garrisonValue.min, garrisonValue.max)()};
-        auto values{constrainedSum(Group::groupSize, value, rand)};
+        const std::size_t value{rand.pickValue(garrisonValue)};
+        const auto values{constrainedSum(Group::groupSize, value, rand)};
 
         createGroup(unusedValue, positions, units, values, garrison.subraceTypes);
         tightenGroup(unusedValue, positions, units, garrison.subraceTypes);
