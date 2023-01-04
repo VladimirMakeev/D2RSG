@@ -2,7 +2,7 @@
 #include "containers.h"
 #include "gameinfo.h"
 #include "generatorsettings.h"
-#include "randomgenerator.h"
+#include "picker.h"
 
 namespace rsg {
 
@@ -10,19 +10,7 @@ ItemInfo* pickItem(const std::vector<ItemInfo*>& itemPool,
                    RandomGenerator& random,
                    const ItemFilterList& filters)
 {
-    ItemInfoArray pool{itemPool};
-
-    for (auto& filter : filters) {
-        pool.erase(std::remove_if(pool.begin(), pool.end(), filter), pool.end());
-    }
-
-    if (pool.empty()) {
-        // Filters are too tight, nothing to pick
-        return nullptr;
-    }
-
-    const auto index{static_cast<std::size_t>(random.getInt64Range(0, pool.size() - 1)())};
-    return pool[index];
+    return pick(itemPool, random, filters);
 }
 
 ItemInfo* pickItem(RandomGenerator& random, const ItemFilterList& filters)

@@ -41,7 +41,7 @@ const char* getUnitName(const UnitInfo& info, RandomGenerator& rand)
     // Pick random name depending on unit sex
     const auto& names = info.male ? race.leaderNames.maleNames : race.leaderNames.femaleNames;
 
-    return names[rand.getInt64Range(0, names.size() - 1)()].c_str();
+    return names[rand.nextInteger(std::size_t{0}, names.size() - 1)].c_str();
 }
 
 } // namespace rsg

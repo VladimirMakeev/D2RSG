@@ -596,5 +596,8 @@
     <ClInclude Include="trainer.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
+    <ClInclude Include="picker.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

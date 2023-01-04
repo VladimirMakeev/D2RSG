@@ -1130,7 +1130,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
     const int maxUnitsPossible = std::min(5, soldiersStrength / getMinSoldierValue());
     // Pick how many soldier units will be in stack along with leader.
     // This will affect leader pick and resulting stack contents
-    int soldiersTotal{(int)rand.getInt64Range(0, maxUnitsPossible)()};
+    int soldiersTotal{rand.nextInteger(0, maxUnitsPossible)};
     // +1 because of leader
     int unitsTotal = soldiersTotal + 1;
 
@@ -1304,7 +1304,7 @@ const UnitInfo* TemplateZone::createStackLeader(std::size_t& unusedValue,
     // How many failed attempts considered as a stop condition
     constexpr std::size_t totalFails{5};
     // How fast minValue coefficient decreases after each unsuccessfull attempt
-    constexpr float minValueCoeffDecrease{0.15};
+    constexpr float minValueCoeffDecrease{0.15f};
     // Coefficient that determines minimum leader value for pick.
     // Gradually decreased if we struggle to pick leader
     float minValueCoeff{0.65f};
@@ -2615,8 +2615,7 @@ void TemplateZone::placeStacks()
 
         // Place required items in stacks randomly
         for (const auto& id : requiredItems) {
-            const std::size_t stackIndex = static_cast<std::size_t>(
-                rand.getInt64Range(0, int64_t(items.size() - 1))());
+            const std::size_t stackIndex{rand.nextInteger(std::size_t{0}, items.size() - 1)};
 
             items[stackIndex].push_back(id);
         }
@@ -2679,8 +2678,7 @@ void TemplateZone::placeBags()
 
     // Place required items in the bags randomly
     for (const auto& id : requiredItems) {
-        const std::size_t bagIndex = static_cast<std::size_t>(
-            rand.getInt64Range(0, int64_t(items.size() - 1))());
+        const std::size_t bagIndex = rand.nextInteger(std::size_t{0}, items.size() - 1);
 
         items[bagIndex].push_back(id);
     }

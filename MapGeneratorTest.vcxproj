@@ -272,6 +272,7 @@
     <ClInclude Include="midgardmap.h" />
     <ClInclude Include="mountains.h" />
     <ClInclude Include="mqdb.h" />
+    <ClInclude Include="picker.h" />
     <ClInclude Include="plan.h" />
     <ClInclude Include="playerbuildings.h" />
     <ClInclude Include="capital.h" />

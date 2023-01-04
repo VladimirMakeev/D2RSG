@@ -132,8 +132,9 @@ static inline auto nextItem(Container& container, RandomGenerator& rand)
     -> decltype(container.begin())
 {
     assert(!container.empty());
-    return std::next(container.begin(),
-                     (int)rand.getInt64Range(0, (std::int64_t)container.size() - 1)());
+    const int lastIndex{static_cast<int>(container.size()) - 1};
+
+    return std::next(container.begin(), rand.nextInteger(0, lastIndex));
 }
 
 // Returns a randomly chosen vector of n positive integers summing exactly to total
