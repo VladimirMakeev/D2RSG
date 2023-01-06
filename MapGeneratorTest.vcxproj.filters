@@ -521,9 +521,6 @@
     <ClInclude Include="mountains.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
-    <ClInclude Include="road.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="village.h">
       <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
@@ -598,6 +595,9 @@
     </ClInclude>
     <ClInclude Include="picker.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="road.h">
+      <Filter>Файлы заголовков\scenario</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
