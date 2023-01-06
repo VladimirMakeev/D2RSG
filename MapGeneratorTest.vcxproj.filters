@@ -401,9 +401,6 @@
     <ClInclude Include="maptemplatereader.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="objectinfo.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="position.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>

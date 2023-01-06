@@ -25,7 +25,6 @@
 #include "fortification.h"
 #include "gameinfo.h"
 #include "landmark.h"
-#include "objectinfo.h"
 #include "position.h"
 #include "ruin.h"
 #include "site.h"

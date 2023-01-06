@@ -313,7 +313,6 @@
     <ClInclude Include="maptemplate.h" />
     <ClInclude Include="maptemplatereader.h" />
     <ClInclude Include="midgardid.h" />
-    <ClInclude Include="objectinfo.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="questlog.h" />
