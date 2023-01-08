@@ -68,26 +68,6 @@ struct TileInfo
         occupied = value;
     }
 
-    TerrainType getTerrainType() const
-    {
-        return terrainType;
-    }
-
-    void setTerrainType(TerrainType value)
-    {
-        terrainType = value;
-    }
-
-    GroundType getGroundType() const
-    {
-        return groundType;
-    }
-
-    void setGroundType(GroundType value)
-    {
-        groundType = value;
-    }
-
     void setRoad(bool value)
     {
         hasRoad = value;
@@ -104,16 +84,9 @@ struct TileInfo
         nearestObjectDistance = std::max(.0f, value);
     }
 
-    bool isWater() const
-    {
-        return groundType == GroundType::Water;
-    }
-
 private:
     float nearestObjectDistance{static_cast<float>(std::numeric_limits<int>::max())};
     TileType occupied{TileType::Possible};
-    TerrainType terrainType{TerrainType::Neutral};
-    GroundType groundType{GroundType::Plain};
     bool hasRoad{};
 };
 

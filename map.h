@@ -53,6 +53,11 @@ struct Tile
         ground = groundType;
     }
 
+    bool isWater() const
+    {
+        return ground == GroundType::Water;
+    }
+
     std::vector<CMidgardID> blockingObjects;
     std::vector<CMidgardID> visitableObjects;
 

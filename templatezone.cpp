@@ -1949,8 +1949,9 @@ Bag* TemplateZone::placeBag(const Position& position)
     auto bag{std::make_unique<Bag>(bagId)};
 
     const auto& bags = getGeneratorSettings().bags;
-    const auto& bagImages = mapGenerator->getTile(position).isWater() ? bags.waterImages
-                                                                      : bags.images;
+
+    const auto& bagImages = mapGenerator->map->getTile(position).isWater() ? bags.waterImages
+                                                                           : bags.images;
 
     auto& rand{mapGenerator->randomGenerator};
     // Pick random bag image with respect to ground type
