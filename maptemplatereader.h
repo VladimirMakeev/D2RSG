@@ -19,20 +19,27 @@
 
 #pragma once
 
+#include "maptemplate.h"
 #include <filesystem>
+
+namespace sol {
+class state;
+}
 
 namespace rsg {
 
-struct MapTemplate;
+// Binds lua api that is specific for scenario generator
+void bindLuaApi(sol::state& lua);
 
 // Reads scenario template (.lua) file from specified path.
-// Creates MapTemplate object with settings and 'getContents' function.
+// Returns MapTemplateSettings with default template settings.
 // Throws exception in case of errors.
-MapTemplate* readTemplateSettings(const std::filesystem::path& templatePath);
+MapTemplateSettings readTemplateSettings(const std::filesystem::path& templatePath,
+                                         sol::state& lua);
 
 // Executes 'getContents' function of scenario template (.lua) file.
 // Populates MapTemplateContents depending on actual MapTemplateSettings.
 // Throws exception in case of errors.
-void readTemplateContents(MapTemplate& mapTemplate);
+void readTemplateContents(MapTemplate& mapTemplate, sol::state& lua);
 
 } // namespace rsg

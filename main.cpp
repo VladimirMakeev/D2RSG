@@ -22,6 +22,7 @@
 #include "maptemplate.h"
 #include "maptemplatereader.h"
 #include <iostream>
+#include <sol/sol.hpp>
 #include <stdexcept>
 // debug
 #include "image.h"
@@ -54,15 +55,21 @@ int main(int argc, char* argv[])
     try {
         const std::filesystem::path templateFilePath{argv[1]};
 
+        sol::state lua;
+        // Bind scenario generator specific Lua api
+        bindLuaApi(lua);
+
+        MapTemplate mapTemplate;
         // Read template from file, make sure its ok
-        auto mapTemplate = std::unique_ptr<MapTemplate>(readTemplateSettings(templateFilePath));
+        mapTemplate.settings = readTemplateSettings(templateFilePath, lua);
+
         // Emulate settings from user
-        MapTemplateSettings& settings = mapTemplate->settings;
+        MapTemplateSettings& settings = mapTemplate.settings;
         settings.races.insert(settings.races.end(), settings.maxPlayers, RaceType::Random);
         settings.size = 72;
 
         MapGenOptions options;
-        options.mapTemplate = mapTemplate.get();
+        options.mapTemplate = &mapTemplate;
 
         // MapTemplateSettings name and description are used for ingame (or standalone tool) UI
         // only.
@@ -79,7 +86,7 @@ int main(int argc, char* argv[])
         settings.replaceRandomRaces(generator.randomGenerator);
 
         // Generate template contents
-        readTemplateContents(*mapTemplate);
+        readTemplateContents(mapTemplate, lua);
 
         auto map{generator.generate()};
 

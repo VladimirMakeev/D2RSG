@@ -23,7 +23,6 @@
 #include "zoneoptions.h"
 #include <memory>
 #include <set>
-#include <sol/sol.hpp>
 #include <string>
 
 namespace rsg {
@@ -84,7 +83,6 @@ struct MapTemplateContents
 // Random scenario generator template
 struct MapTemplate
 {
-    sol::state lua;
     MapTemplateSettings settings;
     MapTemplateContents contents;
 };

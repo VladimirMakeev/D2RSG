@@ -37,8 +37,11 @@ static std::string readFile(const std::filesystem::path& file)
     return std::string(std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>());
 }
 
-static void bindLuaApi(sol::state& lua)
+void bindLuaApi(sol::state& lua)
 {
+    lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::table,
+                       sol::lib::os, sol::lib::io);
+
     // clang-format off
     lua.new_enum("Race",
         "Human", RaceType::Human,
@@ -652,7 +655,7 @@ static void readContents(MapTemplate& mapTemplate, const sol::table& contentsTab
     }
 }
 
-static void readSettings(MapTemplate& mapTemplate, const sol::state& lua)
+static void readSettings(MapTemplateSettings& settings, const sol::state& lua)
 {
     // There must be a 'template' table
     auto templateTable = lua.get<OptionalTable>("template");
@@ -673,8 +676,6 @@ static void readSettings(MapTemplate& mapTemplate, const sol::state& lua)
     }
 
     // Other fields are optional, but nice to have
-    MapTemplateSettings& settings = mapTemplate.settings;
-
     settings.name = readString(table, "name", "default name");
     settings.description = readString(table, "description", "default description");
     settings.maxPlayers = readValue(table, "maxPlayers", 1, 1, 4);
@@ -688,14 +689,9 @@ static void readSettings(MapTemplate& mapTemplate, const sol::state& lua)
     settings.forest = readValue(table, "forest", 0, 0, 100);
 }
 
-MapTemplate* readTemplateSettings(const std::filesystem::path& templatePath)
+MapTemplateSettings readTemplateSettings(const std::filesystem::path& templatePath, sol::state& lua)
 {
     std::string code{readFile(templatePath)};
-    sol::state lua;
-    lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::table,
-                       sol::lib::os, sol::lib::io);
-
-    bindLuaApi(lua);
 
     // Execute script
     auto result = lua.safe_script(code, [](lua_State*, sol::protected_function_result pfr) {
@@ -708,18 +704,14 @@ MapTemplate* readTemplateSettings(const std::filesystem::path& templatePath)
         throw TemplateException(err.what());
     }
 
-    auto mapTemplate = std::make_unique<MapTemplate>();
-    readSettings(*mapTemplate, lua);
+    MapTemplateSettings settings{};
+    readSettings(settings, lua);
 
-    // Remember lua state for faster access during contents reading
-    mapTemplate->lua = std::move(lua);
-    return mapTemplate.release();
+    return settings;
 }
 
-void readTemplateContents(MapTemplate& mapTemplate)
+void readTemplateContents(MapTemplate& mapTemplate, sol::state& lua)
 {
-    sol::state& lua = mapTemplate.lua;
-
     // There must be a 'template' table
     auto templateTable = lua.get<OptionalTable>("template");
     if (!templateTable.has_value()) {

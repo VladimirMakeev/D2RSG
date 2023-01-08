@@ -76,6 +76,8 @@ MapGeneratorApp::MapGeneratorApp(QWidget *parent) :
     connect(ui->race4ComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onRaceSelected(int)));
 
     disableButtons();
+
+    rsg::bindLuaApi(lua);
 }
 
 MapGeneratorApp::~MapGeneratorApp()
@@ -192,9 +194,11 @@ bool MapGeneratorApp::readGameInfo(const std::filesystem::path &gameFolder)
 void MapGeneratorApp::readTemplateAndUpdateUi(const std::filesystem::path& templatePath)
 {
     try {
-        rsg::MapTemplate* tmplt = rsg::readTemplateSettings(templatePath);
+        MapTemplatePtr tmplt = std::make_unique<rsg::MapTemplate>();
 
-        mapTemplate.reset(tmplt);
+        tmplt->settings = rsg::readTemplateSettings(templatePath, lua);
+
+        mapTemplate = std::move(tmplt);
         templateFilePath = templatePath;
     }
     catch (const std::runtime_error& e) {
@@ -638,7 +642,7 @@ void MapGeneratorApp::on_generateButton_clicked()
 
         settings.replaceRandomRaces(generator->randomGenerator);
         // Generate new contents according to user settings
-        readTemplateContents(*mapTemplate);
+        readTemplateContents(*mapTemplate, lua);
     }
     catch (const std::exception& e)
     {

@@ -7,6 +7,7 @@
 #include <memory>
 #include <QWidget>
 #include <QTimer>
+#include <sol/sol.hpp>
 
 namespace Ui {
 class MapGeneratorApp;
@@ -70,6 +71,7 @@ private:
     void updatePreviewImages();
     void getSelectedRaces(std::vector<rsg::RaceType>& races, int maxPlayers);
 
+    sol::state lua;
     Ui::MapGeneratorApp *ui;
 
     QTimer seedPlaceholderTimer;
