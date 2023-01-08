@@ -190,7 +190,6 @@ HEADERS += \
         ../midgardmap.h \
         ../mountains.h \
         ../mqdb.h \
-        ../objectinfo.h \
         ../plan.h \
         ../player.h \
         ../playerbuildings.h \
