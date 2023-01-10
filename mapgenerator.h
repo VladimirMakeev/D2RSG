@@ -46,9 +46,12 @@ struct MapGenOptions
 class MapGenerator
 {
 public:
-    MapGenerator(MapGenOptions& mapGenOptions, time_t randomSeed = std::time(nullptr))
+    MapGenerator(MapGenOptions& mapGenOptions,
+                 time_t randomSeed = std::time(nullptr),
+                 bool debug = false)
         : mapGenOptions{mapGenOptions}
         , randomSeed{randomSeed}
+        , debug{debug}
     {
         randomGenerator.setSeed(static_cast<std::size_t>(randomSeed));
     }
@@ -155,6 +158,11 @@ public:
         return position.x + mapGenOptions.size * position.y;
     }
 
+    bool isDebugMode() const
+    {
+        return debug;
+    }
+
     std::vector<TileInfo> tiles;
     std::vector<TemplateZoneId> zoneColoring;
     ZonesMap zones;
@@ -166,6 +174,7 @@ public:
     CMidgardID neutralPlayerId;
     CMidgardID neutralSubraceId;
     std::size_t zonesTotal{}; // Zones with capital town only
+    bool debug{};
 };
 
 } // namespace rsg

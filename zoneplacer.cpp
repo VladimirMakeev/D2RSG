@@ -32,7 +32,9 @@ void ZonePlacer::placeZones(RandomGenerator* random)
     // TODO: Looks like this could help:
     // https://gamedev.stackexchange.com/questions/101465/how-to-create-a-map-from-graph
 
-    std::cout << "Starting zone placement\n";
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Starting zone placement\n";
+    }
 
     width = mapGenerator->mapGenOptions.size;
     height = mapGenerator->mapGenOptions.size;
@@ -131,14 +133,18 @@ void ZonePlacer::placeZones(RandomGenerator* random)
     for (auto& zone : zones) {
         zone.second->setPosition(coords(bestSolution[zone.second]));
 
-        std::cout << "Place zone " << zone.first << " at " << zone.second->getCenter()
-                  << " and coordinates " << zone.second->getPosition() << '\n';
+        if (mapGenerator->isDebugMode()) {
+            std::cout << "Place zone " << zone.first << " at " << zone.second->getCenter()
+                      << " and coordinates " << zone.second->getPosition() << '\n';
+        }
     }
 }
 
 void ZonePlacer::assignZones()
 {
-    std::cout << "Starting zone coloring\n";
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Starting zone coloring\n";
+    }
 
     auto mapWidth{mapGenerator->mapGenOptions.size};
     auto mapHeight{mapGenerator->mapGenOptions.size};
@@ -225,7 +231,9 @@ void ZonePlacer::assignZones()
         moveToCenterOfMass(zone.second);
     }
 
-    std::cout << "Finished zone coloring\n";
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Finished zone coloring\n";
+    }
 }
 
 void ZonePlacer::prepareZones(ZonesMap& zones, ZoneVector& zonesVector, RandomGenerator* random)
@@ -244,8 +252,10 @@ void ZonePlacer::prepareZones(ZonesMap& zones, ZoneVector& zonesVector, RandomGe
         const VPosition center{0.5f + std::sinf(angle) * radius, 0.5f + std::cosf(angle) * radius};
         zone.second->setCenter(center);
 
-        std::cout << "Zone " << zone.first << ", vCenter: " << center
-                  << ", center: " << zone.second->getCenter() << '\n';
+        if (mapGenerator->isDebugMode()) {
+            std::cout << "Zone " << zone.first << ", vCenter: " << center
+                      << ", center: " << zone.second->getCenter() << '\n';
+        }
     }
 
     // Prescale zones
@@ -257,15 +267,19 @@ void ZonePlacer::prepareZones(ZonesMap& zones, ZoneVector& zonesVector, RandomGe
     // Use width as map size
     mapSize = width;
 
-    std::cout << "Prescaler: " << prescaler << "\nMap size: " << mapSize << '\n';
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Prescaler: " << prescaler << "\nMap size: " << mapSize << '\n';
+    }
 
     for (auto& zone : zones) {
         const auto size{zone.second->size};
 
         zone.second->size = static_cast<int>(zone.second->size * prescaler);
 
-        std::cout << "Zone " << zone.first << ", size: " << size
-                  << ", scaled size: " << zone.second->size << '\n';
+        if (mapGenerator->isDebugMode()) {
+            std::cout << "Zone " << zone.first << ", size: " << size
+                      << ", scaled size: " << zone.second->size << '\n';
+        }
     }
 }
 
@@ -393,7 +407,9 @@ void ZonePlacer::moveOneZone(ZonesMap& zones,
         }
     }
 
-    std::cout << "Worst misplacement/movement ratio: " << maxRatio << '\n';
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Worst misplacement/movement ratio: " << maxRatio << '\n';
+    }
 
     if (!(maxRatio > maxDistanceMovementRatio && misplacedZone)) {
         return;
@@ -419,16 +435,20 @@ void ZonePlacer::moveOneZone(ZonesMap& zones,
             const float newDistanceBetweenZones{std::max(misplacedZone->size, targetZone->size)
                                                 / mapSize};
 
-            std::cout << "Trying to move zone " << misplacedZone->id << ' ' << ourCenter
-                      << " towards " << targetZone->id << ' ' << targetZone->getCenter()
-                      << ". Old distance " << maxDistance << "\nDirection is " << vec << '\n';
+            if (mapGenerator->isDebugMode()) {
+                std::cout << "Trying to move zone " << misplacedZone->id << ' ' << ourCenter
+                          << " towards " << targetZone->id << ' ' << targetZone->getCenter()
+                          << ". Old distance " << maxDistance << "\nDirection is " << vec << '\n';
+            }
 
             // Zones should now overlap by half size
             misplacedZone->setCenter(targetZone->getCenter()
                                      - vec.unitVector() * newDistanceBetweenZones);
 
-            std::cout << "New distance "
-                      << targetZone->getCenter().distance(misplacedZone->getCenter()) << '\n';
+            if (mapGenerator->isDebugMode()) {
+                std::cout << "New distance "
+                          << targetZone->getCenter().distance(misplacedZone->getCenter()) << '\n';
+            }
         }
     } else {
         float maxOverlap{};
@@ -449,16 +469,20 @@ void ZonePlacer::moveOneZone(ZonesMap& zones,
             const auto vec{ourCenter - targetZone->getCenter()};
             const float newDistanceBetweenZones{(misplacedZone->size + targetZone->size) / mapSize};
 
-            std::cout << "Trying to move zone " << misplacedZone->id << ' ' << ourCenter
-                      << " away from " << targetZone->id << ' ' << targetZone->getCenter()
-                      << ". Old distance " << maxOverlap << "\nDirection is " << vec << '\n';
+            if (mapGenerator->isDebugMode()) {
+                std::cout << "Trying to move zone " << misplacedZone->id << ' ' << ourCenter
+                          << " away from " << targetZone->id << ' ' << targetZone->getCenter()
+                          << ". Old distance " << maxOverlap << "\nDirection is " << vec << '\n';
+            }
 
             // Zones should now be just separated
             misplacedZone->setCenter(targetZone->getCenter()
                                      + vec.unitVector() * newDistanceBetweenZones);
 
-            std::cout << "New distance "
-                      << targetZone->getCenter().distance(misplacedZone->getCenter()) << '\n';
+            if (mapGenerator->isDebugMode()) {
+                std::cout << "New distance "
+                          << targetZone->getCenter().distance(misplacedZone->getCenter()) << '\n';
+            }
         }
     }
 }

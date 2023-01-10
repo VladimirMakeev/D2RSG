@@ -192,6 +192,7 @@ struct TemplateZone : public ZoneOptions
                     bool onlyStraight,
                     std::set<Position>* clearedTiles = nullptr);
 
+    // Connect specified 'source' tile to nearest free tile with zone
     bool connectPath(const Position& source, bool onlyStraight);
 
     // Creates stack with loot from specified group information
@@ -273,6 +274,9 @@ struct TemplateZone : public ZoneOptions
     void paintZoneTerrain(TerrainType terrain, GroundType ground);
 
     const std::vector<RoadInfo>& getRoads() const;
+
+    // Returns true if tile with specified position belongs to zone
+    bool isInTheZone(const Position& position) const;
 
 private:
     bool createRoad(const Position& source, const Position& destination);

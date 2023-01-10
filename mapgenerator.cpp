@@ -145,12 +145,16 @@ void MapGenerator::generateZones()
     placer.placeZones(&randomGenerator);
     placer.assignZones();
 
-    std::cout << "Zones generated successfully\n";
+    if (isDebugMode()) {
+        std::cout << "Zones generated successfully\n";
+    }
 }
 
 void MapGenerator::fillZones()
 {
-    std::cout << "Started filling zones\n";
+    if (isDebugMode()) {
+        std::cout << "Started filling zones\n";
+    }
 
     std::size_t raceIndex{};
 
@@ -247,7 +251,7 @@ void MapGenerator::createDirectConnections()
 
         std::sort(middleTiles.begin(), middleTiles.end(),
                   [&middleTile](const Position& a, Position& b) {
-                      // Choose tiles with both corrdinates in the middle
+                      // Choose tiles with both coordinates in the middle
                       return a.mahnattanDistance(middleTile) < b.mahnattanDistance(middleTile);
                   });
 
@@ -325,8 +329,10 @@ void MapGenerator::createObstacles()
             }
         }
 
-        std::cout << "Set " << blockedTiles << " tiles to BLOCKED and " << freeTiles
-                  << " to FREE\n";
+        if (isDebugMode()) {
+            std::cout << "Set " << blockedTiles << " tiles to BLOCKED and " << freeTiles
+                      << " to FREE\n";
+        }
     }
 }
 

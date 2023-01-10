@@ -55,6 +55,86 @@ static Facing getRandomFacing(RandomGenerator& rand)
     return static_cast<Facing>(rand.nextInteger(minFacing, maxFacing));
 }
 
+// Returns true if all tiles near mapElement entrance are blocked or used not by forest
+static bool isEntranceBlocked(const MapElement& mapElement, const MapGenerator& mapGenerator)
+{
+    const Position entrance{mapElement.getEntrance()};
+    const auto& offsets{mapElement.getEntranceOffsets()};
+
+    auto isOffsetBlocked = [&entrance, &mapGenerator](const Position& offset) {
+        const Position pos{entrance + offset};
+
+        // Explicitly check blocked state
+        if (mapGenerator.shouldBeBlocked(pos)) {
+            return true;
+        }
+
+        if (mapGenerator.isRoad(pos)) {
+            // Road means entrance isn't blocked at all
+            return false;
+        }
+
+        if (mapGenerator.isUsed(pos)) {
+            const Tile& tile{mapGenerator.map->getTile(pos)};
+
+            if (tile.ground != GroundType::Forest) {
+                // Used and not a forest? Stack, landmark, other object?
+                // Currently, we don't care.
+                // We should not end up with situation where entrance
+                // is completely blocked with stacks or bags
+                return true;
+            }
+        }
+
+        // Assume not blocked
+        return false;
+    };
+
+    return std::all_of(offsets.begin(), offsets.end(), isOffsetBlocked);
+}
+
+static void checkObjectsAccess(const MapGenerator& mapGenerator, const Map& map)
+{
+    // Check all cities
+    map.visit(CMidgardID::Type::Fortification, [&mapGenerator](const ScenarioObject* object) {
+        const Fortification* fort{dynamic_cast<const Fortification*>(object)};
+
+        if (isEntranceBlocked(*fort, mapGenerator)) {
+            std::stringstream msg;
+            msg << "City at " << fort->getPosition()
+                << " has its entrance blocked! Map seed: " << (std::uint32_t)mapGenerator.randomSeed
+                << '\n';
+            throw std::runtime_error(msg.str());
+        }
+    });
+
+    // Check all ruins
+    map.visit(CMidgardID::Type::Ruin, [&mapGenerator](const ScenarioObject* object) {
+        const Ruin* ruin{dynamic_cast<const Ruin*>(object)};
+
+        if (isEntranceBlocked(*ruin, mapGenerator)) {
+            std::stringstream msg;
+            msg << "Ruin at " << ruin->getPosition()
+                << " has its entrance blocked! Map seed: " << (std::uint32_t)mapGenerator.randomSeed
+                << '\n';
+            throw std::runtime_error(msg.str());
+        }
+    });
+
+    // Check all sites
+    map.visit(CMidgardID::Type::Site, [&mapGenerator](const ScenarioObject* object) {
+        const Site* site{dynamic_cast<const Site*>(object)};
+
+        if (isEntranceBlocked(*site, mapGenerator)) {
+            std::stringstream msg;
+            msg << "Site at " << site->getPosition()
+                << " has its entrance blocked! Map seed: " << (std::uint32_t)mapGenerator.randomSeed
+                << '\n';
+            throw std::runtime_error(msg.str());
+        }
+    });
+}
+
 void TemplateZone::setCenter(const VPosition& value)
 {
     // Wrap zone around (0, 1) square.
@@ -93,7 +173,9 @@ void TemplateZone::initTowns()
     // Create first neutral city or player capital at the center of the zone.
     // Rest of neutral cities will be created later
     if (type == TemplateZoneType::PlayerStart || type == TemplateZoneType::AiStart) {
-        std::cout << "Preparing player zone\n";
+        if (mapGenerator->isDebugMode()) {
+            std::cout << "Preparing player zone\n";
+        }
 
         placeCapital();
         return;
@@ -181,11 +263,18 @@ void TemplateZone::fill()
     placeBags();
     createRequiredObjects();
 
-    std::cout << "Zone " << id << " filled successfully\n";
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Zone " << id << " filled successfully\n";
+    }
 }
 
 void TemplateZone::createObstacles()
 {
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Place decorations\n";
+        checkObjectsAccess(*mapGenerator, *mapGenerator->map);
+    }
+
     // Place decorations first
     for (const auto& decoration : decorations) {
         decoration->decorate(*this, *mapGenerator, *mapGenerator->map,
@@ -193,6 +282,13 @@ void TemplateZone::createObstacles()
     }
 
     decorations.clear();
+
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Decorations placed\n";
+        checkObjectsAccess(*mapGenerator, *mapGenerator->map);
+
+        std::cout << "Place mountains\n";
+    }
 
     using MountainsVector = std::vector<GeneratorSettings::Mountain>;
     using MountainPair = std::pair<int /* mountain size */, MountainsVector>;
@@ -258,23 +354,27 @@ void TemplateZone::createObstacles()
         }
     }
 
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Mountains placed\n";
+        checkObjectsAccess(*mapGenerator, *mapGenerator->map);
+    }
+
     // TODO: this step can be changed, we can place forests here, for example
     // Roads already have clear free paths for them,
     // we can convert remaining possible tiles to forests
 
-    // TODO: I have tested filling remaining possible tiles completely with water and with forests
-    // Both results loogs good, but:
-    // in case of water there are some crystals that became stranded on an island
-    // without single free tile for a rod.
-    // this can be fixed by marking some tiles as free during decoration placement
-    // there are also cases of single tile waters: this can be fixed by checking neigbour tiles
-    // the same way as we do in MapGenerator::createObstacles()
+    // TODO: I have tested filling remaining possible tiles completely with water and with
+    // forests Both results loogs good, but: in case of water there are some crystals that
+    // became stranded on an island without single free tile for a rod. this can be fixed by
+    // marking some tiles as free during decoration placement there are also cases of single
+    // tile waters: this can be fixed by checking neigbour tiles the same way as we do in
+    // MapGenerator::createObstacles()
 
     // In case water and forest settings are become part of template we need to generate both of
-    // them here For water we can randomly pick several possible tiles (pick them the same way we
-    // find place for objects) and create small lakes (depending on water template setting). The
-    // rest for the forests, check mountains in the zone, place near them. Also pick random tiles
-    // and place around
+    // them here For water we can randomly pick several possible tiles (pick them the same way
+    // we find place for objects) and create small lakes (depending on water template setting).
+    // The rest for the forests, check mountains in the zone, place near them. Also pick random
+    // tiles and place around
 
     // Place forests
     const int forests = mapGenerator->mapGenOptions.mapTemplate->settings.forest;
@@ -318,7 +418,9 @@ void TemplateZone::createObstacles()
 
 void TemplateZone::connectRoads()
 {
-    std::cout << "Started building roads\n";
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Started building roads\n";
+    }
 
     std::set<Position> roadNodesCopy{roadNodes};
     std::set<Position> processed;
@@ -344,7 +446,10 @@ void TemplateZone::connectRoads()
             break;
         }
 
-        std::cout << "Building road from " << node << " to " << cross << '\n';
+        if (mapGenerator->isDebugMode()) {
+            std::cout << "Building road from " << node << " to " << cross << '\n';
+        }
+
         if (createRoad(node, cross)) {
             // Don't draw road starting at end point which is already connected
             processed.insert(cross);
@@ -355,7 +460,9 @@ void TemplateZone::connectRoads()
         processed.insert(node);
     }
 
-    std::cout << "Finished building roads\n";
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Finished building roads\n";
+    }
 }
 
 ObjectPlacingResult TemplateZone::tryToPlaceObjectAndConnectToPath(MapElement& mapElement,
@@ -365,19 +472,30 @@ ObjectPlacingResult TemplateZone::tryToPlaceObjectAndConnectToPath(MapElement& m
 
     const auto tiles{getAccessibleTiles(mapElement)};
     if (tiles.empty()) {
-        std::cerr << "Can not access required object at position " << position << ", retrying\n";
+        if (mapGenerator->isDebugMode()) {
+            std::cout << "Can not access required object at position " << position
+                      << ", retrying\n";
+        }
+
         return ObjectPlacingResult::CannotFit;
     }
 
-    const auto accessibleOffset{getAccessibleOffset(mapElement, position)};
-    if (!accessibleOffset.isValid()) {
-        std::cerr << "Can not access required object at position " << position << ", retrying\n";
+    const auto accessibleTile{getAccessibleOffset(mapElement, position)};
+    if (!accessibleTile.isValid()) {
+        if (mapGenerator->isDebugMode()) {
+            std::cout << "Can not access required object at position " << position
+                      << ", retrying\n";
+        }
+
         return ObjectPlacingResult::CannotFit;
     }
 
-    if (!connectPath(accessibleOffset, true)) {
-        std::cerr << "Failed to create path to required object at position " << position
-                  << ", retrying\n";
+    if (!connectPath(accessibleTile, true)) {
+        if (mapGenerator->isDebugMode()) {
+            std::cout << "Failed to create path to required object at position " << position
+                      << ", retrying\n";
+        }
+
         return ObjectPlacingResult::SealedOff;
     }
 
@@ -1038,8 +1156,11 @@ bool TemplateZone::crunchPath(const Position& source,
         }
 
         if (!(result || distance < lastDistance || anotherPosition.isValid())) {
-            std::cout << "No tile closer than " << currentPosition << " found on path from "
-                      << source << " to " << destination << '\n';
+            if (mapGenerator->isDebugMode()) {
+                std::cout << "No tile closer than " << currentPosition << " found on path from "
+                          << source << " to " << destination << '\n';
+            }
+
             break;
         }
     }
@@ -1210,9 +1331,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
     // and reduce number of stacks with single ranged or support leader
     tightenGroup(unusedValue, positions, soldiers, stackInfo.subraceTypes);
 
-    constexpr bool debugStackValues{true};
-
-    if constexpr (debugStackValues) {
+    if (mapGenerator->isDebugMode()) {
         // +1 because of leader
         int unitsCreated{1};
         int createdValue = leaderInfo->value;
@@ -2032,8 +2151,10 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
             items.push_back({item->itemId, 1});
         }
 
-        std::cout << "Loot value " << desiredValue << ", created " << currentValue << ", " << picked
-                  << " items\n";
+        if (mapGenerator->isDebugMode()) {
+            std::cout << "Loot value " << desiredValue << ", created " << currentValue << ", "
+                      << picked << " items\n";
+        }
     }
 
     return items;
@@ -2243,7 +2364,8 @@ void TemplateZone::placeCapital()
 
         // Create capital garrison
         std::size_t unusedValue{};
-        // Capital can fit entire group in its garrison. Slot 2 is reserved for a capital guardian
+        // Capital can fit entire group in its garrison. Slot 2 is reserved for a capital
+        // guardian
         std::set<int> positions{0, 1, 3, 4, 5};
         GroupUnits units = {{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
         units[2] = guardianInfo;
@@ -2340,7 +2462,9 @@ void TemplateZone::placeCapital()
 
 void TemplateZone::placeCities()
 {
-    std::cout << "Creating villages\n";
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Creating cities\n";
+    }
 
     // Non-starting zones already have first city placed
     std::size_t i = (type == TemplateZoneType::PlayerStart || type == TemplateZoneType::AiStart)
@@ -2363,7 +2487,10 @@ void TemplateZone::placeCities()
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
                 == ObjectPlacingResult::Success) {
-                std::cout << "Create city at " << position << '\n';
+                if (mapGenerator->isDebugMode()) {
+                    std::cout << "Create city at " << position << '\n';
+                }
+
                 auto city = placeCity(position, neutralCities[i], cityOwnerId, citySubraceId);
                 decorations.push_back(std::make_unique<VillageDecoration>(city));
                 break;
@@ -2387,7 +2514,10 @@ void TemplateZone::placeMerchants()
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
                 == ObjectPlacingResult::Success) {
-                std::cout << "Create merchant at " << position << '\n';
+                if (mapGenerator->isDebugMode()) {
+                    std::cout << "Create merchant at " << position << '\n';
+                }
+
                 auto merchant = placeMerchant(position, merchantInfo);
                 decorations.push_back(std::make_unique<SiteDecoration>(merchant));
                 break;
@@ -2411,7 +2541,10 @@ void TemplateZone::placeMages()
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
                 == ObjectPlacingResult::Success) {
-                std::cout << "Create mage at " << position << '\n';
+                if (mapGenerator->isDebugMode()) {
+                    std::cout << "Create mage at " << position << '\n';
+                }
+
                 auto mage = placeMage(position, mageInfo);
                 decorations.push_back(std::make_unique<SiteDecoration>(mage));
                 break;
@@ -2435,7 +2568,10 @@ void TemplateZone::placeMercenaries()
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
                 == ObjectPlacingResult::Success) {
-                std::cout << "Create mercenary at " << position << '\n';
+                if (mapGenerator->isDebugMode()) {
+                    std::cout << "Create mercenary at " << position << '\n';
+                }
+
                 auto merc = placeMercenary(position, mercInfo);
                 decorations.push_back(std::make_unique<SiteDecoration>(merc));
                 break;
@@ -2459,7 +2595,10 @@ void TemplateZone::placeTrainers()
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
                 == ObjectPlacingResult::Success) {
-                std::cout << "Create trainer at " << position << '\n';
+                if (mapGenerator->isDebugMode()) {
+                    std::cout << "Create trainer at " << position << '\n';
+                }
+
                 auto trainer = placeTrainer(position, trainerInfo);
                 decorations.push_back(std::make_unique<SiteDecoration>(trainer));
                 break;
@@ -2483,7 +2622,10 @@ void TemplateZone::placeRuins()
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
                 == ObjectPlacingResult::Success) {
-                std::cout << "Create ruin at " << position << '\n';
+                if (mapGenerator->isDebugMode()) {
+                    std::cout << "Create ruin at " << position << '\n';
+                }
+
                 auto ruin = placeRuin(position, ruinInfo);
                 decorations.push_back(std::make_unique<RuinDecoration>(ruin));
                 break;
@@ -2719,7 +2861,10 @@ void TemplateZone::placeBags()
 
             if (tryToPlaceObjectAndConnectToPath(mapElement, position)
                 == ObjectPlacingResult::Success) {
-                std::cout << "Create bag at " << position << '\n';
+                if (mapGenerator->isDebugMode()) {
+                    std::cout << "Create bag at " << position << '\n';
+                }
+
                 // Do not create decorations near bags
                 placedBags.push_back(placeBag(position));
                 break;
@@ -2745,7 +2890,9 @@ void TemplateZone::placeBags()
 
 bool TemplateZone::createRequiredObjects()
 {
-    std::cout << "Creating required objects\n";
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Creating required objects\n";
+    }
 
     for (auto& requiredObject : requiredObjects) {
         auto& object{requiredObject.object};
@@ -2947,15 +3094,18 @@ bool TemplateZone::findPlaceForObject(const std::set<Position>& area,
             }
         }
 
-        const auto& t = mapGenerator->getTile(tile);
-        const auto distance{t.getNearestObjectDistance()};
+        const bool isPossible{mapGenerator->isPossible(tile)};
+        if (!isPossible) {
+            continue;
+        }
 
-        const auto isPossible{mapGenerator->isPossible(tile)};
-        const auto distanceMoreThanMin{distance >= minDistance};
-        const auto distanceMoreThanBest{distance > bestDistance};
+        const TileInfo& t = mapGenerator->getTile(tile);
+        const float distance{t.getNearestObjectDistance()};
 
-        // Avoid borders
-        if (isPossible && (distanceMoreThanMin) && (distanceMoreThanBest)) {
+        const bool distanceMoreThanMin{distance >= minDistance};
+        const bool distanceMoreThanBest{distance > bestDistance};
+
+        if (distanceMoreThanMin && distanceMoreThanBest) {
             if (areAllTilesAvailable(mapElement, tile, blockedOffsets)) {
                 bestDistance = distance;
                 position = tile;
@@ -3001,6 +3151,7 @@ Position TemplateZone::getAccessibleOffset(const MapElement& mapElement,
     const auto blocked{mapElement.getBlockedOffsets()};
     Position result{-1, -1};
 
+    // Check tiles around mapElement possible entrance in 1 tile radius
     for (int x = -1; x < 2; ++x) {
         for (int y = -1; y < 2; ++y) {
             // Check only if object is visitable from another tile
@@ -3020,7 +3171,7 @@ Position TemplateZone::getAccessibleOffset(const MapElement& mapElement,
             }
 
             if (mapElement.isVisitableFrom({x, y}) && !mapGenerator->isBlocked(nearbyPos)
-                && tileInfo.find(nearbyPos) != tileInfo.end()) {
+                && isInTheZone(nearbyPos)) {
                 result = nearbyPos;
             }
         }
@@ -3112,6 +3263,11 @@ void TemplateZone::paintZoneTerrain(TerrainType terrain, GroundType ground)
 const std::vector<RoadInfo>& TemplateZone::getRoads() const
 {
     return roads;
+}
+
+bool TemplateZone::isInTheZone(const Position& position) const
+{
+    return mapGenerator->getZoneId(position) == id;
 }
 
 bool TemplateZone::createRoad(const Position& source, const Position& destination)
@@ -3214,7 +3370,10 @@ bool TemplateZone::createRoad(const Position& source, const Position& destinatio
         }
     }
 
-    std::cout << "Failed create road from " << source << " to " << destination << '\n';
+    if (mapGenerator->isDebugMode()) {
+        std::cout << "Failed create road from " << source << " to " << destination << '\n';
+    }
+
     return false;
 }
 
