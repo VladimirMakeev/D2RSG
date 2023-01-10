@@ -146,16 +146,6 @@ static inline void randomShuffle(std::vector<T>& container, RandomGenerator& ran
     }
 }
 
-template <typename Container>
-static inline auto nextItem(Container& container, RandomGenerator& rand)
-    -> decltype(container.begin())
-{
-    assert(!container.empty());
-    const int lastIndex{static_cast<int>(container.size()) - 1};
-
-    return std::next(container.begin(), rand.nextInteger(0, lastIndex));
-}
-
 // Returns a randomly chosen vector of n positive integers summing exactly to total
 // From:
 // https://stackoverflow.com/questions/3589214/generate-random-numbers-summing-to-a-predefined-value
@@ -185,14 +175,21 @@ static inline std::vector<std::size_t> constrainedSum(std::size_t n,
     return result;
 }
 
+// Returns iterator pointing at random element of specified container.
+// Container must not be empty
 template <typename T>
 static inline auto getRandomItem(const T& container, RandomGenerator& rand)
+    -> decltype(container.cbegin())
 {
-    std::vector<typename T::value_type> tmp;
+    assert(!container.empty());
 
-    std::sample(container.begin(), container.end(), std::back_inserter(tmp), 1, rand.getEngine());
+    auto start{container.cbegin()};
+    const auto end{container.cend()};
+    const auto lastElement{static_cast<std::size_t>(std::distance(start, end) - 1)};
+    const auto offset{rand.nextInteger(std::size_t{0}, lastElement)};
 
-    return tmp[0];
+    std::advance(start, offset);
+    return start;
 }
 
 } // namespace rsg

@@ -312,7 +312,9 @@ void TemplateZone::createObstacles()
               });
 
     auto tryPlaceMountainHere = [this, &possibleObstacles](const Position& tile, int index) {
-        auto it{nextItem(possibleObstacles[index].second, mapGenerator->randomGenerator)};
+        auto& rand{mapGenerator->randomGenerator};
+
+        const auto it{getRandomItem(possibleObstacles[index].second, rand)};
 
         const MapElement mountainElement({it->size, it->size});
         if (!canObstacleBePlacedHere(mountainElement, tile)) {
@@ -321,12 +323,12 @@ void TemplateZone::createObstacles()
 
         // If size is 3 or 5, roll 10% chance to spawn mountain landmark
         // TODO: remove hardcoded values
-        if ((it->size == 3 || it->size == 5) && mapGenerator->randomGenerator.chance(10)) {
+        if ((it->size == 3 || it->size == 5) && rand.chance(10)) {
             auto noWrongSize = [size = it->size](const LandmarkInfo* info) {
                 return info->size.x != size || info->size.y != size;
             };
 
-            auto info{pickMountainLandmark(mapGenerator->randomGenerator, {noWrongSize})};
+            auto info{pickMountainLandmark(rand, {noWrongSize})};
             assert(info != nullptr);
 
             auto landmarkId{mapGenerator->createId(CMidgardID::Type::Landmark)};
@@ -1521,7 +1523,7 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
         };
 
         // Pick random position in group
-        auto position = getRandomItem(positions, rand);
+        int position = *getRandomItem(positions, rand);
         // If front line, pick melee only
         const auto frontline = position % 2 == 0;
         // Second position in case of big unit
@@ -1617,7 +1619,7 @@ void TemplateZone::tightenGroup(std::size_t& unusedValue,
             return info->value < minValue || info->value > value;
         };
 
-        auto position = getRandomItem(positions, rand);
+        int position = *getRandomItem(positions, rand);
 
         const auto frontline = position % 2 == 0;
         // Second position in case of big unit
@@ -1736,7 +1738,7 @@ Village* TemplateZone::placeCity(const Position& position,
     village->setOwner(ownerId);
     village->setSubrace(subraceId);
     village->setTier(cityInfo.tier);
-    village->setName(getRandomItem(getCityNames(), rand));
+    village->setName(*getRandomItem(getCityNames(), rand));
 
     auto villagePtr{village.get()};
 
@@ -1764,7 +1766,7 @@ Village* TemplateZone::placeCity(const Position& position,
             positions.insert(2);
 
             const std::set<int> possiblePositions = {0, 1, 3, 4, 5};
-            positions.insert(getRandomItem(possiblePositions, rand));
+            positions.insert(*getRandomItem(possiblePositions, rand));
             break;
         }
         case 3: {
@@ -1772,11 +1774,11 @@ Village* TemplateZone::placeCity(const Position& position,
             positions.insert(2);
 
             std::set<int> possiblePositions = {0, 1, 3, 4, 5};
-            auto pos = getRandomItem(possiblePositions, rand);
+            const int pos = *getRandomItem(possiblePositions, rand);
             possiblePositions.erase(pos);
 
             positions.insert(pos);
-            positions.insert(getRandomItem(possiblePositions, rand));
+            positions.insert(*getRandomItem(possiblePositions, rand));
             break;
         }
         default: {
@@ -1784,7 +1786,7 @@ Village* TemplateZone::placeCity(const Position& position,
             std::set<int> possiblePositions = {0, 1, 2, 3, 4, 5};
             for (std::uint8_t i = cityInfo.tier; i < 6; ++i) {
                 auto pos = getRandomItem(possiblePositions, rand);
-                possiblePositions.erase(pos);
+                possiblePositions.erase(*pos);
             }
 
             positions.swap(possiblePositions);
@@ -1834,10 +1836,10 @@ Site* TemplateZone::placeMerchant(const Position& position, const MerchantInfo& 
     auto merchantId{mapGenerator->createId(CMidgardID::Type::Site)};
     auto merchant{std::make_unique<Merchant>(merchantId)};
 
-    const SiteText text = getRandomItem(getMerchantTexts(), rand);
+    const SiteText& text = *getRandomItem(getMerchantTexts(), rand);
     merchant->setTitle(text.name);
     merchant->setDescription(text.description);
-    merchant->setImgIso(getRandomItem(getGeneratorSettings().merchants.images, rand));
+    merchant->setImgIso(*getRandomItem(getGeneratorSettings().merchants.images, rand));
 
     // Create merchant items
     const auto items{createLoot(merchantInfo.items, true)};
@@ -1859,10 +1861,10 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
     auto mageId{mapGenerator->createId(CMidgardID::Type::Site)};
     auto mage{std::make_unique<Mage>(mageId)};
 
-    const SiteText text = getRandomItem(getMageTexts(), rand);
+    const SiteText& text = *getRandomItem(getMageTexts(), rand);
     mage->setTitle(text.name);
     mage->setDescription(text.description);
-    mage->setImgIso(getRandomItem(getGeneratorSettings().mages.images, rand));
+    mage->setImgIso(*getRandomItem(getGeneratorSettings().mages.images, rand));
 
     // Generate random spells of specified types
     if (mageInfo.value) {
@@ -1933,10 +1935,10 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
     auto mercenaryId{mapGenerator->createId(CMidgardID::Type::Site)};
     auto mercenary{std::make_unique<Mercenary>(mercenaryId)};
 
-    const SiteText text = getRandomItem(getMercenaryTexts(), rand);
+    const SiteText& text = *getRandomItem(getMercenaryTexts(), rand);
     mercenary->setTitle(text.name);
     mercenary->setDescription(text.description);
-    mercenary->setImgIso(getRandomItem(getGeneratorSettings().mercenaries.images, rand));
+    mercenary->setImgIso(*getRandomItem(getGeneratorSettings().mercenaries.images, rand));
 
     // Generate random mercenary units of specified subraces
     if (mercInfo.value) {
@@ -1985,10 +1987,10 @@ Site* TemplateZone::placeTrainer(const Position& position, const TrainerInfo& tr
     auto trainerId{mapGenerator->createId(CMidgardID::Type::Site)};
     auto trainer{std::make_unique<Trainer>(trainerId)};
 
-    const SiteText text = getRandomItem(getTrainerTexts(), rand);
+    const SiteText& text = *getRandomItem(getTrainerTexts(), rand);
     trainer->setTitle(text.name);
     trainer->setDescription(text.description);
-    trainer->setImgIso(getRandomItem(getGeneratorSettings().trainers.images, rand));
+    trainer->setImgIso(*getRandomItem(getGeneratorSettings().trainers.images, rand));
 
     auto trainerPtr{trainer.get()};
     placeObject(std::move(trainer), position);
@@ -2004,9 +2006,9 @@ Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo
     auto ruinId{mapGenerator->createId(CMidgardID::Type::Ruin)};
     auto ruin{std::make_unique<Ruin>(ruinId)};
 
-    const SiteText text = getRandomItem(getRuinTexts(), rand);
+    const SiteText& text = *getRandomItem(getRuinTexts(), rand);
     ruin->setTitle(text.name);
-    ruin->setImage(getRandomItem(getGeneratorSettings().ruins.images, rand));
+    ruin->setImage(*getRandomItem(getGeneratorSettings().ruins.images, rand));
 
     const auto& guardValue{ruinInfo.guard.value};
     if (guardValue) {
@@ -2075,7 +2077,7 @@ Bag* TemplateZone::placeBag(const Position& position)
 
     auto& rand{mapGenerator->randomGenerator};
     // Pick random bag image with respect to ground type
-    bag->setImage(getRandomItem(bagImages, rand));
+    bag->setImage(*getRandomItem(bagImages, rand));
 
     Bag* bagPtr{bag.get()};
     placeObject(std::move(bag), position);
@@ -2346,7 +2348,7 @@ void TemplateZone::placeCapital()
 
     assert(ownerId != emptyId);
     fort->setOwner(ownerId);
-    fort->setName(getRandomItem(getCityNames(), rand));
+    fort->setName(*getRandomItem(getCityNames(), rand));
 
     auto ownerPlayer{mapGenerator->map->find<Player>(ownerId)};
     assert(ownerPlayer != nullptr);
