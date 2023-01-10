@@ -178,7 +178,7 @@ static inline std::vector<std::size_t> constrainedSum(std::size_t n,
 // Returns iterator pointing at random element of specified container.
 // Container must not be empty
 template <typename T>
-static inline auto getRandomItem(const T& container, RandomGenerator& rand)
+static inline auto getRandomElement(const T& container, RandomGenerator& rand)
     -> decltype(container.cbegin())
 {
     assert(!container.empty());

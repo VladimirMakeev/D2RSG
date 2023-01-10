@@ -64,7 +64,7 @@ struct MapTemplateSettings
                     throw std::runtime_error("No available races for random selection");
                 }
 
-                race = *getRandomItem(availableRaces, rand);
+                race = *getRandomElement(availableRaces, rand);
                 availableRaces.erase(race);
             }
         }
