@@ -1083,6 +1083,7 @@ bool TemplateZone::connectPath(const Position& source, bool onlyStraight)
                 backTracking = cameFrom[backTracking];
             }
 
+            mapGenerator->setOccupied(backTracking, TileType::Free);
             return true;
         }
 
