@@ -1,0 +1,420 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Исходные файлы">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Файлы заголовков">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Файлы ресурсов">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Исходные файлы\scenario">
+      <UniqueIdentifier>{e04104f3-69fc-4264-b369-cc8edc58660e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\scenario">
+      <UniqueIdentifier>{d15dc87a-bf59-4f43-9844-514d42873551}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\utils">
+      <UniqueIdentifier>{6f71850d-b343-4730-ae36-50aec1006232}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\utils">
+      <UniqueIdentifier>{12989742-f876-4905-897c-829802e995cc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\scenario\bag.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\capital.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\crystal.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\diplomacy.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\fog.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\fortification.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\group.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\inventory.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\item.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\knownspells.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\landmark.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\mage.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\map.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\mapblock.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\mapelement.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\mercenary.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\merchant.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\midgardmap.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\mountains.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\plan.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\player.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\playerbuildings.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\questlog.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\road.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\ruin.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\scenarioinfo.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\scenarioobject.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\scenariovariables.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\site.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\spellcast.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\spelleffects.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\stack.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\stackdestroyed.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\subrace.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\talismancharges.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\trainer.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\turnsummary.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\unit.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scenario\village.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="src\containers.h">
+      <Filter>Файлы заголовков\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\picker.h">
+      <Filter>Файлы заголовков\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\aipriority.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\currency.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\decoration.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enums.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\exceptions.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameinfo.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\generatorsettings.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\iteminfo.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\itempicker.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\landmarkinfo.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\landmarkpicker.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mapgenerator.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\maptemplate.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\maptemplatereader.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\midgardid.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\position.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\raceinfo.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\randomgenerator.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\serializer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\spellinfo.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\spellpicker.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\templatezone.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textconvert.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\texts.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tileinfo.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\unitinfo.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\unitpicker.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vposition.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\zoneid.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\zoneoptions.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\zoneplacer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\image.h">
+      <Filter>Файлы заголовков\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stb_image_write.h">
+      <Filter>Файлы заголовков\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mqdb.h">
+      <Filter>Файлы заголовков\utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\scenario\bag.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\capital.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\crystal.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\diplomacy.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\fog.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\fortification.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\group.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\inventory.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\item.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\knownspells.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\landmark.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\mage.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\map.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\mapblock.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\mercenary.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\merchant.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\midgardmap.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\mountains.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\plan.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\player.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\playerbuildings.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\questlog.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\road.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\ruin.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\scenarioinfo.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\scenariovariables.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\site.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\spellcast.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\spelleffects.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\stack.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\stackdestroyed.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\subrace.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\talismancharges.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\turnsummary.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\unit.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\village.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
+    </ClCompile>
+    <ClCompile Include="src\zoneplacer.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unitpicker.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\texts.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\textconvert.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\templatezone.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spellpicker.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\serializer.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\midgardid.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\maptemplatereader.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mapgenerator.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\landmarkpicker.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\itempicker.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\generatorsettings.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameinfo.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\decoration.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\currency.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\image.cpp">
+      <Filter>Исходные файлы\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mqdb.cpp">
+      <Filter>Исходные файлы\utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

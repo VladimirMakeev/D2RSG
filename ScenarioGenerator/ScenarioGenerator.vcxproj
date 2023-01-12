@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\aipriority.h" />
+    <ClInclude Include="src\containers.h" />
+    <ClInclude Include="src\currency.h" />
+    <ClInclude Include="src\decoration.h" />
+    <ClInclude Include="src\enums.h" />
+    <ClInclude Include="src\exceptions.h" />
+    <ClInclude Include="src\gameinfo.h" />
+    <ClInclude Include="src\generatorsettings.h" />
+    <ClInclude Include="src\image.h" />
+    <ClInclude Include="src\iteminfo.h" />
+    <ClInclude Include="src\itempicker.h" />
+    <ClInclude Include="src\landmarkinfo.h" />
+    <ClInclude Include="src\landmarkpicker.h" />
+    <ClInclude Include="src\mapgenerator.h" />
+    <ClInclude Include="src\maptemplate.h" />
+    <ClInclude Include="src\maptemplatereader.h" />
+    <ClInclude Include="src\midgardid.h" />
+    <ClInclude Include="src\mqdb.h" />
+    <ClInclude Include="src\picker.h" />
+    <ClInclude Include="src\position.h" />
+    <ClInclude Include="src\raceinfo.h" />
+    <ClInclude Include="src\randomgenerator.h" />
+    <ClInclude Include="src\scenario\bag.h" />
+    <ClInclude Include="src\scenario\capital.h" />
+    <ClInclude Include="src\scenario\crystal.h" />
+    <ClInclude Include="src\scenario\diplomacy.h" />
+    <ClInclude Include="src\scenario\fog.h" />
+    <ClInclude Include="src\scenario\fortification.h" />
+    <ClInclude Include="src\scenario\group.h" />
+    <ClInclude Include="src\scenario\inventory.h" />
+    <ClInclude Include="src\scenario\item.h" />
+    <ClInclude Include="src\scenario\knownspells.h" />
+    <ClInclude Include="src\scenario\landmark.h" />
+    <ClInclude Include="src\scenario\mage.h" />
+    <ClInclude Include="src\scenario\map.h" />
+    <ClInclude Include="src\scenario\mapblock.h" />
+    <ClInclude Include="src\scenario\mapelement.h" />
+    <ClInclude Include="src\scenario\mercenary.h" />
+    <ClInclude Include="src\scenario\merchant.h" />
+    <ClInclude Include="src\scenario\midgardmap.h" />
+    <ClInclude Include="src\scenario\mountains.h" />
+    <ClInclude Include="src\scenario\plan.h" />
+    <ClInclude Include="src\scenario\player.h" />
+    <ClInclude Include="src\scenario\playerbuildings.h" />
+    <ClInclude Include="src\scenario\questlog.h" />
+    <ClInclude Include="src\scenario\road.h" />
+    <ClInclude Include="src\scenario\ruin.h" />
+    <ClInclude Include="src\scenario\scenarioinfo.h" />
+    <ClInclude Include="src\scenario\scenarioobject.h" />
+    <ClInclude Include="src\scenario\scenariovariables.h" />
+    <ClInclude Include="src\scenario\site.h" />
+    <ClInclude Include="src\scenario\spellcast.h" />
+    <ClInclude Include="src\scenario\spelleffects.h" />
+    <ClInclude Include="src\scenario\stack.h" />
+    <ClInclude Include="src\scenario\stackdestroyed.h" />
+    <ClInclude Include="src\scenario\subrace.h" />
+    <ClInclude Include="src\scenario\talismancharges.h" />
+    <ClInclude Include="src\scenario\trainer.h" />
+    <ClInclude Include="src\scenario\turnsummary.h" />
+    <ClInclude Include="src\scenario\unit.h" />
+    <ClInclude Include="src\scenario\village.h" />
+    <ClInclude Include="src\serializer.h" />
+    <ClInclude Include="src\spellinfo.h" />
+    <ClInclude Include="src\spellpicker.h" />
+    <ClInclude Include="src\stb_image_write.h" />
+    <ClInclude Include="src\templatezone.h" />
+    <ClInclude Include="src\textconvert.h" />
+    <ClInclude Include="src\texts.h" />
+    <ClInclude Include="src\tileinfo.h" />
+    <ClInclude Include="src\unitinfo.h" />
+    <ClInclude Include="src\unitpicker.h" />
+    <ClInclude Include="src\vposition.h" />
+    <ClInclude Include="src\zoneid.h" />
+    <ClInclude Include="src\zoneoptions.h" />
+    <ClInclude Include="src\zoneplacer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\currency.cpp" />
+    <ClCompile Include="src\decoration.cpp" />
+    <ClCompile Include="src\gameinfo.cpp" />
+    <ClCompile Include="src\generatorsettings.cpp" />
+    <ClCompile Include="src\image.cpp" />
+    <ClCompile Include="src\itempicker.cpp" />
+    <ClCompile Include="src\landmarkpicker.cpp" />
+    <ClCompile Include="src\mapgenerator.cpp" />
+    <ClCompile Include="src\maptemplatereader.cpp" />
+    <ClCompile Include="src\midgardid.cpp" />
+    <ClCompile Include="src\mqdb.cpp" />
+    <ClCompile Include="src\scenario\bag.cpp" />
+    <ClCompile Include="src\scenario\capital.cpp" />
+    <ClCompile Include="src\scenario\crystal.cpp" />
+    <ClCompile Include="src\scenario\diplomacy.cpp" />
+    <ClCompile Include="src\scenario\fog.cpp" />
+    <ClCompile Include="src\scenario\fortification.cpp" />
+    <ClCompile Include="src\scenario\group.cpp" />
+    <ClCompile Include="src\scenario\inventory.cpp" />
+    <ClCompile Include="src\scenario\item.cpp" />
+    <ClCompile Include="src\scenario\knownspells.cpp" />
+    <ClCompile Include="src\scenario\landmark.cpp" />
+    <ClCompile Include="src\scenario\mage.cpp" />
+    <ClCompile Include="src\scenario\map.cpp" />
+    <ClCompile Include="src\scenario\mapblock.cpp" />
+    <ClCompile Include="src\scenario\mercenary.cpp" />
+    <ClCompile Include="src\scenario\merchant.cpp" />
+    <ClCompile Include="src\scenario\midgardmap.cpp" />
+    <ClCompile Include="src\scenario\mountains.cpp" />
+    <ClCompile Include="src\scenario\plan.cpp" />
+    <ClCompile Include="src\scenario\player.cpp" />
+    <ClCompile Include="src\scenario\playerbuildings.cpp" />
+    <ClCompile Include="src\scenario\questlog.cpp" />
+    <ClCompile Include="src\scenario\road.cpp" />
+    <ClCompile Include="src\scenario\ruin.cpp" />
+    <ClCompile Include="src\scenario\scenarioinfo.cpp" />
+    <ClCompile Include="src\scenario\scenariovariables.cpp" />
+    <ClCompile Include="src\scenario\site.cpp" />
+    <ClCompile Include="src\scenario\spellcast.cpp" />
+    <ClCompile Include="src\scenario\spelleffects.cpp" />
+    <ClCompile Include="src\scenario\stack.cpp" />
+    <ClCompile Include="src\scenario\stackdestroyed.cpp" />
+    <ClCompile Include="src\scenario\subrace.cpp" />
+    <ClCompile Include="src\scenario\talismancharges.cpp" />
+    <ClCompile Include="src\scenario\turnsummary.cpp" />
+    <ClCompile Include="src\scenario\unit.cpp" />
+    <ClCompile Include="src\scenario\village.cpp" />
+    <ClCompile Include="src\serializer.cpp" />
+    <ClCompile Include="src\spellpicker.cpp" />
+    <ClCompile Include="src\templatezone.cpp" />
+    <ClCompile Include="src\textconvert.cpp" />
+    <ClCompile Include="src\texts.cpp" />
+    <ClCompile Include="src\unitpicker.cpp" />
+    <ClCompile Include="src\zoneplacer.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{52c087c5-50ab-47d9-bfe2-3870a3c66ff8}</ProjectGuid>
+    <RootNamespace>ScenarioGenerator</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)includePath.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)includePath.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\scenario;$(ProjectDir)src;$(Sol2IncludePath);$(LuaIncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)src\scenario;$(Sol2IncludePath);$(LuaIncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

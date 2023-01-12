@@ -92,11 +92,12 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)sol2\single\include;$(SolutionDir)lua;$(SolutionDir)GSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)sol2\single\include;$(SolutionDir)lua;$(SolutionDir)GSL\include;$(SolutionDir)ScenarioGenerator\src;$(SolutionDir)ScenarioGenerator\src\scenario;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)$(Configuration)\ScenarioGenerator.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -156,25 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bag.cpp" />
-    <ClCompile Include="capital.cpp" />
-    <ClCompile Include="crystal.cpp" />
-    <ClCompile Include="currency.cpp" />
     <ClCompile Include="dbf.cpp" />
-    <ClCompile Include="decoration.cpp" />
-    <ClCompile Include="diplomacy.cpp" />
-    <ClCompile Include="fog.cpp" />
-    <ClCompile Include="fortification.cpp" />
-    <ClCompile Include="gameinfo.cpp" />
-    <ClCompile Include="generatorsettings.cpp" />
-    <ClCompile Include="group.cpp" />
-    <ClCompile Include="image.cpp" />
-    <ClCompile Include="inventory.cpp" />
-    <ClCompile Include="item.cpp" />
-    <ClCompile Include="itempicker.cpp" />
-    <ClCompile Include="knownspells.cpp" />
-    <ClCompile Include="landmark.cpp" />
-    <ClCompile Include="landmarkpicker.cpp" />
     <ClCompile Include="lua\lapi.c" />
     <ClCompile Include="lua\lauxlib.c" />
     <ClCompile Include="lua\lbaselib.c" />
@@ -207,81 +190,11 @@
     <ClCompile Include="lua\lutf8lib.c" />
     <ClCompile Include="lua\lvm.c" />
     <ClCompile Include="lua\lzio.c" />
-    <ClCompile Include="mage.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="map.cpp" />
-    <ClCompile Include="mapblock.cpp" />
-    <ClCompile Include="mapgenerator.cpp" />
-    <ClCompile Include="maptemplatereader.cpp" />
-    <ClCompile Include="mercenary.cpp" />
-    <ClCompile Include="merchant.cpp" />
-    <ClCompile Include="midgardid.cpp" />
-    <ClCompile Include="midgardmap.cpp" />
-    <ClCompile Include="mountains.cpp" />
-    <ClCompile Include="mqdb.cpp" />
-    <ClCompile Include="plan.cpp" />
-    <ClCompile Include="player.cpp" />
-    <ClCompile Include="playerbuildings.cpp" />
-    <ClCompile Include="questlog.cpp" />
-    <ClCompile Include="road.cpp" />
-    <ClCompile Include="ruin.cpp" />
-    <ClCompile Include="scenarioinfo.cpp" />
-    <ClCompile Include="scenariovariables.cpp" />
-    <ClCompile Include="serializer.cpp" />
-    <ClCompile Include="site.cpp" />
-    <ClCompile Include="spellcast.cpp" />
-    <ClCompile Include="spelleffects.cpp" />
-    <ClCompile Include="spellpicker.cpp" />
-    <ClCompile Include="stack.cpp" />
-    <ClCompile Include="stackdestroyed.cpp" />
     <ClCompile Include="standalonegameinfo.cpp" />
-    <ClCompile Include="subrace.cpp" />
-    <ClCompile Include="talismancharges.cpp" />
-    <ClCompile Include="templatezone.cpp" />
-    <ClCompile Include="textconvert.cpp" />
-    <ClCompile Include="texts.cpp" />
-    <ClCompile Include="turnsummary.cpp" />
-    <ClCompile Include="unit.cpp" />
-    <ClCompile Include="unitpicker.cpp" />
-    <ClCompile Include="village.cpp" />
-    <ClCompile Include="zoneplacer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="aipriority.h" />
-    <ClInclude Include="bag.h" />
-    <ClInclude Include="containers.h" />
-    <ClInclude Include="crystal.h" />
-    <ClInclude Include="currency.h" />
     <ClInclude Include="dbf.h" />
-    <ClInclude Include="decoration.h" />
-    <ClInclude Include="diplomacy.h" />
-    <ClInclude Include="exceptions.h" />
-    <ClInclude Include="gameinfo.h" />
-    <ClInclude Include="generatorsettings.h" />
-    <ClInclude Include="group.h" />
-    <ClInclude Include="image.h" />
-    <ClInclude Include="inventory.h" />
-    <ClInclude Include="item.h" />
-    <ClInclude Include="iteminfo.h" />
-    <ClInclude Include="itempicker.h" />
-    <ClInclude Include="knownspells.h" />
-    <ClInclude Include="landmark.h" />
-    <ClInclude Include="landmarkinfo.h" />
-    <ClInclude Include="landmarkpicker.h" />
-    <ClInclude Include="mage.h" />
-    <ClInclude Include="mapblock.h" />
-    <ClInclude Include="mercenary.h" />
-    <ClInclude Include="merchant.h" />
-    <ClInclude Include="midgardmap.h" />
-    <ClInclude Include="mountains.h" />
-    <ClInclude Include="mqdb.h" />
-    <ClInclude Include="picker.h" />
-    <ClInclude Include="plan.h" />
-    <ClInclude Include="playerbuildings.h" />
-    <ClInclude Include="capital.h" />
-    <ClInclude Include="enums.h" />
-    <ClInclude Include="fog.h" />
-    <ClInclude Include="fortification.h" />
     <ClInclude Include="lua\lapi.h" />
     <ClInclude Include="lua\lauxlib.h" />
     <ClInclude Include="lua\lcode.h" />
@@ -310,53 +223,12 @@
     <ClInclude Include="lua\lundump.h" />
     <ClInclude Include="lua\lvm.h" />
     <ClInclude Include="lua\lzio.h" />
-    <ClInclude Include="map.h" />
-    <ClInclude Include="mapelement.h" />
-    <ClInclude Include="mapgenerator.h" />
-    <ClInclude Include="maptemplate.h" />
-    <ClInclude Include="maptemplatereader.h" />
-    <ClInclude Include="midgardid.h" />
-    <ClInclude Include="player.h" />
-    <ClInclude Include="position.h" />
-    <ClInclude Include="questlog.h" />
-    <ClInclude Include="raceinfo.h" />
-    <ClInclude Include="randomgenerator.h" />
-    <ClInclude Include="road.h" />
-    <ClInclude Include="ruin.h" />
-    <ClInclude Include="scenarioinfo.h" />
-    <ClInclude Include="scenarioobject.h" />
-    <ClInclude Include="scenariovariables.h" />
-    <ClInclude Include="serializer.h" />
-    <ClInclude Include="site.h" />
-    <ClInclude Include="spellcast.h" />
-    <ClInclude Include="spelleffects.h" />
-    <ClInclude Include="spellinfo.h" />
-    <ClInclude Include="spellpicker.h" />
-    <ClInclude Include="stack.h" />
-    <ClInclude Include="stackdestroyed.h" />
     <ClInclude Include="standalonegameinfo.h" />
     <ClInclude Include="standaloneiteminfo.h" />
     <ClInclude Include="standalonelandmarkinfo.h" />
     <ClInclude Include="standaloneraceinfo.h" />
     <ClInclude Include="standalonespellinfo.h" />
     <ClInclude Include="standaloneunitinfo.h" />
-    <ClInclude Include="stb_image_write.h" />
-    <ClInclude Include="subrace.h" />
-    <ClInclude Include="talismancharges.h" />
-    <ClInclude Include="templatezone.h" />
-    <ClInclude Include="textconvert.h" />
-    <ClInclude Include="texts.h" />
-    <ClInclude Include="tileinfo.h" />
-    <ClInclude Include="trainer.h" />
-    <ClInclude Include="turnsummary.h" />
-    <ClInclude Include="unit.h" />
-    <ClInclude Include="unitinfo.h" />
-    <ClInclude Include="unitpicker.h" />
-    <ClInclude Include="village.h" />
-    <ClInclude Include="vposition.h" />
-    <ClInclude Include="zoneid.h" />
-    <ClInclude Include="zoneoptions.h" />
-    <ClInclude Include="zoneplacer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
