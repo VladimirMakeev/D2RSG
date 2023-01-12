@@ -29,30 +29,68 @@ CONFIG += c++17
 
 INCLUDEPATH += \
         ../ \
+        ../ScenarioGenerator/src \
+        ../ScenarioGenerator/src/scenario \
         ../sol2/single/include/ \
         ../lua/ \
         ../GSL/include/
 
 SOURCES += \
-        ../bag.cpp \
-        ../capital.cpp \
-        ../crystal.cpp \
-        ../currency.cpp \
+        ../ScenarioGenerator/src/currency.cpp \
+        ../ScenarioGenerator/src/decoration.cpp \
+        ../ScenarioGenerator/src/gameinfo.cpp \
+        ../ScenarioGenerator/src/generatorsettings.cpp \
+        ../ScenarioGenerator/src/image.cpp \
+        ../ScenarioGenerator/src/itempicker.cpp \
+        ../ScenarioGenerator/src/landmarkpicker.cpp \
+        ../ScenarioGenerator/src/mapgenerator.cpp \
+        ../ScenarioGenerator/src/maptemplatereader.cpp \
+        ../ScenarioGenerator/src/midgardid.cpp \
+        ../ScenarioGenerator/src/mqdb.cpp \
+        ../ScenarioGenerator/src/scenario/bag.cpp \
+        ../ScenarioGenerator/src/scenario/capital.cpp \
+        ../ScenarioGenerator/src/scenario/crystal.cpp \
+        ../ScenarioGenerator/src/scenario/diplomacy.cpp \
+        ../ScenarioGenerator/src/scenario/fog.cpp \
+        ../ScenarioGenerator/src/scenario/fortification.cpp \
+        ../ScenarioGenerator/src/scenario/group.cpp \
+        ../ScenarioGenerator/src/scenario/inventory.cpp \
+        ../ScenarioGenerator/src/scenario/item.cpp \
+        ../ScenarioGenerator/src/scenario/knownspells.cpp \
+        ../ScenarioGenerator/src/scenario/landmark.cpp \
+        ../ScenarioGenerator/src/scenario/mage.cpp \
+        ../ScenarioGenerator/src/scenario/map.cpp \
+        ../ScenarioGenerator/src/scenario/mapblock.cpp \
+        ../ScenarioGenerator/src/scenario/mercenary.cpp \
+        ../ScenarioGenerator/src/scenario/merchant.cpp \
+        ../ScenarioGenerator/src/scenario/midgardmap.cpp \
+        ../ScenarioGenerator/src/scenario/mountains.cpp \
+        ../ScenarioGenerator/src/scenario/plan.cpp \
+        ../ScenarioGenerator/src/scenario/player.cpp \
+        ../ScenarioGenerator/src/scenario/playerbuildings.cpp \
+        ../ScenarioGenerator/src/scenario/questlog.cpp \
+        ../ScenarioGenerator/src/scenario/road.cpp \
+        ../ScenarioGenerator/src/scenario/ruin.cpp \
+        ../ScenarioGenerator/src/scenario/scenarioinfo.cpp \
+        ../ScenarioGenerator/src/scenario/scenariovariables.cpp \
+        ../ScenarioGenerator/src/scenario/site.cpp \
+        ../ScenarioGenerator/src/scenario/spellcast.cpp \
+        ../ScenarioGenerator/src/scenario/spelleffects.cpp \
+        ../ScenarioGenerator/src/scenario/stack.cpp \
+        ../ScenarioGenerator/src/scenario/stackdestroyed.cpp \
+        ../ScenarioGenerator/src/scenario/subrace.cpp \
+        ../ScenarioGenerator/src/scenario/talismancharges.cpp \
+        ../ScenarioGenerator/src/scenario/turnsummary.cpp \
+        ../ScenarioGenerator/src/scenario/unit.cpp \
+        ../ScenarioGenerator/src/scenario/village.cpp \
+        ../ScenarioGenerator/src/serializer.cpp \
+        ../ScenarioGenerator/src/spellpicker.cpp \
+        ../ScenarioGenerator/src/templatezone.cpp \
+        ../ScenarioGenerator/src/textconvert.cpp \
+        ../ScenarioGenerator/src/texts.cpp \
+        ../ScenarioGenerator/src/unitpicker.cpp \
+        ../ScenarioGenerator/src/zoneplacer.cpp \
         ../dbf.cpp \
-        ../decoration.cpp \
-        ../diplomacy.cpp \
-        ../fog.cpp \
-        ../fortification.cpp \
-        ../gameinfo.cpp \
-        ../generatorsettings.cpp \
-        ../group.cpp \
-        ../image.cpp \
-        ../inventory.cpp \
-        ../item.cpp \
-        ../itempicker.cpp \
-        ../knownspells.cpp \
-        ../landmark.cpp \
-        ../landmarkpicker.cpp \
         ../lua/lapi.c \
         ../lua/lauxlib.c \
         ../lua/lbaselib.c \
@@ -85,73 +123,88 @@ SOURCES += \
         ../lua/lutf8lib.c \
         ../lua/lvm.c \
         ../lua/lzio.c \
-        ../mage.cpp \
-        ../map.cpp \
-        ../mapblock.cpp \
-        ../mapgenerator.cpp \
-        ../maptemplatereader.cpp \
-        ../mercenary.cpp \
-        ../merchant.cpp \
-        ../midgardid.cpp \
-        ../midgardmap.cpp \
-        ../mountains.cpp \
-        ../mqdb.cpp \
-        ../plan.cpp \
-        ../player.cpp \
-        ../playerbuildings.cpp \
-        ../questlog.cpp \
-        ../road.cpp \
-        ../ruin.cpp \
-        ../scenarioinfo.cpp \
-        ../scenariovariables.cpp \
-        ../serializer.cpp \
-        ../site.cpp \
-        ../spellcast.cpp \
-        ../spelleffects.cpp \
-        ../spellpicker.cpp \
-        ../stack.cpp \
-        ../stackdestroyed.cpp \
         ../standalonegameinfo.cpp \
-        ../subrace.cpp \
-        ../talismancharges.cpp \
-        ../templatezone.cpp \
-        ../textconvert.cpp \
-        ../texts.cpp \
-        ../turnsummary.cpp \
-        ../unit.cpp \
-        ../unitpicker.cpp \
-        ../village.cpp \
-        ../zoneplacer.cpp \
         main.cpp \
         mapgeneratorapp.cpp \
         mapgeneratorthread.cpp
 
 HEADERS += \
-        ../aipriority.h \
-        ../bag.h \
-        ../capital.h \
-        ../containers.h \
-        ../crystal.h \
-        ../currency.h \
+        ../ScenarioGenerator/src/aipriority.h \
+        ../ScenarioGenerator/src/containers.h \
+        ../ScenarioGenerator/src/currency.h \
+        ../ScenarioGenerator/src/decoration.h \
+        ../ScenarioGenerator/src/enums.h \
+        ../ScenarioGenerator/src/exceptions.h \
+        ../ScenarioGenerator/src/gameinfo.h \
+        ../ScenarioGenerator/src/generatorsettings.h \
+        ../ScenarioGenerator/src/image.h \
+        ../ScenarioGenerator/src/iteminfo.h \
+        ../ScenarioGenerator/src/itempicker.h \
+        ../ScenarioGenerator/src/landmarkinfo.h \
+        ../ScenarioGenerator/src/landmarkpicker.h \
+        ../ScenarioGenerator/src/mapgenerator.h \
+        ../ScenarioGenerator/src/maptemplate.h \
+        ../ScenarioGenerator/src/maptemplatereader.h \
+        ../ScenarioGenerator/src/midgardid.h \
+        ../ScenarioGenerator/src/mqdb.h \
+        ../ScenarioGenerator/src/picker.h \
+        ../ScenarioGenerator/src/position.h \
+        ../ScenarioGenerator/src/raceinfo.h \
+        ../ScenarioGenerator/src/randomgenerator.h \
+        ../ScenarioGenerator/src/scenario/bag.h \
+        ../ScenarioGenerator/src/scenario/capital.h \
+        ../ScenarioGenerator/src/scenario/crystal.h \
+        ../ScenarioGenerator/src/scenario/diplomacy.h \
+        ../ScenarioGenerator/src/scenario/fog.h \
+        ../ScenarioGenerator/src/scenario/fortification.h \
+        ../ScenarioGenerator/src/scenario/group.h \
+        ../ScenarioGenerator/src/scenario/inventory.h \
+        ../ScenarioGenerator/src/scenario/item.h \
+        ../ScenarioGenerator/src/scenario/knownspells.h \
+        ../ScenarioGenerator/src/scenario/landmark.h \
+        ../ScenarioGenerator/src/scenario/mage.h \
+        ../ScenarioGenerator/src/scenario/map.h \
+        ../ScenarioGenerator/src/scenario/mapblock.h \
+        ../ScenarioGenerator/src/scenario/mapelement.h \
+        ../ScenarioGenerator/src/scenario/mercenary.h \
+        ../ScenarioGenerator/src/scenario/merchant.h \
+        ../ScenarioGenerator/src/scenario/midgardmap.h \
+        ../ScenarioGenerator/src/scenario/mountains.h \
+        ../ScenarioGenerator/src/scenario/plan.h \
+        ../ScenarioGenerator/src/scenario/player.h \
+        ../ScenarioGenerator/src/scenario/playerbuildings.h \
+        ../ScenarioGenerator/src/scenario/questlog.h \
+        ../ScenarioGenerator/src/scenario/road.h \
+        ../ScenarioGenerator/src/scenario/ruin.h \
+        ../ScenarioGenerator/src/scenario/scenarioinfo.h \
+        ../ScenarioGenerator/src/scenario/scenarioobject.h \
+        ../ScenarioGenerator/src/scenario/scenariovariables.h \
+        ../ScenarioGenerator/src/scenario/site.h \
+        ../ScenarioGenerator/src/scenario/spellcast.h \
+        ../ScenarioGenerator/src/scenario/spelleffects.h \
+        ../ScenarioGenerator/src/scenario/stack.h \
+        ../ScenarioGenerator/src/scenario/stackdestroyed.h \
+        ../ScenarioGenerator/src/scenario/subrace.h \
+        ../ScenarioGenerator/src/scenario/talismancharges.h \
+        ../ScenarioGenerator/src/scenario/trainer.h \
+        ../ScenarioGenerator/src/scenario/turnsummary.h \
+        ../ScenarioGenerator/src/scenario/unit.h \
+        ../ScenarioGenerator/src/scenario/village.h \
+        ../ScenarioGenerator/src/serializer.h \
+        ../ScenarioGenerator/src/spellinfo.h \
+        ../ScenarioGenerator/src/spellpicker.h \
+        ../ScenarioGenerator/src/stb_image_write.h \
+        ../ScenarioGenerator/src/templatezone.h \
+        ../ScenarioGenerator/src/textconvert.h \
+        ../ScenarioGenerator/src/texts.h \
+        ../ScenarioGenerator/src/tileinfo.h \
+        ../ScenarioGenerator/src/unitinfo.h \
+        ../ScenarioGenerator/src/unitpicker.h \
+        ../ScenarioGenerator/src/vposition.h \
+        ../ScenarioGenerator/src/zoneid.h \
+        ../ScenarioGenerator/src/zoneoptions.h \
+        ../ScenarioGenerator/src/zoneplacer.h \
         ../dbf.h \
-        ../decoration.h \
-        ../diplomacy.h \
-        ../enums.h \
-        ../exceptions.h \
-        ../fog.h \
-        ../fortification.h \
-        ../gameinfo.h \
-        ../generatorsettings.h \
-        ../group.h \
-        ../image.h \
-        ../inventory.h \
-        ../item.h \
-        ../iteminfo.h \
-        ../itempicker.h \
-        ../knownspells.h \
-        ../landmark.h \
-        ../landmarkinfo.h \
-        ../landmarkpicker.h \
         ../lua/lapi.h \
         ../lua/lauxlib.h \
         ../lua/lcode.h \
@@ -180,62 +233,12 @@ HEADERS += \
         ../lua/lundump.h \
         ../lua/lvm.h \
         ../lua/lzio.h \
-        ../mage.h \
-        ../map.h \
-        ../mapblock.h \
-        ../mapelement.h \
-        ../mapgenerator.h \
-        ../maptemplate.h \
-        ../maptemplatereader.h \
-        ../mercenary.h \
-        ../merchant.h \
-        ../midgardid.h \
-        ../midgardmap.h \
-        ../mountains.h \
-        ../mqdb.h \
-        ../plan.h \
-        ../player.h \
-        ../playerbuildings.h \
-        ../position.h \
-        ../questlog.h \
-        ../raceinfo.h \
-        ../randomgenerator.h \
-        ../road.h \
-        ../ruin.h \
-        ../scenarioinfo.h \
-        ../scenarioobject.h \
-        ../scenariovariables.h \
-        ../serializer.h \
-        ../site.h \
-        ../spellcast.h \
-        ../spelleffects.h \
-        ../spellinfo.h \
-        ../spellpicker.h \
-        ../stack.h \
-        ../stackdestroyed.h \
         ../standalonegameinfo.h \
         ../standaloneiteminfo.h \
         ../standalonelandmarkinfo.h \
         ../standaloneraceinfo.h \
         ../standalonespellinfo.h \
         ../standaloneunitinfo.h \
-        ../stb_image_write.h \
-        ../subrace.h \
-        ../talismancharges.h \
-        ../templatezone.h \
-        ../textconvert.h \
-        ../texts.h \
-        ../tileinfo.h \
-        ../trainer.h \
-        ../turnsummary.h \
-        ../unit.h \
-        ../unitinfo.h \
-        ../unitpicker.h \
-        ../village.h \
-        ../vposition.h \
-        ../zoneid.h \
-        ../zoneoptions.h \
-        ../zoneplacer.h \
         mapgeneratorapp.h \
         mapgeneratorthread.h \
         version.h
