@@ -111,6 +111,7 @@ SOURCES += \
         ../spellpicker.cpp \
         ../stack.cpp \
         ../stackdestroyed.cpp \
+        ../standalonegameinfo.cpp \
         ../subrace.cpp \
         ../talismancharges.cpp \
         ../templatezone.cpp \
@@ -145,9 +146,11 @@ HEADERS += \
         ../image.h \
         ../inventory.h \
         ../item.h \
+        ../iteminfo.h \
         ../itempicker.h \
         ../knownspells.h \
         ../landmark.h \
+        ../landmarkinfo.h \
         ../landmarkpicker.h \
         ../lua/lapi.h \
         ../lua/lauxlib.h \
@@ -195,6 +198,7 @@ HEADERS += \
         ../playerbuildings.h \
         ../position.h \
         ../questlog.h \
+        ../raceinfo.h \
         ../randomgenerator.h \
         ../road.h \
         ../ruin.h \
@@ -205,9 +209,16 @@ HEADERS += \
         ../site.h \
         ../spellcast.h \
         ../spelleffects.h \
+        ../spellinfo.h \
         ../spellpicker.h \
         ../stack.h \
         ../stackdestroyed.h \
+        ../standalonegameinfo.h \
+        ../standaloneiteminfo.h \
+        ../standalonelandmarkinfo.h \
+        ../standaloneraceinfo.h \
+        ../standalonespellinfo.h \
+        ../standaloneunitinfo.h \
         ../stb_image_write.h \
         ../subrace.h \
         ../talismancharges.h \
@@ -218,6 +229,7 @@ HEADERS += \
         ../trainer.h \
         ../turnsummary.h \
         ../unit.h \
+        ../unitinfo.h \
         ../unitpicker.h \
         ../village.h \
         ../vposition.h \

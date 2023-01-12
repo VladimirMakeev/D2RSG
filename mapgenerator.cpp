@@ -40,7 +40,7 @@ std::pair<CMidgardID, CMidgardID> MapGenerator::createPlayer(RaceType race)
     auto playerId{createId(CMidgardID::Type::Player)};
 
     auto player{std::make_unique<Player>(playerId)};
-    player->setRace(getRaceInfo(race).raceId);
+    player->setRace(getGameInfo()->getRaceInfo(race).getRaceId());
     player->setLord(getLordId(race));
 
     if (race != RaceType::Neutral) {
@@ -103,18 +103,17 @@ void MapGenerator::addHeaderInfo()
     map->description = mapGenOptions.description;
     map->size = mapGenOptions.size;
 
-    const TextsInfo& texts{getEditorInterfaceTexts()};
     ScenarioInfo* info = map->getScenarioInfo();
 
     info->setBriefing(map->description);
     // Assume these identifiers exist, they are default texts used by Scenario Editor
     // They are also less than 255 characters long, no truncation needed.
     // 'No scenario objective defined'
-    info->setObjectives(texts.find(CMidgardID("X005TA0777"))->second);
+    info->setObjectives(getGameInfo()->getEditorInterfaceText(CMidgardID("X005TA0777")));
     // 'Congratulations! You have successfully completed the quest.'
-    info->setWinMessage(texts.find(CMidgardID("X005TA0778"))->second);
+    info->setWinMessage(getGameInfo()->getEditorInterfaceText(CMidgardID("X005TA0778")));
     // 'You have been defeated, the objective was completed by the enemy.'
-    info->setLoseMessage(texts.find(CMidgardID("X005TA0779"))->second);
+    info->setLoseMessage(getGameInfo()->getEditorInterfaceText(CMidgardID("X005TA0779")));
     info->setSeed(static_cast<std::uint32_t>(randomSeed));
 }
 

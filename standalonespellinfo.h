@@ -19,23 +19,49 @@
 
 #pragma once
 
-#include "enums.h"
-#include <functional>
-#include <vector>
+#include "midgardid.h"
+#include "spellinfo.h"
 
 namespace rsg {
 
-class SpellInfo;
-class RandomGenerator;
+// Information about spell for standalone generator builds
+class StandaloneSpellInfo final : public SpellInfo
+{
+public:
+    StandaloneSpellInfo(const CMidgardID& spellId, int value, int level, SpellType spellType)
+        : spellId{spellId}
+        , value{value}
+        , level{level}
+        , spellType{spellType}
+    { }
 
-// Filter that decides whether spell should be discarded from pick or not.
-// Returns true for spell that should be removed from pick pool
-using SpellFilterFunc = std::function<bool(const SpellInfo*)>;
-using SpellFilterList = std::initializer_list<SpellFilterFunc>;
+    ~StandaloneSpellInfo() override = default;
 
-// Picks any random spell after applying filters
-SpellInfo* pickSpell(RandomGenerator& random, const SpellFilterList& filters);
-// Picks random spell of specific type
-SpellInfo* pickSpell(SpellType spellType, RandomGenerator& random, const SpellFilterList& filters);
+    const CMidgardID& getSpellId() const override
+    {
+        return spellId;
+    }
+
+    SpellType getSpellType() const override
+    {
+        return spellType;
+    }
+
+    int getValue() const override
+    {
+        return value;
+    }
+
+    int getLevel() const override
+    {
+        return level;
+    }
+
+private:
+    CMidgardID spellId;
+    int value{};
+    int level{};
+    SpellType spellType{SpellType::Attack};
+};
 
 } // namespace rsg

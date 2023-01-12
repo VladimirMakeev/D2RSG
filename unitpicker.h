@@ -23,7 +23,7 @@
 
 namespace rsg {
 
-struct UnitInfo;
+class UnitInfo;
 class RandomGenerator;
 
 // Filter that decides whether unit should be discarded from pick or not.

@@ -34,19 +34,19 @@ LandmarkInfo* pickLandmark(LandmarkType landmarkType,
                            RandomGenerator& random,
                            const LandmarkFilterList& filters)
 {
-    return pickLandmark(getLandmarks(landmarkType), random, filters);
+    return pickLandmark(getGameInfo()->getLandmarks(landmarkType), random, filters);
 }
 
 LandmarkInfo* pickLandmark(RaceType raceType,
                            RandomGenerator& random,
                            const LandmarkFilterList& filters)
 {
-    return pickLandmark(getLandmarks(raceType), random, filters);
+    return pickLandmark(getGameInfo()->getLandmarks(raceType), random, filters);
 }
 
 LandmarkInfo* pickMountainLandmark(RandomGenerator& random, const LandmarkFilterList& filters)
 {
-    return pickLandmark(getMountainLandmarks(), random, filters);
+    return pickLandmark(getGameInfo()->getMountainLandmarks(), random, filters);
 }
 
 } // namespace rsg

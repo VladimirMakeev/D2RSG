@@ -234,6 +234,7 @@
     <ClCompile Include="spellpicker.cpp" />
     <ClCompile Include="stack.cpp" />
     <ClCompile Include="stackdestroyed.cpp" />
+    <ClCompile Include="standalonegameinfo.cpp" />
     <ClCompile Include="subrace.cpp" />
     <ClCompile Include="talismancharges.cpp" />
     <ClCompile Include="templatezone.cpp" />
@@ -261,9 +262,11 @@
     <ClInclude Include="image.h" />
     <ClInclude Include="inventory.h" />
     <ClInclude Include="item.h" />
+    <ClInclude Include="iteminfo.h" />
     <ClInclude Include="itempicker.h" />
     <ClInclude Include="knownspells.h" />
     <ClInclude Include="landmark.h" />
+    <ClInclude Include="landmarkinfo.h" />
     <ClInclude Include="landmarkpicker.h" />
     <ClInclude Include="mage.h" />
     <ClInclude Include="mapblock.h" />
@@ -316,6 +319,7 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="questlog.h" />
+    <ClInclude Include="raceinfo.h" />
     <ClInclude Include="randomgenerator.h" />
     <ClInclude Include="road.h" />
     <ClInclude Include="ruin.h" />
@@ -326,9 +330,16 @@
     <ClInclude Include="site.h" />
     <ClInclude Include="spellcast.h" />
     <ClInclude Include="spelleffects.h" />
+    <ClInclude Include="spellinfo.h" />
     <ClInclude Include="spellpicker.h" />
     <ClInclude Include="stack.h" />
     <ClInclude Include="stackdestroyed.h" />
+    <ClInclude Include="standalonegameinfo.h" />
+    <ClInclude Include="standaloneiteminfo.h" />
+    <ClInclude Include="standalonelandmarkinfo.h" />
+    <ClInclude Include="standaloneraceinfo.h" />
+    <ClInclude Include="standalonespellinfo.h" />
+    <ClInclude Include="standaloneunitinfo.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="subrace.h" />
     <ClInclude Include="talismancharges.h" />
@@ -339,6 +350,7 @@
     <ClInclude Include="trainer.h" />
     <ClInclude Include="turnsummary.h" />
     <ClInclude Include="unit.h" />
+    <ClInclude Include="unitinfo.h" />
     <ClInclude Include="unitpicker.h" />
     <ClInclude Include="village.h" />
     <ClInclude Include="vposition.h" />

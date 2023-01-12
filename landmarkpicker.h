@@ -25,7 +25,7 @@
 
 namespace rsg {
 
-struct LandmarkInfo;
+class LandmarkInfo;
 class RandomGenerator;
 
 // Filter that decides whether landmark should be discarded from pick or not.

@@ -112,7 +112,7 @@ std::set<Position> Decoration::getArea(TemplateZone&, MapGenerator&, Map&, Rando
 
 int Decoration::getMinLandmarkDistance(const LandmarkInfo& info) const
 {
-    return info.size.x * 2;
+    return info.getSize().x * 2;
 }
 
 RaceType Decoration::getLandmarksRace(TemplateZone&, MapGenerator&, Map&, RandomGenerator&)
@@ -148,7 +148,7 @@ bool Decoration::placeLandmarks(std::set<Position>& area,
         }
 
         const auto midDistance{getMinLandmarkDistance(*info)};
-        MapElement tmpLandmark{info->size};
+        MapElement tmpLandmark{info->getSize()};
         Position position;
         if (!zone.findPlaceForObject(area, tmpLandmark, midDistance, position, false)) {
             // TODO: pick smaller and try to place ?
@@ -157,8 +157,8 @@ bool Decoration::placeLandmarks(std::set<Position>& area,
 
         // Create landmark object
         const auto landmarkId{mapGenerator.createId(CMidgardID::Type::Landmark)};
-        auto landmark{std::make_unique<Landmark>(landmarkId, info->size)};
-        landmark->setTypeId(info->landmarkId);
+        auto landmark{std::make_unique<Landmark>(landmarkId, info->getSize())};
+        landmark->setTypeId(info->getLandmarkId());
 
         auto landmarkPtr{landmark.get()};
         // Place created landmark
@@ -211,11 +211,11 @@ const LandmarkFilterList& CapitalDecoration::getLandmarkFilters()
     static const LandmarkFilterList filters{
         // Pick landmarks that are smaller than capital
         [size = capital->getSize().x]( const LandmarkInfo* info) {
-            return info->size.x >= size;
+            return info->getSize().x >= size;
         },
         // Pick landmarks that allow terrain spread
         [](const LandmarkInfo* info) {
-            return info->mountain == true;
+            return info->isMountain() == true;
         }
     };
     // clang-format on
@@ -264,16 +264,16 @@ const LandmarkFilterList& VillageDecoration::getLandmarkFilters()
     static const LandmarkFilterList filters{
         // Pick landmarks that are smaller than village
         [size = village->getSize().x] (const LandmarkInfo* info) {
-            return info->size.x > size;
+            return info->getSize().x > size;
         },
         // Pick landmarks that allow terrain spread, necessary for the villages
         [](const LandmarkInfo* info) {
-            return info->mountain == true;
+            return info->isMountain() == true;
         },
         // Don't pick cemeteries and skeletons for high tier cities
         // I think they look ugly, especially in high quantities
         [tier = village->getTier()](const LandmarkInfo* info) {
-            return info->landmarkType == LandmarkType::Misc && tier >= 3;
+            return info->getLandmarkType() == LandmarkType::Misc && tier >= 3;
         }
     };
     // clang-format on
@@ -291,7 +291,7 @@ std::set<Position> VillageDecoration::getArea(TemplateZone& zone,
 
 int VillageDecoration::getMinLandmarkDistance(const LandmarkInfo& info) const
 {
-    return info.size.x * 3;
+    return info.getSize().x * 3;
 }
 
 RaceType VillageDecoration::getLandmarksRace(TemplateZone&, MapGenerator&, Map&, RandomGenerator&)
@@ -346,11 +346,11 @@ const LandmarkFilterList& CrystalDecoration::getLandmarkFilters()
     static const LandmarkFilterList filters{
         // Pick landmarks that are smaller than crystal
         [size = crystal->getSize().x] (const LandmarkInfo* info) {
-            return info->size.x > size;
+            return info->getSize().x > size;
         },
         // Pick landmarks that allow terrain spread
         [](const LandmarkInfo* info) {
-            return info->mountain == true;
+            return info->isMountain() == true;
         }
     };
     // clang-format on
@@ -471,7 +471,7 @@ const LandmarkFilterList& SiteDecoration::getLandmarkFilters()
     static const LandmarkFilterList filters{
         // Pick landmarks that are smaller than site
         [size = site->getSize().x] (const LandmarkInfo* info) {
-        return info->size.x > size;
+            return info->getSize().x > size;
         }
     };
     // clang-format on
@@ -489,7 +489,7 @@ std::set<Position> SiteDecoration::getArea(TemplateZone& zone,
 
 int SiteDecoration::getMinLandmarkDistance(const LandmarkInfo& info) const
 {
-    return info.size.x * 3;
+    return info.getSize().x * 3;
 }
 
 RaceType SiteDecoration::getLandmarksRace(TemplateZone&, MapGenerator&, Map&, RandomGenerator&)
@@ -520,7 +520,7 @@ std::set<Position> RuinDecoration::getArea(TemplateZone& zone,
 
 int RuinDecoration::getMinLandmarkDistance(const LandmarkInfo& info) const
 {
-    return info.size.x * 3;
+    return info.getSize().x * 3;
 }
 
 RaceType RuinDecoration::getLandmarksRace(TemplateZone&, MapGenerator&, Map&, RandomGenerator&)

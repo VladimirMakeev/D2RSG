@@ -28,39 +28,31 @@ static const char* emptyName = "Guard";
 
 const char* getUnitName(const UnitInfo& info, RandomGenerator& rand)
 {
-    if (info.unitType != UnitType::Leader) {
+    if (!isLeader(info)) {
         // Only leader units have names
         // Scenario generator also does not care about nobles, illusion and summon leaders
         return emptyName;
     }
 
-    const RacesInfo& races = getRacesInfo();
+    const RacesInfo& races{getGameInfo()->getRacesInfo()};
 
-    auto it = races.find(info.raceId);
+    const auto it{races.find(info.getRaceId())};
     if (it == races.end()) {
         // This should never happen
         assert(false);
         return emptyName;
     }
 
-    const RaceInfo& race = *it->second.get();
-    if (isRaceUnplayable(race.raceType)) {
-        const TextsInfo& globalTexts = getGlobalTexts();
-
-        auto textIt = globalTexts.find(info.nameId);
-        if (textIt == globalTexts.end()) {
-            // This should never happen
-            assert(false);
-            return emptyName;
-        }
-
-        return textIt->second.c_str();
+    const RaceInfo& race{*it->second.get()};
+    if (isRaceUnplayable(race.getRaceType())) {
+        return getGameInfo()->getGlobalText(info.getNameId());
     }
 
+    const LeaderNames& leaderNames{race.getLeaderNames()};
     // Pick random name depending on unit sex
-    const auto& names = info.male ? race.leaderNames.maleNames : race.leaderNames.femaleNames;
+    const auto& names = info.isMale() ? leaderNames.maleNames : leaderNames.femaleNames;
 
-    return names[rand.nextInteger(std::size_t{0}, names.size() - 1)].c_str();
+    return getRandomElement(names, rand)->c_str();
 }
 
 } // namespace rsg

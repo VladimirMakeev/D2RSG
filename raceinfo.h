@@ -20,22 +20,36 @@
 #pragma once
 
 #include "enums.h"
-#include <functional>
+#include "midgardid.h"
+#include <string>
 #include <vector>
 
 namespace rsg {
 
-class SpellInfo;
-class RandomGenerator;
+// Possible leader names from Tleader.dbf
+struct LeaderNames
+{
+    std::vector<std::string> maleNames;
+    std::vector<std::string> femaleNames;
+};
 
-// Filter that decides whether spell should be discarded from pick or not.
-// Returns true for spell that should be removed from pick pool
-using SpellFilterFunc = std::function<bool(const SpellInfo*)>;
-using SpellFilterList = std::initializer_list<SpellFilterFunc>;
+// Information about race from Grace.dbf
+class RaceInfo
+{
+public:
+    virtual ~RaceInfo() = default;
 
-// Picks any random spell after applying filters
-SpellInfo* pickSpell(RandomGenerator& random, const SpellFilterList& filters);
-// Picks random spell of specific type
-SpellInfo* pickSpell(SpellType spellType, RandomGenerator& random, const SpellFilterList& filters);
+    virtual const CMidgardID& getRaceId() const = 0;
+    virtual RaceType getRaceType() const = 0;
+
+    virtual const CMidgardID& getGuardianUnitId() const = 0;
+    virtual const CMidgardID& getNobleLeaderId() const = 0;
+
+    virtual const std::vector<CMidgardID>& getLeaderIds() const = 0;
+    virtual const LeaderNames& getLeaderNames() const = 0;
+
+protected:
+    RaceInfo() = default;
+};
 
 } // namespace rsg

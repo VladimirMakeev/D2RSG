@@ -34,22 +34,22 @@ ItemInfo* pickItem(const std::vector<ItemInfo*>& itemPool,
 
 ItemInfo* pickItem(RandomGenerator& random, const ItemFilterList& filters)
 {
-    return pickItem(getItems(), random, filters);
+    return pickItem(getGameInfo()->getItems(), random, filters);
 }
 
 ItemInfo* pickItem(ItemType itemType, RandomGenerator& random, const ItemFilterList& filters)
 {
-    return pickItem(getItems(itemType), random, filters);
+    return pickItem(getGameInfo()->getItems(itemType), random, filters);
 }
 
 bool noSpecialItem(const ItemInfo* info)
 {
-    return info->itemType == ItemType::Special;
+    return info->getItemType() == ItemType::Special;
 }
 
 bool noForbiddenItem(const ItemInfo* info)
 {
-    return contains(getGeneratorSettings().forbiddenItems, info->itemId);
+    return contains(getGeneratorSettings().forbiddenItems, info->getItemId());
 }
 
 } // namespace rsg

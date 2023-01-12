@@ -88,4 +88,12 @@ const GeneratorSettings& getGeneratorSettings();
 
 std::uint8_t getRandomTreeImageIndex(RandomGenerator& rand);
 
+bool isEmpireLandmark(const CMidgardID& landmarkId);
+bool isClansLandmark(const CMidgardID& landmarkId);
+bool isUndeadLandmark(const CMidgardID& landmarkId);
+bool isLegionsLandmark(const CMidgardID& landmarkId);
+bool isElvesLandmark(const CMidgardID& landmarkId);
+bool isNeutralLandmark(const CMidgardID& landmarkId);
+bool isMountainLandmark(const CMidgardID& landmarkId);
+
 } // namespace rsg

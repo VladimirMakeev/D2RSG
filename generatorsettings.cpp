@@ -18,6 +18,7 @@
  */
 
 #include "generatorsettings.h"
+#include "containers.h"
 #include "mqdb.h"
 #include "randomgenerator.h"
 #include <algorithm>
@@ -339,6 +340,41 @@ const GeneratorSettings& getGeneratorSettings()
 std::uint8_t getRandomTreeImageIndex(RandomGenerator& rand)
 {
     return rand.nextInteger(std::uint8_t{0}, getGeneratorSettings().maxTreeImageIndex);
+}
+
+bool isEmpireLandmark(const CMidgardID& landmarkId)
+{
+    return contains(getGeneratorSettings().landmarks.empire, landmarkId);
+}
+
+bool isClansLandmark(const CMidgardID& landmarkId)
+{
+    return contains(getGeneratorSettings().landmarks.clans, landmarkId);
+}
+
+bool isUndeadLandmark(const CMidgardID& landmarkId)
+{
+    return contains(getGeneratorSettings().landmarks.undead, landmarkId);
+}
+
+bool isLegionsLandmark(const CMidgardID& landmarkId)
+{
+    return contains(getGeneratorSettings().landmarks.legions, landmarkId);
+}
+
+bool isElvesLandmark(const CMidgardID& landmarkId)
+{
+    return contains(getGeneratorSettings().landmarks.elves, landmarkId);
+}
+
+bool isNeutralLandmark(const CMidgardID& landmarkId)
+{
+    return contains(getGeneratorSettings().landmarks.neutral, landmarkId);
+}
+
+bool isMountainLandmark(const CMidgardID& landmarkId)
+{
+    return contains(getGeneratorSettings().landmarks.mountains, landmarkId);
 }
 
 } // namespace rsg

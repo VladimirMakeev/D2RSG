@@ -325,15 +325,15 @@ void TemplateZone::createObstacles()
         // TODO: remove hardcoded values
         if ((it->size == 3 || it->size == 5) && rand.chance(10)) {
             auto noWrongSize = [size = it->size](const LandmarkInfo* info) {
-                return info->size.x != size || info->size.y != size;
+                return info->getSize().x != size || info->getSize().y != size;
             };
 
             auto info{pickMountainLandmark(rand, {noWrongSize})};
             assert(info != nullptr);
 
             auto landmarkId{mapGenerator->createId(CMidgardID::Type::Landmark)};
-            auto landmark{std::make_unique<Landmark>(landmarkId, info->size)};
-            landmark->setTypeId(info->landmarkId);
+            auto landmark{std::make_unique<Landmark>(landmarkId, info->getSize())};
+            landmark->setTypeId(info->getLandmarkId());
 
             placeObject(std::move(landmark), tile);
         } else {
@@ -1266,11 +1266,12 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
     int strength = static_cast<int>(rand.pickValue(stackValue));
 
     // Roll number of units
-    int soldiersStrength{strength - getMinLeaderValue()};
+    int soldiersStrength{strength - getGameInfo()->getMinLeaderValue()};
 
     // Determine maximum possible soldier units in stack.
     // Make sure we do not roll too many soldier units for stack with low strength
-    const int maxUnitsPossible = std::min(5, soldiersStrength / getMinSoldierValue());
+    const int maxUnitsPossible = std::min(5,
+                                          soldiersStrength / getGameInfo()->getMinSoldierValue());
     // Pick how many soldier units will be in stack along with leader.
     // This will affect leader pick and resulting stack contents
     int soldiersTotal{rand.nextInteger(0, maxUnitsPossible)};
@@ -1301,7 +1302,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
     std::size_t leaderPosition{2};
 
     // Find place in group for leader
-    if (leaderInfo->bigUnit) {
+    if (leaderInfo->isBig()) {
         // Big units always at front line
         positions.erase(leaderPosition);
         positions.erase(leaderPosition + 1);
@@ -1309,7 +1310,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
         // Supports are always at back line
         leaderPosition = 3;
         positions.erase(leaderPosition);
-    } else if (leaderInfo->reach != ReachType::Adjacent) {
+    } else if (leaderInfo->getAttackReach() != ReachType::Adjacent) {
         // Ranged units at back line
         leaderPosition = 3;
         positions.erase(leaderPosition);
@@ -1336,7 +1337,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
     if (mapGenerator->isDebugMode()) {
         // +1 because of leader
         int unitsCreated{1};
-        int createdValue = leaderInfo->value;
+        int createdValue = leaderInfo->getValue();
 
         for (std::size_t position = 0; position < soldiers.size(); ++position) {
             const auto* unitInfo{soldiers[position]};
@@ -1345,9 +1346,9 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
             }
 
             ++unitsCreated;
-            createdValue += unitInfo->value;
+            createdValue += unitInfo->getValue();
 
-            if (unitInfo->bigUnit) {
+            if (unitInfo->isBig()) {
                 // Skip second part of big unit
                 ++position;
             }
@@ -1361,7 +1362,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
     auto stack{createStack(*leaderInfo, leaderPosition, soldiers)};
 
     // Make sure we create leader with correct leadership value
-    int leadershipRequired = leaderInfo->bigUnit ? 2 : 1;
+    int leadershipRequired = leaderInfo->isBig() ? 2 : 1;
 
     for (std::size_t position = 0; position < soldiers.size(); ++position) {
         const auto* unitInfo{soldiers[position]};
@@ -1371,15 +1372,15 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
 
         ++leadershipRequired;
 
-        if (unitInfo->bigUnit) {
+        if (unitInfo->isBig()) {
             ++leadershipRequired;
             // Skip second part of big unit
             ++position;
         }
     }
 
-    if (leaderInfo->leadership < leadershipRequired) {
-        const int diff = leadershipRequired - leaderInfo->leadership;
+    if (leaderInfo->getLeadership() < leadershipRequired) {
+        const int diff = leadershipRequired - leaderInfo->getLeadership();
         Unit* leaderUnit = mapGenerator->map->find<Unit>(stack->getLeader());
 
         for (int i = 0; i < diff; ++i) {
@@ -1414,20 +1415,20 @@ std::unique_ptr<Stack> TemplateZone::createStack(const UnitInfo& leaderInfo,
     auto stackId{mapGenerator->createId(CMidgardID::Type::Stack)};
     auto stack{std::make_unique<Stack>(stackId)};
 
-    stack->setMove(leaderInfo.move);
+    stack->setMove(leaderInfo.getMove());
     stack->setFacing(getRandomFacing(rand));
 
     // Create leader unit
     auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
     auto leader{std::make_unique<Unit>(leaderId)};
 
-    leader->setImplId(leaderInfo.unitId);
-    leader->setHp(leaderInfo.hitPoints);
+    leader->setImplId(leaderInfo.getUnitId());
+    leader->setHp(leaderInfo.getHp());
     leader->setName(getUnitName(leaderInfo, rand));
 
     mapGenerator->insertObject(std::move(leader));
 
-    const auto leaderAdded = stack->addLeader(leaderId, leaderPosition, leaderInfo.bigUnit);
+    const auto leaderAdded = stack->addLeader(leaderId, leaderPosition, leaderInfo.isBig());
     assert(leaderAdded);
 
     createGroupUnits(stack->getGroup(), groupUnits);
@@ -1461,18 +1462,18 @@ const UnitInfo* TemplateZone::createStackLeader(std::size_t& unusedValue,
 
             auto filter = [allowedSubraces, minValue, value](const UnitInfo* info) {
                 if (!allowedSubraces.empty()) {
-                    if (!contains(allowedSubraces, info->subrace)) {
+                    if (!contains(allowedSubraces, info->getSubrace())) {
                         return true;
                     }
                 }
 
-                return static_cast<float>(info->value) < minValue || info->value > value;
+                return static_cast<float>(info->getValue()) < minValue || info->getValue() > value;
             };
 
             const UnitInfo* leaderInfo{pickLeader(rand, {filter, noForbidden})};
             if (leaderInfo) {
                 // Accumulate unused value after picking a leader
-                unusedValue = value - leaderInfo->value;
+                unusedValue = value - leaderInfo->getValue();
                 valuesConsumed = i + 1;
 
                 return leaderInfo;
@@ -1492,9 +1493,10 @@ const UnitInfo* TemplateZone::createStackLeader(std::size_t& unusedValue,
     // Could not pick any leader.
     // Either constraints are too tight, or something wrong with value (or unit values)
     // Pick weakest one just to create the stack and do not lose its value
-    const auto& leaders{getLeaders()};
-    auto it = std::find_if(leaders.begin(), leaders.end(),
-                           [](const UnitInfo* info) { return info->value == getMinLeaderValue(); });
+    const auto& leaders{getGameInfo()->getLeaders()};
+    auto it = std::find_if(leaders.begin(), leaders.end(), [](const UnitInfo* info) {
+        return info->getValue() == getGameInfo()->getMinLeaderValue();
+    });
     if (it != leaders.end()) {
         std::cerr << "Could not pick leader, place weakest\n";
         unusedValue = 0;
@@ -1519,7 +1521,7 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
         auto minValue = value * 0.75f;
 
         auto noWrongValue = [minValue, value](const UnitInfo* info) {
-            return info->value < minValue || info->value > value;
+            return info->getValue() < minValue || info->getValue() > value;
         };
 
         // Pick random position in group
@@ -1533,13 +1535,13 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
 
         auto filter = [allowedSubraces, canPlaceBig, frontline](const UnitInfo* info) {
             if (!allowedSubraces.empty()) {
-                if (allowedSubraces.find(info->subrace) == allowedSubraces.end()) {
+                if (allowedSubraces.find(info->getSubrace()) == allowedSubraces.end()) {
                     // Remove units of subraces that are not allowed
                     return true;
                 }
             }
 
-            if (!canPlaceBig && info->bigUnit) {
+            if (!canPlaceBig && info->isBig()) {
                 // Remove big units if we can not place them
                 return true;
             }
@@ -1549,12 +1551,12 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
                 return false;
             }
 
-            if (frontline && info->reach != ReachType::Adjacent) {
+            if (frontline && info->getAttackReach() != ReachType::Adjacent) {
                 // Remove ranged units from frontline
                 return true;
             }
 
-            if (!frontline && info->reach == ReachType::Adjacent) {
+            if (!frontline && info->getAttackReach() == ReachType::Adjacent) {
                 // Remove melee units from backline
                 return true;
             }
@@ -1565,9 +1567,9 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
         const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noForbidden});
         if (info) {
             // We picked a unit, update unused value
-            unusedValue = value - info->value;
+            unusedValue = value - info->getValue();
 
-            if (info->bigUnit) {
+            if (info->isBig()) {
                 positions.erase(position);
                 groupUnits[position] = info;
 
@@ -1577,10 +1579,11 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
                 // We could have picked big unit, but got a small one.
                 // Check if unit's attack range is optimal for its placement.
                 // We can adjust unit position since second position is empty
-                if (canPlaceBig && frontline && info->reach != ReachType::Adjacent) {
+                if (canPlaceBig && frontline && info->getAttackReach() != ReachType::Adjacent) {
                     // Small soldier unit at frontline.
                     position = secondPosition;
-                } else if (canPlaceBig && !frontline && info->reach == ReachType::Adjacent) {
+                } else if (canPlaceBig && !frontline
+                           && info->getAttackReach() == ReachType::Adjacent) {
                     // Small melee unit at backline.
                     position = secondPosition;
                 }
@@ -1611,12 +1614,12 @@ void TemplateZone::tightenGroup(std::size_t& unusedValue,
     const int totalFails{5};
 
     while (failedAttempts < totalFails && !positions.empty()
-           && unusedValue >= getMinSoldierValue()) {
+           && unusedValue >= getGameInfo()->getMinSoldierValue()) {
         auto value = unusedValue;
         auto minValue = value * minValueCoeff;
 
         auto noWrongValue = [minValue, value](const UnitInfo* info) {
-            return info->value < minValue || info->value > value;
+            return info->getValue() < minValue || info->getValue() > value;
         };
 
         int position = *getRandomElement(positions, rand);
@@ -1629,13 +1632,13 @@ void TemplateZone::tightenGroup(std::size_t& unusedValue,
 
         auto filter = [allowedSubraces, canPlaceBig, frontline](const UnitInfo* info) {
             if (!allowedSubraces.empty()) {
-                if (allowedSubraces.find(info->subrace) == allowedSubraces.end()) {
+                if (allowedSubraces.find(info->getSubrace()) == allowedSubraces.end()) {
                     // Remove units of subraces that are not allowed
                     return true;
                 }
             }
 
-            if (!canPlaceBig && info->bigUnit) {
+            if (!canPlaceBig && info->isBig()) {
                 // Remove big units if we can not place them
                 return true;
             }
@@ -1645,12 +1648,12 @@ void TemplateZone::tightenGroup(std::size_t& unusedValue,
                 return false;
             }
 
-            if (frontline && info->reach != ReachType::Adjacent) {
+            if (frontline && info->getAttackReach() != ReachType::Adjacent) {
                 // Remove ranged units from frontline
                 return true;
             }
 
-            if (!frontline && info->reach == ReachType::Adjacent) {
+            if (!frontline && info->getAttackReach() == ReachType::Adjacent) {
                 // Remove melee units from backline
                 return true;
             }
@@ -1661,11 +1664,11 @@ void TemplateZone::tightenGroup(std::size_t& unusedValue,
         const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noForbidden});
         if (info) {
             // We picked a unit, update unused value
-            unusedValue = value - info->value;
+            unusedValue = value - info->getValue();
             // Reset failed attempts counter
             failedAttempts = 0;
 
-            if (info->bigUnit) {
+            if (info->isBig()) {
                 positions.erase(position);
                 groupUnits[position] = info;
 
@@ -1675,10 +1678,11 @@ void TemplateZone::tightenGroup(std::size_t& unusedValue,
                 // We could have picked big unit, but got a small one.
                 // Check if unit's attack range is optimal for its placement.
                 // We can adjust unit position since second position is empty
-                if (canPlaceBig && frontline && info->reach != ReachType::Adjacent) {
+                if (canPlaceBig && frontline && info->getAttackReach() != ReachType::Adjacent) {
                     // Small soldier unit at frontline.
                     position = secondPosition;
-                } else if (canPlaceBig && !frontline && info->reach == ReachType::Adjacent) {
+                } else if (canPlaceBig && !frontline
+                           && info->getAttackReach() == ReachType::Adjacent) {
                     // Small melee unit at backline.
                     position = secondPosition;
                 }
@@ -1706,18 +1710,18 @@ void TemplateZone::createGroupUnits(Group& group, const GroupUnits& groupUnits)
         // Create unit
         auto unitId{mapGenerator->createId(CMidgardID::Type::Unit)};
         auto unit{std::make_unique<Unit>(unitId)};
-        unit->setImplId(unitInfo->unitId);
-        unit->setLevel(unitInfo->level);
-        unit->setHp(unitInfo->hitPoints);
+        unit->setImplId(unitInfo->getUnitId());
+        unit->setLevel(unitInfo->getLevel());
+        unit->setHp(unitInfo->getHp());
 
         // Add it to scenario
         mapGenerator->insertObject(std::move(unit));
 
         // Add it to group
-        auto unitAdded{group.addUnit(unitId, position, unitInfo->bigUnit)};
+        auto unitAdded{group.addUnit(unitId, position, unitInfo->isBig())};
         assert(unitAdded);
 
-        if (unitInfo->bigUnit) {
+        if (unitInfo->isBig()) {
             // Skip second part of big unit
             ++position;
         }
@@ -1738,7 +1742,7 @@ Village* TemplateZone::placeCity(const Position& position,
     village->setOwner(ownerId);
     village->setSubrace(subraceId);
     village->setTier(cityInfo.tier);
-    village->setName(*getRandomElement(getCityNames(), rand));
+    village->setName(*getRandomElement(getGameInfo()->getCityNames(), rand));
 
     auto villagePtr{village.get()};
 
@@ -1836,7 +1840,7 @@ Site* TemplateZone::placeMerchant(const Position& position, const MerchantInfo& 
     auto merchantId{mapGenerator->createId(CMidgardID::Type::Site)};
     auto merchant{std::make_unique<Merchant>(merchantId)};
 
-    const SiteText& text = *getRandomElement(getMerchantTexts(), rand);
+    const SiteText& text = *getRandomElement(getGameInfo()->getMerchantTexts(), rand);
     merchant->setTitle(text.name);
     merchant->setDescription(text.description);
     merchant->setImgIso(*getRandomElement(getGeneratorSettings().merchants.images, rand));
@@ -1861,7 +1865,7 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
     auto mageId{mapGenerator->createId(CMidgardID::Type::Site)};
     auto mage{std::make_unique<Mage>(mageId)};
 
-    const SiteText& text = *getRandomElement(getMageTexts(), rand);
+    const SiteText& text = *getRandomElement(getGameInfo()->getMageTexts(), rand);
     mage->setTitle(text.name);
     mage->setDescription(text.description);
     mage->setImgIso(*getRandomElement(getGeneratorSettings().mages.images, rand));
@@ -1876,7 +1880,7 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
 
         auto noDuplicates = [&pickedSpells](const SpellInfo* info) {
             // Make sure we don't pick duplicates
-            return pickedSpells.find(info->spellId) != pickedSpells.end();
+            return pickedSpells.find(info->getSpellId()) != pickedSpells.end();
         };
 
         auto noWrongType = [types = &mageInfo.spellTypes](const SpellInfo* info) {
@@ -1886,7 +1890,7 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
             }
 
             // Remove spells of types that mage is not allowed to sell
-            return types->find(info->spellType) == types->end();
+            return types->find(info->getSpellType()) == types->end();
         };
 
         auto noWrongLevel = [&level = mageInfo.spellLevels](const SpellInfo* info) {
@@ -1895,14 +1899,14 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
                 return false;
             }
 
-            return info->level < level.min || info->level > level.max;
+            return info->getLevel() < level.min || info->getLevel() > level.max;
         };
 
         while (currentValue <= desiredValue) {
             const int remainingValue = desiredValue - currentValue;
 
             auto noWrongValue = [remainingValue](const SpellInfo* info) {
-                return info->value > remainingValue;
+                return info->getValue() > remainingValue;
             };
 
             auto spell{pickSpell(rand, {noWrongType, noWrongLevel, noWrongValue, noDuplicates})};
@@ -1911,9 +1915,9 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
                 break;
             }
 
-            currentValue += spell->value;
-            mage->addSpell(spell->spellId);
-            pickedSpells.insert(spell->spellId);
+            currentValue += spell->getValue();
+            mage->addSpell(spell->getSpellId());
+            pickedSpells.insert(spell->getSpellId());
         }
     }
 
@@ -1935,7 +1939,7 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
     auto mercenaryId{mapGenerator->createId(CMidgardID::Type::Site)};
     auto mercenary{std::make_unique<Mercenary>(mercenaryId)};
 
-    const SiteText& text = *getRandomElement(getMercenaryTexts(), rand);
+    const SiteText& text = *getRandomElement(getGameInfo()->getMercenaryTexts(), rand);
     mercenary->setTitle(text.name);
     mercenary->setDescription(text.description);
     mercenary->setImgIso(*getRandomElement(getGeneratorSettings().mercenaries.images, rand));
@@ -1953,7 +1957,7 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
             }
 
             // Remove units of subraces that mercenary is not allowed to sell
-            return types->find(info->subrace) == types->end();
+            return types->find(info->getSubrace()) == types->end();
         };
 
         while (currentValue <= desiredValue) {
@@ -1963,8 +1967,8 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
                 break;
             }
 
-            currentValue += unit->value;
-            mercenary->addUnit(unit->unitId, unit->level, true);
+            currentValue += unit->getValue();
+            mercenary->addUnit(unit->getUnitId(), unit->getLevel(), true);
         }
     }
 
@@ -1987,7 +1991,7 @@ Site* TemplateZone::placeTrainer(const Position& position, const TrainerInfo& tr
     auto trainerId{mapGenerator->createId(CMidgardID::Type::Site)};
     auto trainer{std::make_unique<Trainer>(trainerId)};
 
-    const SiteText& text = *getRandomElement(getTrainerTexts(), rand);
+    const SiteText& text = *getRandomElement(getGameInfo()->getTrainerTexts(), rand);
     trainer->setTitle(text.name);
     trainer->setDescription(text.description);
     trainer->setImgIso(*getRandomElement(getGeneratorSettings().trainers.images, rand));
@@ -2006,7 +2010,7 @@ Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo
     auto ruinId{mapGenerator->createId(CMidgardID::Type::Ruin)};
     auto ruin{std::make_unique<Ruin>(ruinId)};
 
-    const SiteText& text = *getRandomElement(getRuinTexts(), rand);
+    const SiteText& text = *getRandomElement(getGameInfo()->getRuinTexts(), rand);
     ruin->setTitle(text.name);
     ruin->setImage(*getRandomElement(getGeneratorSettings().ruins.images, rand));
 
@@ -2113,7 +2117,7 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
         int currentValue{};
 
         auto noWrongType = [types = &loot.itemTypes, forMerchant](const ItemInfo* info) {
-            if (forMerchant && info->itemType == ItemType::Valuable) {
+            if (forMerchant && info->getItemType() == ItemType::Valuable) {
                 // Do not generate valuables as merchant goods
                 return true;
             }
@@ -2123,7 +2127,7 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
             }
 
             // Remove items of types that is not allowed
-            return types->find(info->itemType) == types->end();
+            return types->find(info->getItemType()) == types->end();
         };
 
         const auto& itemValue{loot.itemValue};
@@ -2133,13 +2137,14 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
             const int remainingValue = desiredValue - currentValue;
 
             auto noWrongValue = [remainingValue, &itemValue](const ItemInfo* info) {
-                if (itemValue && (info->value < itemValue.min || info->value > itemValue.max)) {
+                if (itemValue
+                    && (info->getValue() < itemValue.min || info->getValue() > itemValue.max)) {
                     // If user specified single item value range,
                     // filter items that are outside of it
                     return true;
                 }
 
-                return info->value > static_cast<int>(remainingValue);
+                return info->getValue() > static_cast<int>(remainingValue);
             };
 
             auto item{pickItem(rand, {noWrongType, noWrongValue, noSpecialItem, noForbiddenItem})};
@@ -2149,8 +2154,8 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
             }
 
             ++picked;
-            currentValue += item->value;
-            items.push_back({item->itemId, 1});
+            currentValue += item->getValue();
+            items.push_back({item->getItemId(), 1});
         }
 
         if (mapGenerator->isDebugMode()) {
@@ -2348,20 +2353,20 @@ void TemplateZone::placeCapital()
 
     assert(ownerId != emptyId);
     fort->setOwner(ownerId);
-    fort->setName(*getRandomElement(getCityNames(), rand));
+    fort->setName(*getRandomElement(getGameInfo()->getCityNames(), rand));
 
     auto ownerPlayer{mapGenerator->map->find<Player>(ownerId)};
     assert(ownerPlayer != nullptr);
 
     auto playerRace{mapGenerator->getRaceType(ownerPlayer->getRace())};
 
-    const auto& raceInfo{getRaceInfo(playerRace)};
-    const auto& unitsInfo{getUnitsInfo()};
+    const auto& raceInfo{getGameInfo()->getRaceInfo(playerRace)};
+    const auto& unitsInfo{getGameInfo()->getUnits()};
 
     const auto& garrison{capital.garrison};
 
     {
-        const UnitInfo* guardianInfo{unitsInfo.find(raceInfo.guardianId)->second.get()};
+        const UnitInfo* guardianInfo{unitsInfo.find(raceInfo.getGuardianUnitId())->second.get()};
         assert(guardianInfo);
 
         // Create capital garrison
@@ -2371,7 +2376,7 @@ void TemplateZone::placeCapital()
         std::set<int> positions{0, 1, 3, 4, 5};
         GroupUnits units = {{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}};
         units[2] = guardianInfo;
-        if (guardianInfo->bigUnit) {
+        if (guardianInfo->isBig()) {
             units[3] = guardianInfo;
             positions.erase(3);
         }
@@ -2400,24 +2405,24 @@ void TemplateZone::placeCapital()
         }
     }
 
-    const auto* leaderInfo{unitsInfo.find(raceInfo.leaderIds[0])->second.get()};
+    const auto* leaderInfo{unitsInfo.find(raceInfo.getLeaderIds()[0])->second.get()};
     assert(leaderInfo);
 
     // Create starting leader unit
     auto leaderId{mapGenerator->createId(CMidgardID::Type::Unit)};
     auto leader{std::make_unique<Unit>(leaderId)};
-    leader->setImplId(leaderInfo->unitId);
-    leader->setHp(leaderInfo->hitPoints);
+    leader->setImplId(leaderInfo->getUnitId());
+    leader->setHp(leaderInfo->getHp());
     leader->setName(getUnitName(*leaderInfo, rand));
     mapGenerator->insertObject(std::move(leader));
 
     // Create starting stack
     auto stackId{mapGenerator->createId(CMidgardID::Type::Stack)};
     auto stack{std::make_unique<Stack>(stackId)};
-    auto leaderAdded{stack->addLeader(leaderId, 2, leaderInfo->bigUnit)};
+    auto leaderAdded{stack->addLeader(leaderId, 2, leaderInfo->isBig())};
     assert(leaderAdded);
     stack->setInside(capitalId);
-    stack->setMove(leaderInfo->move);
+    stack->setMove(leaderInfo->getMove());
     stack->setOwner(ownerId);
     stack->setOrder(OrderType::Normal);
 

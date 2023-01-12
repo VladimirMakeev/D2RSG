@@ -28,22 +28,22 @@ namespace rsg {
 
 UnitInfo* pickLeader(RandomGenerator& random, const UnitFilterList& filters)
 {
-    return pick(getLeaders(), random, filters);
+    return pick(getGameInfo()->getLeaders(), random, filters);
 }
 
 UnitInfo* pickUnit(RandomGenerator& random, const UnitFilterList& filters)
 {
-    return pick(getSoldiers(), random, filters);
+    return pick(getGameInfo()->getSoldiers(), random, filters);
 }
 
 bool noForbidden(const UnitInfo* info)
 {
-    return contains(getGeneratorSettings().forbiddenUnits, info->unitId);
+    return contains(getGeneratorSettings().forbiddenUnits, info->getUnitId());
 }
 
 bool noPlayableRaces(const UnitInfo* info)
 {
-    switch (info->subrace) {
+    switch (info->getSubrace()) {
     case SubRaceType::Human:
     case SubRaceType::Undead:
     case SubRaceType::Heretic:
@@ -57,17 +57,17 @@ bool noPlayableRaces(const UnitInfo* info)
 
 bool noBig(const UnitInfo* info)
 {
-    return info->bigUnit;
+    return info->isBig();
 }
 
 bool noRanged(const UnitInfo* info)
 {
-    return info->reach != ReachType::Adjacent;
+    return info->getAttackReach() != ReachType::Adjacent;
 }
 
 bool noMelee(const UnitInfo* info)
 {
-    return info->reach == ReachType::Adjacent;
+    return info->getAttackReach() == ReachType::Adjacent;
 }
 
 bool noSupport(const UnitInfo* info)

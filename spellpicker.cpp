@@ -44,12 +44,12 @@ static SpellInfo* pickSpell(const SpellInfoArray& spellsPool,
 
 SpellInfo* pickSpell(RandomGenerator& random, const SpellFilterList& filters)
 {
-    return pickSpell(getSpells(), random, filters);
+    return pickSpell(getGameInfo()->getSpells(), random, filters);
 }
 
 SpellInfo* pickSpell(SpellType spellType, RandomGenerator& random, const SpellFilterList& filters)
 {
-    return pickSpell(getSpells(spellType), random, filters);
+    return pickSpell(getGameInfo()->getSpells(spellType), random, filters);
 }
 
 } // namespace rsg

@@ -20,22 +20,39 @@
 #pragma once
 
 #include "enums.h"
-#include <functional>
-#include <vector>
 
 namespace rsg {
 
-class SpellInfo;
-class RandomGenerator;
+class CMidgardID;
 
-// Filter that decides whether spell should be discarded from pick or not.
-// Returns true for spell that should be removed from pick pool
-using SpellFilterFunc = std::function<bool(const SpellInfo*)>;
-using SpellFilterList = std::initializer_list<SpellFilterFunc>;
+// Information about unit from GUnits, GAttacks and LAttR.dbf
+class UnitInfo
+{
+public:
+    virtual ~UnitInfo() = default;
 
-// Picks any random spell after applying filters
-SpellInfo* pickSpell(RandomGenerator& random, const SpellFilterList& filters);
-// Picks random spell of specific type
-SpellInfo* pickSpell(SpellType spellType, RandomGenerator& random, const SpellFilterList& filters);
+    virtual const CMidgardID& getUnitId() const = 0;
+    virtual const CMidgardID& getRaceId() const = 0;
+    virtual const CMidgardID& getNameId() const = 0;
+
+    virtual int getLevel() const = 0;
+    virtual int getValue() const = 0;
+
+    virtual UnitType getUnitType() const = 0;
+    virtual SubRaceType getSubrace() const = 0;
+
+    virtual ReachType getAttackReach() const = 0;
+    virtual AttackType getAttackType() const = 0;
+
+    virtual int getHp() const = 0;
+    virtual int getMove() const = 0;
+    virtual int getLeadership() const = 0;
+
+    virtual bool isBig() const = 0;
+    virtual bool isMale() const = 0;
+
+protected:
+    UnitInfo() = default;
+};
 
 } // namespace rsg

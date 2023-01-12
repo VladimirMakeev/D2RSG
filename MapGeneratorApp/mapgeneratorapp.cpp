@@ -188,7 +188,14 @@ bool MapGeneratorApp::readGameInfo(const std::filesystem::path &gameFolder)
         return false;
     }
 
-    return rsg::readGameInfo(gameFolder);
+    try {
+        gameInfo = std::make_unique<rsg::StandaloneGameInfo>(gameFolder);
+        rsg::setGameInfo(gameInfo.get());
+        return true;
+    } catch (const std::exception& e) {
+        QMessageBox::critical(this, tr("Error"), tr("%1").arg(e.what()));
+        return false;
+    }
 }
 
 void MapGeneratorApp::readTemplateAndUpdateUi(const std::filesystem::path& templatePath)

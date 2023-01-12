@@ -20,8 +20,13 @@
 #pragma once
 
 #include "enums.h"
+#include "iteminfo.h"
+#include "landmarkinfo.h"
 #include "midgardid.h"
 #include "position.h"
+#include "raceinfo.h"
+#include "spellinfo.h"
+#include "unitinfo.h"
 #include <array>
 #include <filesystem>
 #include <map>
@@ -32,232 +37,30 @@
 
 namespace rsg {
 
-// Brief information about unit from GUnits, GAttacks and LAttR.dbf
-struct UnitInfo
-{
-    UnitInfo() = default;
-
-    UnitInfo(const CMidgardID& unitId,
-             const CMidgardID& raceId,
-             const CMidgardID& nameId,
-             int level,
-             int value,
-             UnitType type,
-             SubRaceType subrace,
-             ReachType reach,
-             AttackType attackType,
-             int hp,
-             int move,
-             int leadership,
-             bool bigUnit,
-             bool male)
-        : unitId{unitId}
-        , raceId{raceId}
-        , nameId{nameId}
-        , level{level}
-        , value{value}
-        , unitType{type}
-        , subrace{subrace}
-        , reach{reach}
-        , attackType{attackType}
-        , hitPoints{hp}
-        , move{move}
-        , leadership{leadership}
-        , bigUnit{bigUnit}
-        , male{male}
-    { }
-
-    CMidgardID unitId;
-    CMidgardID raceId;
-    CMidgardID nameId;
-    int level{};
-    int value{};
-    UnitType unitType{UnitType::Soldier};
-    SubRaceType subrace{SubRaceType::Neutral};
-    ReachType reach{ReachType::Adjacent};
-    AttackType attackType{AttackType ::Damage};
-    int hitPoints{};
-    int move{};
-    int leadership{};
-    bool bigUnit{};
-    bool male{};
-};
-
 using UnitInfoPtr = std::unique_ptr<UnitInfo>;
 using UnitInfoArray = std::vector<UnitInfo*>;
-
 using UnitsInfo = std::map<CMidgardID /* unit id */, UnitInfoPtr>;
 
 using GroupUnits = std::array<const UnitInfo*, 6>;
 
-// Returns all units known to map generator
-const UnitsInfo& getUnitsInfo();
-// Returns array of leader units, excluding nobles
-const UnitInfoArray& getLeaders();
-// Returns array of soldier units
-const UnitInfoArray& getSoldiers();
-// Returns minimal leader unit value known to map generator
-int getMinLeaderValue();
-// Returns maximal leader unit value known to map generator
-int getMaxLeaderValue();
-// Returns minimal soldier unit value known to map generator
-int getMinSoldierValue();
-// Returns maximal soldier unit value known to map generator
-int getMaxSoldierValue();
-
-bool isSupport(const UnitInfo& info);
-
-bool readUnitsInfo(const std::filesystem::path& globalsFolderPath);
-
-// Brief information about items from GItem and LmagItm.dbf
-struct ItemInfo
-{
-    ItemInfo(const CMidgardID& itemId, int value, ItemType itemType)
-        : itemId{itemId}
-        , value{value}
-        , itemType{itemType}
-    { }
-
-    CMidgardID itemId;
-    int value{};
-    ItemType itemType{ItemType::Valuable};
-};
-
 using ItemInfoPtr = std::unique_ptr<ItemInfo>;
 using ItemInfoArray = std::vector<ItemInfo*>;
-
 using ItemsInfo = std::map<CMidgardID /* item id */, ItemInfoPtr>;
-
-// Returns all items known to map generator
-const ItemsInfo& getItemsInfo();
-// Returns all items known to map generator as plain array
-const ItemInfoArray& getItems();
-// Returns all items of specific type known to map generator
-const ItemInfoArray& getItems(ItemType itemType);
-// Returns true if item with specified global id is a talisman
-bool isTalisman(const CMidgardID& itemId);
-
-bool readItemsInfo(const std::filesystem::path& globalsFolderPath);
-
-struct SpellInfo
-{
-    SpellInfo(const CMidgardID& spellId, int value, int level, SpellType spellType)
-        : spellId{spellId}
-        , value{value}
-        , level{level}
-        , spellType{spellType}
-    { }
-
-    CMidgardID spellId;
-    int value{};
-    int level{};
-    SpellType spellType{SpellType::Attack};
-};
 
 using SpellInfoPtr = std::unique_ptr<SpellInfo>;
 using SpellInfoArray = std::vector<SpellInfo*>;
-
 using SpellsInfo = std::map<CMidgardID /* spell id */, SpellInfoPtr>;
-
-// Returns all spells known to map generator
-const SpellsInfo& getSpellsInfo();
-// Returns all spells known to map generator as plain array
-const SpellInfoArray& getSpells();
-// Returns all spells of specific type known to map generator
-const SpellInfoArray& getSpells(SpellType spellType);
-
-bool readSpellsInfo(const std::filesystem::path& globalsFolderPath);
-
-struct LandmarkInfo
-{
-    LandmarkInfo(const CMidgardID& landmarkId,
-                 const Position& size,
-                 LandmarkType type,
-                 bool mountain)
-        : landmarkId{landmarkId}
-        , size{size}
-        , landmarkType{type}
-        , mountain{mountain}
-    { }
-
-    CMidgardID landmarkId;
-    Position size{1, 1};
-    LandmarkType landmarkType{LandmarkType::Misc};
-    bool mountain{};
-};
 
 using LandmarkInfoPtr = std::unique_ptr<LandmarkInfo>;
 using LandmarkInfoArray = std::vector<LandmarkInfo*>;
-
 using LandmarksInfo = std::map<CMidgardID /* landmark id */, LandmarkInfoPtr>;
-
-// Returns all landmarks known to map generator
-const LandmarksInfo& getLandmarksInfo();
-
-// Returns all landmarks of specific type known to map generator
-const LandmarkInfoArray& getLandmarks(LandmarkType landmarkType);
-// Returns all landmarks that are visually appropriate for specified race
-const LandmarkInfoArray& getLandmarks(RaceType raceType);
-// Returns all mountains landmarks, except volcano
-const LandmarkInfoArray& getMountainLandmarks();
-
-bool readLandmarksInfo(const std::filesystem::path& globalsFolderPath);
-
-struct LeaderNames
-{
-    std::vector<std::string> maleNames;
-    std::vector<std::string> femaleNames;
-};
-
-struct RaceInfo
-{
-    RaceInfo(const CMidgardID& raceId,
-             const CMidgardID& guardianId,
-             const CMidgardID& nobleId,
-             RaceType raceType,
-             LeaderNames&& leaderNames)
-        : leaderNames(std::move(leaderNames))
-        , raceId{raceId}
-        , guardianId{guardianId}
-        , nobleId{nobleId}
-        , raceType{raceType}
-    { }
-
-    LeaderNames leaderNames;
-    CMidgardID raceId;
-    CMidgardID guardianId;
-    CMidgardID nobleId;
-    std::array<CMidgardID, 4> leaderIds;
-    RaceType raceType;
-};
 
 using RaceInfoPtr = std::unique_ptr<RaceInfo>;
 using RacesInfo = std::map<CMidgardID /* race id */, RaceInfoPtr>;
 
-// Returns all races known to map generator
-const RacesInfo& getRacesInfo();
-// Returns race info for specified race type
-const RaceInfo& getRaceInfo(RaceType raceType);
-
-bool isRaceUnplayable(const CMidgardID& raceId);
-bool isRaceUnplayable(RaceType raceType);
-
-bool readRacesInfo(const std::filesystem::path& globalsFolderPath);
-
 using TextsInfo = std::unordered_map<CMidgardID, std::string, CMidgardIDHash>;
 
-const TextsInfo& getGlobalTexts();
-const TextsInfo& getEditorInterfaceTexts();
-
-bool readGlobalTexts(const std::filesystem::path& globalsFolderPath);
-
-bool readEditorInterfaceTexts(const std::filesystem::path& interfFolderPath);
-
 using CityNames = std::vector<std::string>;
-
-const CityNames& getCityNames();
-
-bool readCityNames(const std::filesystem::path& scenDataFolderPath);
 
 struct SiteText
 {
@@ -267,19 +70,99 @@ struct SiteText
 
 using SiteTexts = std::vector<SiteText>;
 
-// Returns texts for mercenary camps
-const SiteTexts& getMercenaryTexts();
-// Returns texts for mage towers
-const SiteTexts& getMageTexts();
-// Returns texts for merchants
-const SiteTexts& getMerchantTexts();
-// Returns texts for ruins
-const SiteTexts& getRuinTexts();
-// Returns texts for trainers
-const SiteTexts& getTrainerTexts();
+// Game interface for scenario generator
+class GameInfo
+{
+public:
+    virtual ~GameInfo() = default;
 
-bool readSiteTexts(const std::filesystem::path& scenDataFolderPath);
+    // Returns all units
+    virtual const UnitsInfo& getUnits() const = 0;
+    // Returns array of leader units, excluding nobles
+    virtual const UnitInfoArray& getLeaders() const = 0;
+    // Returns array of soldier units
+    virtual const UnitInfoArray& getSoldiers() const = 0;
+    // Returns minimal leader unit value
+    virtual int getMinLeaderValue() const = 0;
+    // Returns maximal leader unit value
+    virtual int getMaxLeaderValue() const = 0;
+    // Returns minimal soldier unit value
+    virtual int getMinSoldierValue() const = 0;
+    // Returns maximal soldier unit value
+    virtual int getMaxSoldierValue() const = 0;
 
-bool readGameInfo(const std::filesystem::path& gameFolderPath);
+    // Returns all items
+    virtual const ItemsInfo& getItemsInfo() const = 0;
+    // Returns all items as plain array
+    virtual const ItemInfoArray& getItems() const = 0;
+    // Returns all items of specific type
+    virtual const ItemInfoArray& getItems(ItemType itemType) const = 0;
+
+    // Returns all spells
+    virtual const SpellsInfo& getSpellsInfo() const = 0;
+    // Returns all spells as plain array
+    virtual const SpellInfoArray& getSpells() const = 0;
+    // Returns all spells of specific type
+    virtual const SpellInfoArray& getSpells(SpellType spellType) const = 0;
+
+    // Returns all landmarks
+    virtual const LandmarksInfo& getLandmarksInfo() const = 0;
+
+    // Returns all landmarks of specific type
+    virtual const LandmarkInfoArray& getLandmarks(LandmarkType landmarkType) const = 0;
+    // Returns all landmarks that are visually appropriate for specified race
+    virtual const LandmarkInfoArray& getLandmarks(RaceType raceType) const = 0;
+    // Returns all mountains landmarks
+    virtual const LandmarkInfoArray& getMountainLandmarks() const = 0;
+
+    // Returns all races
+    virtual const RacesInfo& getRacesInfo() const = 0;
+    // Returns race info for specified race type
+    virtual const RaceInfo& getRaceInfo(RaceType raceType) const = 0;
+
+    // Returns text record with specified id from Tglobal.dbf
+    virtual const char* getGlobalText(const CMidgardID& textId) const = 0;
+    // Returns text record with specified id from TAppEdit.dbf
+    virtual const char* getEditorInterfaceText(const CMidgardID& textId) const = 0;
+
+    // Returns all city names from Cityname.dbf
+    virtual const CityNames& getCityNames() const = 0;
+
+    // Returns texts for mercenary camps
+    virtual const SiteTexts& getMercenaryTexts() const = 0;
+    // Returns texts for mage towers
+    virtual const SiteTexts& getMageTexts() const = 0;
+    // Returns texts for merchants
+    virtual const SiteTexts& getMerchantTexts() const = 0;
+    // Returns texts for ruins
+    virtual const SiteTexts& getRuinTexts() const = 0;
+    // Returns texts for trainers
+    virtual const SiteTexts& getTrainerTexts() const = 0;
+
+protected:
+    GameInfo() = default;
+};
+
+// Sets up GameInfo interface for scenario generator to use.
+// It is a user responsibility to manage GameInfo object lifetime.
+// Passed GameInfo object should stay valid until scenario generator is running
+void setGameInfo(const GameInfo* gameInfo);
+
+// Returns currently set game info interface
+const GameInfo* getGameInfo();
+
+// Returns true if unit info describes leader unit
+bool isLeader(const UnitInfo& info);
+// Returns true if unit info describes support unit.
+// Units which primary attacks deal no damage are considered as supports
+bool isSupport(const UnitInfo& info);
+
+// Returns true if item with specified global id is a talisman
+bool isTalisman(const CMidgardID& itemId);
+
+// Returns true if race with specified id can not be played by human player
+bool isRaceUnplayable(const CMidgardID& raceId);
+// Returns true if race with specified type can not be played by human player
+bool isRaceUnplayable(RaceType raceType);
 
 } // namespace rsg

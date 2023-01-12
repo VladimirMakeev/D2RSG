@@ -37,6 +37,7 @@
 namespace rsg {
 
 class MapGenerator;
+class UnitInfo;
 
 enum class ObjectPlacingResult
 {

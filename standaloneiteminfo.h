@@ -19,23 +19,42 @@
 
 #pragma once
 
-#include "enums.h"
-#include <functional>
-#include <vector>
+#include "iteminfo.h"
+#include "midgardid.h"
 
 namespace rsg {
 
-class SpellInfo;
-class RandomGenerator;
+// Information about item for standalone generator builds
+class StandaloneItemInfo final : public ItemInfo
+{
+public:
+    StandaloneItemInfo(const CMidgardID& itemId, int value, ItemType itemType)
+        : itemId{itemId}
+        , value{value}
+        , itemType{itemType}
+    { }
 
-// Filter that decides whether spell should be discarded from pick or not.
-// Returns true for spell that should be removed from pick pool
-using SpellFilterFunc = std::function<bool(const SpellInfo*)>;
-using SpellFilterList = std::initializer_list<SpellFilterFunc>;
+    ~StandaloneItemInfo() override = default;
 
-// Picks any random spell after applying filters
-SpellInfo* pickSpell(RandomGenerator& random, const SpellFilterList& filters);
-// Picks random spell of specific type
-SpellInfo* pickSpell(SpellType spellType, RandomGenerator& random, const SpellFilterList& filters);
+    const CMidgardID& getItemId() const override
+    {
+        return itemId;
+    }
+
+    ItemType getItemType() const override
+    {
+        return itemType;
+    }
+
+    int getValue() const override
+    {
+        return value;
+    }
+
+private:
+    CMidgardID itemId;
+    int value{};
+    ItemType itemType{ItemType::Valuable};
+};
 
 } // namespace rsg

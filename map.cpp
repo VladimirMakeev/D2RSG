@@ -94,12 +94,15 @@ void Map::serialize(const std::filesystem::path& scenarioFilePath)
         races.push_back(getRaceType(player->getRace()));
     });
 
+    const GameInfo* info{getGameInfo()};
+
     // Populate scenario info and set diplomacy relations between races
     for (std::size_t i = 0; i < races.size(); ++i) {
         scenarioInfo->addPlayer(i, races[i]);
 
         for (std::size_t j = i + 1; j < races.size(); ++j) {
-            diplomacy->add(getRaceInfo(races[i]).raceId, getRaceInfo(races[j]).raceId, 0);
+            diplomacy->add(info->getRaceInfo(races[i]).getRaceId(),
+                           info->getRaceInfo(races[j]).getRaceId(), 0);
         }
     }
 

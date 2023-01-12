@@ -17,10 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gameinfo.h"
 #include "mapgenerator.h"
 #include "maptemplate.h"
 #include "maptemplatereader.h"
+#include "standalonegameinfo.h"
 #include <iostream>
 #include <sol/sol.hpp>
 #include <stdexcept>
@@ -38,21 +38,18 @@ int main(int argc, char* argv[])
 
     const std::filesystem::path gameFolder{argv[2]};
 
-    if (!readGameInfo(gameFolder)) {
-        std::cerr << "Could not read game info\n";
-        return 1;
-    }
+    try {
+        const StandaloneGameInfo info(gameFolder);
+        setGameInfo(&info);
 
-#if 0
-    std::time_t mapSeed{std::time(nullptr)};
+#if 1
+        std::time_t mapSeed{std::time(nullptr)};
 #else
-    // std::time_t(/*1656538751*/ 1659178091)
-    std::time_t mapSeed = std::time_t(/*1659202294*/ 1659802826);
+        std::time_t mapSeed = std::time_t(1673113695);
 #endif
 
-    const std::string seedString{std::to_string(mapSeed)};
+        const std::string seedString{std::to_string(mapSeed)};
 
-    try {
         const std::filesystem::path templateFilePath{argv[1]};
 
         sol::state lua;

@@ -3,6 +3,7 @@
 
 #include "maptemplate.h"
 #include "mapgenerator.h"
+#include "standalonegameinfo.h"
 #include <filesystem>
 #include <memory>
 #include <QWidget>
@@ -83,6 +84,9 @@ private:
 
     using MapGeneratorPtr = std::unique_ptr<rsg::MapGenerator>;
     MapGeneratorPtr generator;
+
+    using GameInfoPtr = std::unique_ptr<rsg::StandaloneGameInfo>;
+    GameInfoPtr gameInfo;
 
     rsg::MapPtr scenario;
     std::filesystem::path templateFilePath;

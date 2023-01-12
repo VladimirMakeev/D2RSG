@@ -25,7 +25,7 @@
 
 namespace rsg {
 
-struct ItemInfo;
+class ItemInfo;
 class RandomGenerator;
 
 // Filter that decides whether item should be discarded from pick or not.

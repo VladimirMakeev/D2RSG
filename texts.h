@@ -21,7 +21,7 @@
 
 namespace rsg {
 
-struct UnitInfo;
+class UnitInfo;
 class RandomGenerator;
 
 const char* getUnitName(const UnitInfo& info, RandomGenerator& rand);
