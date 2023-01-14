@@ -1,0 +1,97 @@
+\documentclass[10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{textcmds}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{lghtgray}{rgb}{0.97,0.97,0.97}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{kwblue}{rgb}{0.2,0.6,1.0}
+
+\lstdefinestyle{lua}{
+  defaultdialect=[5.0]Lua,
+  deletekeywords={type},
+  frame=single,
+  language=Lua,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  backgroundcolor=\color{lghtgray},
+  basicstyle={\small\ttfamily},
+  numbers=left,
+  numberstyle=\footnotesize\color{black},
+  keywordstyle=\color{kwblue}\bfseries,
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{brown},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=4,
+  extendedchars=false,
+  inputencoding=utf8
+}
+
+\lstset{style=lua}
+
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ }
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=teal,   
+    urlcolor=blue,
+    }
+
+
+% In case you want watermark on each page!
+%\usepackage{draftwatermark}
+%\SetWatermarkText{Черновик}
+%\SetWatermarkScale{2}
+%\SetWatermarkColor{red}
+
+
+\author{mak}
+\title{\selectlanguage{Russian}Генератор случайных сценариев Disciples 2\\Документация для версии 0.5.0}
+
+\begin{document}
+\pagestyle{fancy}
+ % clear all header fields
+\fancyhead{}
+ % clear all footer fields
+\fancyfoot{}
+% page number in the center for even and odd pages
+\fancyfoot[CE,CO]{\thepage}
+\fancyhead[RO,RE]{\textcolor{gray}{Версия генератора 0.5.0}}
+
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+\listoffigures
+
+\selectlanguage{Russian}
+% Introduction
+\include{introduction.tex}
+% GUI app usage
+\include{usage.tex}
+% Template format description
+\include{templateFormat.tex}
+% Key concepts and data types
+\include{keyConcepts.tex}
+% Example of template creation and testing
+\include{templateExample.tex}
+
+\end{document}

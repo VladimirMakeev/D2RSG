@@ -1,0 +1,58 @@
+\subsubsection{Зона}
+\label{zone}
+Определяет зону на карте сценария.
+
+Обязательные поля:
+\begin{itemize}
+\item \texttt{id} - идентификатор зоны. Число, уникально определяющее зону
+\item \texttt{type} - тип зоны. См. \hyperref[zoneTypes]{\selectlanguage{Russian}Типы зон}
+\item \texttt{size} - относительный размер зоны
+\end{itemize}
+
+В случае если в качестве типа зоны выбрана стартовая локация \texttt{type = Zone.PlayerStart}, нужно указать уникальную расу для игрока в этой зоне:
+\begin{itemize}
+\item \texttt{race} - раса игрока. Одна из поданного в \texttt{getContents} списка рас или заранее заданная. См. \hyperref[raceTypes]{\selectlanguage{Russian}Расы}
+\end{itemize}
+
+Необязательные поля:
+\begin{itemize}
+\item \texttt{mines} - источники ресурсов в зоне. См. \hyperref[crystals]{\selectlanguage{Russian}Источники ресурсов}
+\item \texttt{towns} - список нейтральных городов. См. \hyperref[city]{\selectlanguage{Russian}Город}
+\item \texttt{ruins} - список руин. См. \hyperref[ruin]{\selectlanguage{Russian}Руины}
+\item \texttt{merchants} - список торговцев. См. \hyperref[merchant]{\selectlanguage{Russian}Торговец}
+\item \texttt{mages} - список башен магов. См. \hyperref[mage]{\selectlanguage{Russian}Башня мага}
+\item \texttt{mercenaries} - список лагерей наемников. См. \hyperref[mercenary]{\selectlanguage{Russian}Лагерь наемников}
+\item \texttt{trainers} - список тренировочных лагерей. См. \hyperref[trainer]{\selectlanguage{Russian}Тренер}
+\item \texttt{stacks} - список групп нейтральных отрядов в зоне. См. \hyperref[neutralStacks]{\selectlanguage{Russian}Нейтральные отряды}
+\item \texttt{bags} - неохраняемые сундуки в зоне. См. \hyperref[bags]{\selectlanguage{Russian}Неохраняемые сундуки}
+\end{itemize}
+
+Для стартовых локаций игроков также возможно задание гарнизона, предметов в столице и заклинаний известных игроку со старта:
+\begin{itemize}
+\item \texttt{capital} - столица игрока. См. \hyperref[capital]{\selectlanguage{Russian}Столица}
+\end{itemize}
+
+Примеры:\\
+Стартовая зона с относительным размером 20. Здесь будет столица первого игрока из списка рас.
+В зоне будут созданы 1 золотой рудник и 1 источник маны рун.
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/zoneExample1.lua}
+\end{figure}
+
+Стартовая зона с относительным размером 20. Здесь будет столица первого игрока из списка рас.
+Независимо от выбранной расы, в гарнизоне столице будут созданы юниты империи общей ценностью 150 - 175.
+В инвентаре столицы будут созданы зелья лечения и воскрешения ценностью 750 - 800.
+Игроку-владельцу со старта будут известны заклинания 'Ледяной щит' и 'Молния'.
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/zoneExample2.lua}
+\end{figure}
+
+Обычная зона (сокровищница) с относительным размером 35.
+В зоне будут случайно расположены 12 нейтральных отрядов общей ценностью 1200 - 1300,
+а также 5 нейтральных отрядов общей ценностью 2000.
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/zoneExample3.lua}
+\end{figure}

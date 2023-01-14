@@ -1,0 +1,33 @@
+\subsubsection{Проход}
+\label{connection}
+Определяет соединение двух зон, проход между ними.
+Между двумя зонами может быть более одного прохода.
+
+Обязательные поля:
+\begin{itemize}
+\item \texttt{from} - идентификатор первой зоны. См. \hyperref[zone]{\selectlanguage{Russian}Зона}
+\item \texttt{to} - идентификатор второй зоны. См. \hyperref[zone]{\selectlanguage{Russian}Зона}
+\end{itemize}
+
+Необязательные поля:
+\begin{itemize}
+\item \texttt{guard} - отряд охраняющий проход между зонами. См. \hyperref[group]{\selectlanguage{Russian}Группа / Отряд}
+\end{itemize}
+
+Примеры:\\
+Проход между зонами 0 и 1, без охраны
+\begin{figure}[h]
+\lstinputlisting{docExamples/connectionExample1.lua}
+\end{figure}
+
+Проход между зонами 1 и 0, аналогичен предыдущему примеру
+\begin{figure}[h]
+\lstinputlisting{docExamples/connectionExample2.lua}
+\end{figure}
+
+Проход между зонами 0 и 3.
+Охраняется отрядом ценностью 1750 - 2250.
+В инвентаре отряда будут созданы артефакты, знамена или перманентные зелья общей ценностью 2500 - 3000
+\begin{figure}[h]
+\lstinputlisting{docExamples/connectionExample3.lua}
+\end{figure}

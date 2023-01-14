@@ -1,0 +1,22 @@
+\subsubsection{Руины}
+\label{ruin}
+Описывает руины, их защитников и награду.
+
+Обязательные поля:
+\begin{itemize}
+\item \texttt{guard} - юниты внутри руин. См. \hyperref[group]{\selectlanguage{Russian}Группа / Отряд}. \textbf{\selectlanguage{Russian}Важно:} предметы указанные для этой группы игнорируются!
+\end{itemize}
+
+Необязательные поля:
+\begin{itemize}
+\item \texttt{gold} - награда за руины в золоте. См. \hyperref[value]{\selectlanguage{Russian}Ценность}
+\item \texttt{loot} - предмет-награда за руины. См. \hyperref[loot]{\selectlanguage{Russian}Награда}. \textbf{\selectlanguage{Russian}Важно:} только один предмет из награды будет создан. Обязательные предметы имеют приоритет над случайными. В случае обязательных предметов будет выбран первый из списка.
+\end{itemize}
+
+Пример:\\
+Руины с наградой из эликсира восстановления и 200 - 250 золота.
+Охраняются группой защитников империи или нейтральных людей
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/ruinExample.lua}
+\end{figure}

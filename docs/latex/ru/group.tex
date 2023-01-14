@@ -1,0 +1,22 @@
+\subsubsection{Группа / Отряд}
+\label{group}
+Описывает группу юнитов в руинах или гарнизоне города, либо отряд с лидером.
+
+Обязательные поля:
+\begin{itemize}
+\item \texttt{value} - общая ценность юнитов. См. \hyperref[value]{\selectlanguage{Russian}Ценность}
+\end{itemize}
+
+Необязательные поля:
+\begin{itemize}
+\item \texttt{subraceTypes} - список сабрас определяющий какие типы юнитов могут быть созданы. См. \hyperref[subraceTypes]{\selectlanguage{Russian}Субрасы}. В случае пустого списка могут быть созданы юниты любых субрас
+\item \texttt{loot} - награда. См. \hyperref[loot]{\selectlanguage{Russian}Награда}. В случае отряда награда создаст предметы инвентаря. Для группы в гарнизоне города награда создаст предметы в городе. \textbf{\selectlanguage{Russian}Важно:} награда группы внутри руин \textbf{\selectlanguage{Russian}не учитывается!}. Награда руин задается отдельно. См. \hyperref[ruin]{\selectlanguage{Russian}Руины}
+\end{itemize}
+
+Пример:\\
+Группа / Отряд из гномов или нейтральных людей.
+В качестве награды будут созданы зелья лечения и бафов на 200 - 300 ценности.
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/groupExample.lua}
+\end{figure}

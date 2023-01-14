@@ -1,0 +1,23 @@
+\subsubsection{Город}
+\label{city}
+Описывает нейтральный город, его гарнизон и посещающий отряд, а также предметы внутри города.
+
+Обязательные поля:
+\begin{itemize}
+\item \texttt{tier} - уровень города в диапазоне \texttt{[1: 5]}
+\end{itemize}
+
+Необязательные поля:
+\begin{itemize}
+\item \texttt{garrison} - защитники в гарнизоне города. См. \hyperref[group]{\selectlanguage{Russian}Группа / Отряд}. \textbf{\selectlanguage{Russian}Важно:} Предметы указанные для защитников будут созданы в инвентаре города.
+\item \texttt{stack} - отряд посещающий город. См. \hyperref[group]{\selectlanguage{Russian}Группа / Отряд}
+\end{itemize}
+
+Пример:\\
+Город 1 уровня с гарнизоном из гномов или нейтральных людей.
+В гарнизоне будут созданы зелья лечения и бафов на 200 - 300 ценности.
+Посещающий отряд в воротах города состоит из варваров и волков.
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/cityExample.lua}
+\end{figure}

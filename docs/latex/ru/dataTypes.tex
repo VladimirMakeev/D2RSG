@@ -1,0 +1,73 @@
+\subsection{Типы данных}
+В случае с описанием содержимого шаблона генератор понимает и ожидает некоторые заранее определенные таблицы и данные. Поля внутри таких таблиц зависят от того что описывает таблица, другими словами её типа. Ниже будут подробно рассмотрены все существующие типы таблиц, их назначение и поля.
+
+\subsubsection{Расы}
+\label{raceTypes}
+Расы которые могут появиться в списке рас функции \texttt{getContents}:
+\begin{itemize}
+\item \texttt{Race.Human} - Защитники Империи
+\item \texttt{Race.Undead} - Орды нежити
+\item \texttt{Race.Heretic} - Легионы проклатых
+\item \texttt{Race.Dwarf} - Горные кланы
+\item \texttt{Race.Elf} - Альянс эльфов
+\end{itemize}
+
+\subsubsection{Субрасы}
+\label{subraceTypes}
+Субрасы известные генератору:
+\begin{itemize}
+\item \texttt{Subrace.Human} - Защитники Империи
+\item \texttt{Subrace.Undead} - Орды нежити
+\item \texttt{Subrace.Heretic} - Легионы проклятых
+\item \texttt{Subrace.Dwarf} - Горные кланы
+\item \texttt{Subrace.Elf} - Альянс эльфов
+\item \texttt{Subrace.Neutral} - Нейтралы
+\item \texttt{Subrace.NeutralHuman} - Нейтральные люди
+\item \texttt{Subrace.NeutralElf} - Нейтральные эльфы
+\item \texttt{Subrace.NeutralGreenSkin} - Зеленокожие
+\item \texttt{Subrace.NeutralDragon} - Драконы
+\item \texttt{Subrace.NeutralMarsh} - Жители болот
+\item \texttt{Subrace.NeutralWater} - Водные обитатели
+\item \texttt{Subrace.NeutralBarbarian} - Варвары
+\item \texttt{Subrace.NeutralWolf} - Животные
+\item \texttt{Subrace.Custom} - Своя субраса
+\end{itemize}
+
+\subsubsection{Типы предметов}
+\label{itemTypes}
+Типы предметов известные генератору:
+\begin{itemize}
+\item \texttt{Item.Armor} - Артефакты (не влияющие на урон)
+\item \texttt{Item.Jewel} - Реликвии
+\item \texttt{Item.Weapon} - Артефакты (влияющие на урон)
+\item \texttt{Item.Banner} - Знамена
+\item \texttt{Item.PotionBoost} - Зелья бафов
+\item \texttt{Item.PotionHeal} - Зелья лечения
+\item \texttt{Item.PotionRevive} - Зелья воскрешения
+\item \texttt{Item.PotionPermanent} - Зелья дающие постоянный эффект
+\item \texttt{Item.Scroll} - Свитки
+\item \texttt{Item.Wand} - Посохи
+\item \texttt{Item.Valuable} - Драгоценности
+\item \texttt{Item.Orb} - Сферы
+\item \texttt{Item.Talisman} - Талисманы
+\item \texttt{Item.TravelItem} - Походное снаряжение
+\item \texttt{Item.Special} - Особые
+\end{itemize}
+
+\subsubsection{Типы заклинаний}
+\label{spellTypes}
+Типы заклинаний известные генератору:
+\begin{itemize}
+\item \texttt{Spell.Attack} - Наносящие урон, например 'Армагеддон'
+\item \texttt{Spell.Lower} - Снижающие показатели (дебафы), например 'Гниение'
+\item \texttt{Spell.Heal} - Лечащие заклинания, например 'Исцеление'
+\item \texttt{Spell.Boost} - Увеличивающие показатели (бафы), например 'Гимн Кланов'
+\item \texttt{Spell.Summon} - Призыв, например 'Вызов Белиарха'
+\item \texttt{Spell.Fog} - Наложение тумана войны, например 'Сумерки'
+\item \texttt{Spell.Unfog} - Открытие тумана войны, например 'Свет дня'
+\item \texttt{Spell.RestoreMove} - Восстановление очков движения, например 'Подвижность'
+\item \texttt{Spell.Invisibility} - Невидимость, например 'Сокрытие'
+\item \texttt{Spell.RemoveRod} - Удаление жезлов, например 'Водосточный колодец'
+\item \texttt{Spell.ChangeTerrain} - Смена типа поверхности, например 'Создание Рощи'
+\item \texttt{Spell.GiveWards} - Наложение даров (вардов), например 'Влиятельность' (Мотлин), 'Поспешность' (MNS)
+\end{itemize}

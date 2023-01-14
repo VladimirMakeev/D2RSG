@@ -1,0 +1,49 @@
+\section{Ключевые понятия}
+Зоны, их содержимое, а также соединения между зонами описываются с помощью Lua таблиц.
+Простейшая таблица в языке Lua выглядит следующим образом:\\
+\begin{lstlisting}
+{ }
+\end{lstlisting}
+Таблицы могут быть пустыми, либо содержать именованые поля, не именованые поля и другие таблицы:
+Пустая таблица:\\
+\begin{lstlisting}
+{ }
+\end{lstlisting}
+Таблица с именоваными полями:\\
+\begin{lstlisting}
+{ min = 0, max = 100 }
+\end{lstlisting}
+Таблица с полями без имен, используются индексы (начиная с 1):\\
+\begin{lstlisting}
+{ [1] = 1, [2] = 100 }
+\end{lstlisting}
+Таблица с двумя вложенными таблицами:\\
+\begin{lstlisting}
+{ { min = 0, max = 100 }, { min = 10, max = 50 } }
+\end{lstlisting}
+Для удобства чтения таблицы могут быть сохранены в переменные, тем самым получая имя:
+\begin{lstlisting}
+local emptyTable = {}
+\end{lstlisting}
+
+
+Вложенность таблиц и их полей важна, а порядок задания полей не играет роли.\\
+Таким образом приведенный выше пример шаблона содержит таблицу \texttt{template} с полями
+\texttt{name}, \texttt{description}, \texttt{roads}, \texttt{forest} и другими.
+Также, поле \texttt{getContents} в таблице \texttt{template} указывает на функцию которая возвращает безымянную таблицу 
+содержащую 2 именованых поля \texttt{zones} и \texttt{connections}, которые в свою очередь также являются таблицами.
+Для удобства чтения этот блок кода можно было записать иначе:
+\begin{figure}[h]
+\lstinputlisting{docExamples/getContents.lua}
+\caption{\selectlanguage{Russian}Вариант написания функции \texttt{getContents}}
+\end{figure}
+
+\newpage
+% Describe common data types and enumerations used by generator
+\input{dataTypes.tex}
+\newpage
+% Describe zone types and their behavior
+\input{zoneTypes.tex}
+\newpage
+% Describe all supported tables and their fields
+\input{tableTypes.tex}

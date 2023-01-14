@@ -1,0 +1,27 @@
+\subsubsection{Наемник}
+\label{mercenaryUnit}
+Описывает обязательного наемника в лагере.
+
+Обязательные поля:
+\begin{itemize}
+\item \texttt{id} - идентификатор юнита из GUnits.dbf
+\item \texttt{level} - уровень юнита. \textbf{\selectlanguage{Russian}Важно:} уровень юнита не может быть ниже базового!
+\end{itemize}
+
+Необязательные поля:
+\begin{itemize}
+\item \texttt{unique} - определяет будет ли юнит доступен для найма единожды
+\end{itemize}
+
+Пример:\\
+'Рейнджер' (т2 лучник империи), доступный для найма бесконечное число раз
+
+\begin{lstlisting}
+{ id = 'g000uu0007', level = 2, unique = false }
+\end{lstlisting}
+
+'Скелет-воин' (т3 воин нежити) 20 уровня, доступный для найма единожды
+
+\begin{lstlisting}
+{ id = 'g000uu0088', level = 20, unique = true }
+\end{lstlisting}

@@ -1,0 +1,42 @@
+\subsubsection{Награда}
+\label{loot}
+Описывает награду (лут). Награда может состоять из случайных и обязательных предметов.
+
+Обязательных полей нет, пустая таблица создаст пустую награду.
+
+Необязательные поля:
+\begin{itemize}
+\item \texttt{value} - ценность случайных предметов в награде. См. \hyperref[value]{\selectlanguage{Russian}Ценность}
+\item \texttt{itemValue} - диапазон ценности каждого случайного предмета в награде. См. \hyperref[value]{\selectlanguage{Russian}Ценность}
+\item \texttt{itemTypes} - список типов случайных предметов которые могут быть созданы. В случае пустого списка может быть создан предмет любого типа, кроме специального \texttt{Item.Special}
+\item \texttt{items} - список предметов которые обязательно должны быть созданы. Не зависит от ценности награды. См. \hyperref[item]{\selectlanguage{Russian}Предмет награды}
+\end{itemize}
+
+Примеры:\\
+Случайная награда из зелий-бафов и воскрешения общей стоимостью от 500 до 750,
+а также от 3 до 5 эликсиров восстановления
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/lootExample1.lua}
+\end{figure}
+
+Награда из 5 зелий восстановления
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/lootExample2.lua}
+\end{figure}
+
+Случайная награда из знамен и сапог общей стоимостью от 2500 до 2750
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/lootExample3.lua}
+\end{figure}
+
+Случайная награда общей стоимостью от 1600 до 1800 
+из зелий лечения или воскрешения каждое стоимостью от 200 до 450. 
+Подняв минимальную ценность каждой случайной вещи до 200 
+мы исключаем дешевые зелья лечения (50 hp) из награды.
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/lootExample4.lua}
+\end{figure}

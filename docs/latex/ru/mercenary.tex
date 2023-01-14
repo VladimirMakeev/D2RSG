@@ -1,0 +1,23 @@
+\subsubsection{Лагерь наемников}
+\label{mercenary}
+Описывает лагерь наемников, юнитов в нем, а также потенциальную охрану. Юниты делятся на случайные и обязательные.
+
+Обязательные поля:
+\begin{itemize}
+\item \texttt{value} - общая ценность случайных юнитов. См. \hyperref[value]{\selectlanguage{Russian}Ценность}
+\end{itemize}
+
+Необязательные поля:
+\begin{itemize}
+\item \texttt{subraceTypes} - список сабрас определяющий какие типы юнитов могут быть созданы. См. \hyperref[subraceTypes]{\selectlanguage{Russian}Субрасы}. В случае пустого списка могут быть созданы юниты любых субрас
+\item \texttt{units} - список наемников которые обязательно должны быть в лагере. Не зависит от ценности случайных юнитов. См. \hyperref[mercenaryUnit]{\selectlanguage{Russian}Наемник}
+\item \texttt{guard} - отряд охраняющий вход в лагерь. См. \hyperref[group]{\selectlanguage{Russian}Группа / Отряд}
+\end{itemize}
+
+Пример:\\
+Лагерь наемников с юнитами империи и нейтральными людьми общей ценностью от 200 до 250.
+В лагере обязательно будут доступны 'Рейнджер' и 'Скелет-воин' 20 уровня, доступный для найма лишь единожды
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/mercenaryExample.lua}
+\end{figure}
