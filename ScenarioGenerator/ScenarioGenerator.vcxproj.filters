@@ -252,6 +252,9 @@
     <ClInclude Include="src\mqdb.h">
       <Filter>Файлы заголовков\utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\blueprint.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scenario\bag.cpp">
@@ -415,6 +418,9 @@
     </ClCompile>
     <ClCompile Include="src\mqdb.cpp">
       <Filter>Исходные файлы\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\blueprint.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

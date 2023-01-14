@@ -36,6 +36,7 @@ INCLUDEPATH += \
         ../GSL/include/
 
 SOURCES += \
+        ../ScenarioGenerator/src/blueprint.cpp \
         ../ScenarioGenerator/src/currency.cpp \
         ../ScenarioGenerator/src/decoration.cpp \
         ../ScenarioGenerator/src/gameinfo.cpp \
@@ -130,6 +131,7 @@ SOURCES += \
 
 HEADERS += \
         ../ScenarioGenerator/src/aipriority.h \
+        ../ScenarioGenerator/src/blueprint.h \
         ../ScenarioGenerator/src/containers.h \
         ../ScenarioGenerator/src/currency.h \
         ../ScenarioGenerator/src/decoration.h \

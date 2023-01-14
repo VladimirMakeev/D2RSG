@@ -18,6 +18,7 @@
  */
 
 #include "templatezone.h"
+#include "blueprint.h"
 #include "capital.h"
 #include "containers.h"
 #include "crystal.h"
@@ -492,13 +493,17 @@ ObjectPlacingResult TemplateZone::tryToPlaceObjectAndConnectToPath(MapElement& m
         return ObjectPlacingResult::CannotFit;
     }
 
-    if (!connectPath(accessibleTile, true)) {
-        if (mapGenerator->isDebugMode()) {
-            std::cout << "Failed to create path to required object at position " << position
-                      << ", retrying\n";
-        }
+    {
+        Blueprint blueprint{*mapGenerator, position, mapElement.getSize()};
 
-        return ObjectPlacingResult::SealedOff;
+        if (!connectPath(accessibleTile, true)) {
+            if (mapGenerator->isDebugMode()) {
+                std::cout << "Failed to create path to required object at position " << position
+                          << ", retrying\n";
+            }
+
+            return ObjectPlacingResult::SealedOff;
+        }
     }
 
     mapGenerator->setOccupied(mapElement.getEntrance(), TileType::Blocked);

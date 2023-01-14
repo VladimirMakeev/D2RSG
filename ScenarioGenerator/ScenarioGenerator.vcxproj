@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\aipriority.h" />
+    <ClInclude Include="src\blueprint.h" />
     <ClInclude Include="src\containers.h" />
     <ClInclude Include="src\currency.h" />
     <ClInclude Include="src\decoration.h" />
@@ -96,6 +97,7 @@
     <ClInclude Include="src\zoneplacer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\blueprint.cpp" />
     <ClCompile Include="src\currency.cpp" />
     <ClCompile Include="src\decoration.cpp" />
     <ClCompile Include="src\gameinfo.cpp" />
