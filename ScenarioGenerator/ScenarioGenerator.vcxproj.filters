@@ -192,7 +192,7 @@
     <ClInclude Include="src\maptemplatereader.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\midgardid.h">
+    <ClInclude Include="src\rsgid.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\position.h">
@@ -386,7 +386,7 @@
     <ClCompile Include="src\serializer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\midgardid.cpp">
+    <ClCompile Include="src\rsgid.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\maptemplatereader.cpp">

@@ -36,7 +36,7 @@
     <ClInclude Include="src\mapgenerator.h" />
     <ClInclude Include="src\maptemplate.h" />
     <ClInclude Include="src\maptemplatereader.h" />
-    <ClInclude Include="src\midgardid.h" />
+    <ClInclude Include="src\rsgid.h" />
     <ClInclude Include="src\mqdb.h" />
     <ClInclude Include="src\picker.h" />
     <ClInclude Include="src\position.h" />
@@ -107,7 +107,7 @@
     <ClCompile Include="src\landmarkpicker.cpp" />
     <ClCompile Include="src\mapgenerator.cpp" />
     <ClCompile Include="src\maptemplatereader.cpp" />
-    <ClCompile Include="src\midgardid.cpp" />
+    <ClCompile Include="src\rsgid.cpp" />
     <ClCompile Include="src\mqdb.cpp" />
     <ClCompile Include="src\scenario\bag.cpp" />
     <ClCompile Include="src\scenario\capital.cpp" />

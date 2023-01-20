@@ -20,8 +20,8 @@
 #include "serializer.h"
 #include "currency.h"
 #include "map.h"
-#include "midgardid.h"
 #include "position.h"
+#include "rsgid.h"
 #include <cassert>
 #include <fstream>
 #include <iomanip>

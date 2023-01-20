@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "midgardid.h"
+#include "rsgid.h"
 #include <algorithm>
 #include <cassert>
 #include <cctype>

@@ -20,11 +20,12 @@
 #pragma once
 
 #include "enums.h"
-#include "midgardid.h"
 #include <string>
 #include <vector>
 
 namespace rsg {
+
+class CMidgardID;
 
 // Possible leader names from Tleader.dbf
 struct LeaderNames

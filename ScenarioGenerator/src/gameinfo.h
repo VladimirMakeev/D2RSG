@@ -22,9 +22,9 @@
 #include "enums.h"
 #include "iteminfo.h"
 #include "landmarkinfo.h"
-#include "midgardid.h"
 #include "position.h"
 #include "raceinfo.h"
+#include "rsgid.h"
 #include "spellinfo.h"
 #include "unitinfo.h"
 #include <array>
