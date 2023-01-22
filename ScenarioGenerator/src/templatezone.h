@@ -19,16 +19,16 @@
 
 #pragma once
 
-#include "bag.h"
-#include "crystal.h"
 #include "decoration.h"
-#include "fortification.h"
 #include "gameinfo.h"
-#include "landmark.h"
 #include "position.h"
-#include "ruin.h"
-#include "site.h"
-#include "stack.h"
+#include "scenario/bag.h"
+#include "scenario/crystal.h"
+#include "scenario/fortification.h"
+#include "scenario/landmark.h"
+#include "scenario/ruin.h"
+#include "scenario/site.h"
+#include "scenario/stack.h"
 #include "vposition.h"
 #include "zoneoptions.h"
 #include <memory>

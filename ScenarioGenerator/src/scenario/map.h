@@ -20,8 +20,8 @@
 #pragma once
 
 #include "enums.h"
-#include "midgardid.h"
 #include "position.h"
+#include "rsgid.h"
 #include "scenarioobject.h"
 #include "talismancharges.h"
 #include <array>

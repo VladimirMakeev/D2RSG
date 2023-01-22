@@ -20,9 +20,9 @@
 #pragma once
 
 #include "gameinfo.h"
-#include "item.h"
-#include "map.h"
 #include "randomgenerator.h"
+#include "scenario/item.h"
+#include "scenario/map.h"
 #include "tileinfo.h"
 #include "zoneplacer.h"
 #include <functional>

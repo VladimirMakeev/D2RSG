@@ -20,8 +20,8 @@
 #pragma once
 
 #include "enums.h"
-#include "midgardid.h"
 #include "randomgenerator.h"
+#include "rsgid.h"
 #include "zoneid.h"
 #include <array>
 #include <cstdint>
