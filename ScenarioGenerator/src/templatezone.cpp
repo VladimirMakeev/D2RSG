@@ -260,9 +260,9 @@ void TemplateZone::fill()
     placeTrainers();
     placeRuins();
     placeMines();
+    createRequiredObjects();
     placeStacks();
     placeBags();
-    createRequiredObjects();
 
     if (mapGenerator->isDebugMode()) {
         std::cout << "Zone " << id << " filled successfully\n";
