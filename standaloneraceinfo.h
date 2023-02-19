@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "midgardid.h"
+#include "rsgid.h"
 #include "raceinfo.h"
 
 namespace rsg {

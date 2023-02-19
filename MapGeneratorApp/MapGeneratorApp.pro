@@ -46,7 +46,7 @@ SOURCES += \
         ../ScenarioGenerator/src/landmarkpicker.cpp \
         ../ScenarioGenerator/src/mapgenerator.cpp \
         ../ScenarioGenerator/src/maptemplatereader.cpp \
-        ../ScenarioGenerator/src/midgardid.cpp \
+        ../ScenarioGenerator/src/rsgid.cpp \
         ../ScenarioGenerator/src/mqdb.cpp \
         ../ScenarioGenerator/src/scenario/bag.cpp \
         ../ScenarioGenerator/src/scenario/capital.cpp \
@@ -147,7 +147,7 @@ HEADERS += \
         ../ScenarioGenerator/src/mapgenerator.h \
         ../ScenarioGenerator/src/maptemplate.h \
         ../ScenarioGenerator/src/maptemplatereader.h \
-        ../ScenarioGenerator/src/midgardid.h \
+        ../ScenarioGenerator/src/rsgid.h \
         ../ScenarioGenerator/src/mqdb.h \
         ../ScenarioGenerator/src/picker.h \
         ../ScenarioGenerator/src/position.h \

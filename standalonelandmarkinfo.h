@@ -20,7 +20,7 @@
 #pragma once
 
 #include "landmarkinfo.h"
-#include "midgardid.h"
+#include "rsgid.h"
 #include "position.h"
 
 namespace rsg {

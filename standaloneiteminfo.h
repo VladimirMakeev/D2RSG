@@ -20,7 +20,7 @@
 #pragma once
 
 #include "iteminfo.h"
-#include "midgardid.h"
+#include "rsgid.h"
 
 namespace rsg {
 
