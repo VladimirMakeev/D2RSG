@@ -1754,6 +1754,7 @@ Village* TemplateZone::placeCity(const Position& position, const CityInfo& cityI
 
     auto villagePtr{village.get()};
 
+    decorations.push_back(std::make_unique<VillageDecoration>(villagePtr));
     placeObject(std::move(village), position);
     clearEntrance(*villagePtr);
 
