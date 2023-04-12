@@ -1473,7 +1473,7 @@ const UnitInfo* TemplateZone::createStackLeader(std::size_t& unusedValue,
                 return static_cast<float>(info->getValue()) < minValue || info->getValue() > value;
             };
 
-            const UnitInfo* leaderInfo{pickLeader(rand, {filter, noForbidden})};
+            const UnitInfo* leaderInfo{pickLeader(rand, {filter, noForbiddenUnit})};
             if (leaderInfo) {
                 // Accumulate unused value after picking a leader
                 unusedValue = value - leaderInfo->getValue();
@@ -1567,7 +1567,7 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
             return false;
         };
 
-        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noForbidden});
+        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noForbiddenUnit});
         if (info) {
             // We picked a unit, update unused value
             unusedValue = value - info->getValue();
@@ -1664,7 +1664,7 @@ void TemplateZone::tightenGroup(std::size_t& unusedValue,
             return false;
         };
 
-        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noForbidden});
+        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noForbiddenUnit});
         if (info) {
             // We picked a unit, update unused value
             unusedValue = value - info->getValue();
@@ -1889,7 +1889,7 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
 
         auto noDuplicates = [&pickedSpells](const SpellInfo* info) {
             // Make sure we don't pick duplicates
-            return pickedSpells.find(info->getSpellId()) != pickedSpells.end();
+            return contains(pickedSpells, info->getSpellId());
         };
 
         auto noWrongType = [types = &mageInfo.spellTypes](const SpellInfo* info) {
@@ -1899,7 +1899,7 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
             }
 
             // Remove spells of types that mage is not allowed to sell
-            return types->find(info->getSpellType()) == types->end();
+            return !contains(*types, info->getSpellType());
         };
 
         auto noWrongLevel = [&level = mageInfo.spellLevels](const SpellInfo* info) {
@@ -1918,7 +1918,8 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
                 return info->getValue() > remainingValue;
             };
 
-            auto spell{pickSpell(rand, {noWrongType, noWrongLevel, noWrongValue, noDuplicates})};
+            auto spell{pickSpell(rand, {noWrongType, noWrongLevel, noWrongValue, noForbiddenSpell,
+                                        noDuplicates})};
             if (!spell) {
                 // Could not pick anything, stop
                 break;

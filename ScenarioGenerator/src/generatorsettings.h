@@ -35,6 +35,8 @@ struct GeneratorSettings
     std::set<CMidgardID> forbiddenUnits;
     // Items that will be never used in generation
     std::set<CMidgardID> forbiddenItems;
+    // Spells that will be never used in generation
+    std::set<CMidgardID> forbiddenSpells;
 
     struct Landmarks
     {

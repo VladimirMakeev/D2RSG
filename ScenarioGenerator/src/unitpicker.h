@@ -40,7 +40,7 @@ UnitInfo* pickUnit(RandomGenerator& random, const UnitFilterList& filters);
 // These below are predefined filters
 
 // Remove units that are forbidden in generator settings from pick
-bool noForbidden(const UnitInfo* info);
+bool noForbiddenUnit(const UnitInfo* info);
 // Removes units of playable subraces from pick
 bool noPlayableRaces(const UnitInfo* info);
 // Removes big units

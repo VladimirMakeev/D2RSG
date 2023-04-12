@@ -18,7 +18,9 @@
  */
 
 #include "spellpicker.h"
+#include "containers.h"
 #include "gameinfo.h"
+#include "generatorsettings.h"
 #include "randomgenerator.h"
 
 namespace rsg {
@@ -50,6 +52,11 @@ SpellInfo* pickSpell(RandomGenerator& random, const SpellFilterList& filters)
 SpellInfo* pickSpell(SpellType spellType, RandomGenerator& random, const SpellFilterList& filters)
 {
     return pickSpell(getGameInfo()->getSpells(spellType), random, filters);
+}
+
+bool noForbiddenSpell(const SpellInfo* info)
+{
+    return contains(getGeneratorSettings().forbiddenSpells, info->getSpellId());
 }
 
 } // namespace rsg

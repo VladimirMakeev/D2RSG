@@ -36,7 +36,7 @@ UnitInfo* pickUnit(RandomGenerator& random, const UnitFilterList& filters)
     return pick(getGameInfo()->getSoldiers(), random, filters);
 }
 
-bool noForbidden(const UnitInfo* info)
+bool noForbiddenUnit(const UnitInfo* info)
 {
     return contains(getGeneratorSettings().forbiddenUnits, info->getUnitId());
 }

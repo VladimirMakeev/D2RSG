@@ -38,4 +38,9 @@ SpellInfo* pickSpell(RandomGenerator& random, const SpellFilterList& filters);
 // Picks random spell of specific type
 SpellInfo* pickSpell(SpellType spellType, RandomGenerator& random, const SpellFilterList& filters);
 
+// These below are predefined filters
+
+// Remove spells that are forbidden in generator settings from pick
+bool noForbiddenSpell(const SpellInfo* info);
+
 } // namespace rsg

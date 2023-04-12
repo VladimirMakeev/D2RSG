@@ -80,6 +80,14 @@ static void readForbiddenItems(const sol::table& table)
     }
 }
 
+static void readForbiddenSpells(const sol::table& table)
+{
+    auto spells = table.get<sol::optional<StringSet>>("forbiddenSpells");
+    if (spells.has_value()) {
+        readStringSet(generatorSettings.forbiddenSpells, spells.value());
+    }
+}
+
 static void readRaceLandmarks(std::set<CMidgardID>& ids,
                               const sol::table& table,
                               const char* raceName)
@@ -178,6 +186,7 @@ static void readScriptSettings(sol::state& lua)
 
     readForbiddenUnits(settings);
     readForbiddenItems(settings);
+    readForbiddenSpells(settings);
     readLandmarks(settings);
     readObjectImages(generatorSettings.ruins, settings, "ruins", "g000ru00000");
     readObjectImages(generatorSettings.merchants, settings, "merchants", "g000si0000merh");

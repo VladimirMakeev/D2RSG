@@ -20,21 +20,28 @@
 #pragma once
 
 #include <algorithm>
+#include <set>
 
 namespace rsg {
 
-// Returns true if container contains specified item
-template <typename Container, typename Item>
-static inline bool contains(const Container& container, const Item& item)
+// Returns true if container contains specified element
+template <typename Container, typename Element>
+static inline bool contains(const Container& container, const Element& element)
 {
-    return std::find(container.begin(), container.end(), item) != container.end();
+    return std::find(container.cbegin(), container.cend(), element) != container.cend();
 }
 
-// Returns true if specified item was found and erased from container
-template <typename Container, typename Item>
-static inline bool eraseIfPresent(Container& container, const Item& item)
+template <typename Element>
+static inline bool contains(const std::set<Element>& container, const Element& element)
 {
-    auto it{std::find(container.begin(), container.end(), item)};
+    return container.find(element) != container.cend();
+}
+
+// Returns true if specified element was found and erased from container
+template <typename Container, typename Element>
+static inline bool eraseIfPresent(Container& container, const Element& element)
+{
+    auto it{std::find(container.begin(), container.end(), element)};
     if (it != container.end()) {
         container.erase(it);
         return true;
