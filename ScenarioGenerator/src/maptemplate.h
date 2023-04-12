@@ -40,6 +40,7 @@ struct MapTemplateSettings
     int size{sizeMin};
     int roads{100}; // Percentage of road tiles
     int startingGold{};
+    int startingNativeMana{};
     int forest{}; // Percentage of unused tiles converted to forest after content placement
 
     // Replaces random races with real ones

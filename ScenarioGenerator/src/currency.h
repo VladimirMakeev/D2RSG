@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "enums.h"
 #include <array>
 #include <cstdint>
 #include <string_view>
@@ -30,18 +31,6 @@ class Currency
 public:
     static constexpr std::size_t stringLength{35};
     using String = std::array<char, stringLength + 1>;
-
-    enum class Type
-    {
-        Gold,
-        Infernal,
-        Life,
-        Death,
-        Runic,
-        Grove,
-        // Utility use only
-        Total
-    };
 
     Currency() = default;
     Currency(std::int16_t value)
@@ -67,8 +56,8 @@ public:
         , gold{gold}
     { }
 
-    std::int16_t get(Type type) const;
-    void set(Type type, std::uint16_t value);
+    std::int16_t get(ResourceType type) const;
+    void set(ResourceType type, std::uint16_t value);
 
     void toString(String& string) const
     {

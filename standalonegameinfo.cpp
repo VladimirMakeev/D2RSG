@@ -632,8 +632,8 @@ bool StandaloneGameInfo::readItemsInfo(const std::filesystem::path& globalsFolde
         // Use sum of resources as as value
         // TODO: get values by running Lua script
         int value = 0;
-        for (int i = (int)Currency::Type::Gold; i < (int)Currency::Type::Total; ++i) {
-            value += currency.get(static_cast<Currency::Type>(i));
+        for (int i = (int)ResourceType::Gold; i < (int)ResourceType::Total; ++i) {
+            value += currency.get(static_cast<ResourceType>(i));
         }
 
         auto itemType{static_cast<ItemType>(type)};
@@ -695,8 +695,8 @@ bool StandaloneGameInfo::readSpellsInfo(const std::filesystem::path& globalsFold
         // Use sum of resources as as value
         // TODO: get values by running Lua script
         int value = 0;
-        for (int i = (int)Currency::Type::Gold; i < (int)Currency::Type::Total; ++i) {
-            value += currency.get(static_cast<Currency::Type>(i));
+        for (int i = (int)ResourceType::Gold; i < (int)ResourceType::Total; ++i) {
+            value += currency.get(static_cast<ResourceType>(i));
         }
 
         auto spellType{static_cast<SpellType>(type)};

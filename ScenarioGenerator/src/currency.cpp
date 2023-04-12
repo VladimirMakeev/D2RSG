@@ -24,11 +24,11 @@
 
 namespace rsg {
 
-static bool readCurrencyPart(std::int16_t& currency, const char* string, Currency::Type type)
+static bool readCurrencyPart(std::int16_t& currency, const char* string, ResourceType type)
 {
     currency = 0;
 
-    if (type < Currency::Type::Gold || type >= Currency::Type::Total) {
+    if (type < ResourceType::Gold || type >= ResourceType::Total) {
         return false;
     }
 
@@ -74,52 +74,52 @@ static bool readCurrencyPart(std::int16_t& currency, const char* string, Currenc
     return true;
 }
 
-std::int16_t Currency::get(Type type) const
+std::int16_t Currency::get(ResourceType type) const
 {
     switch (type) {
-    case Type::Infernal:
+    case ResourceType::InfernalMana:
         return infernalMana;
-    case Type::Life:
+    case ResourceType::LifeMana:
         return lifeMana;
-    case Type::Death:
+    case ResourceType::DeathMana:
         return deathMana;
-    case Type::Runic:
+    case ResourceType::RunicMana:
         return runicMana;
-    case Type::Grove:
+    case ResourceType::GroveMana:
         return groveMana;
     default:
-    case Type::Gold:
+    case ResourceType::Gold:
         return gold;
     }
 }
 
-void Currency::set(Type type, std::uint16_t value)
+void Currency::set(ResourceType type, std::uint16_t value)
 {
     value = std::clamp<std::uint16_t>(value, 0, 9999);
 
     switch (type) {
-    case Type::Infernal:
+    case ResourceType::InfernalMana:
         infernalMana = value;
         break;
 
-    case Type::Life:
+    case ResourceType::LifeMana:
         lifeMana = value;
         break;
 
-    case Type::Death:
+    case ResourceType::DeathMana:
         deathMana = value;
         break;
 
-    case Type::Runic:
+    case ResourceType::RunicMana:
         runicMana = value;
         break;
 
-    case Type::Grove:
+    case ResourceType::GroveMana:
         groveMana = value;
         break;
 
     default:
-    case Type::Gold:
+    case ResourceType::Gold:
         gold = value;
         break;
     }
@@ -150,18 +150,18 @@ Currency Currency::fromString(const std::string_view string)
     std::int16_t death{};
     std::int16_t runic{};
 
-    if (!readCurrencyPart(gold, buffer, Type::Gold)
-        || !readCurrencyPart(infernal, buffer, Type::Infernal)
-        || !readCurrencyPart(life, buffer, Type::Life)
-        || !readCurrencyPart(death, buffer, Type::Death)
-        || !readCurrencyPart(runic, buffer, Type::Runic)) {
+    if (!readCurrencyPart(gold, buffer, ResourceType::Gold)
+        || !readCurrencyPart(infernal, buffer, ResourceType::InfernalMana)
+        || !readCurrencyPart(life, buffer, ResourceType::LifeMana)
+        || !readCurrencyPart(death, buffer, ResourceType::DeathMana)
+        || !readCurrencyPart(runic, buffer, ResourceType::RunicMana)) {
         return Currency{};
     }
 
     const bool hasGrove = std::strlen(buffer) > 29;
     std::int16_t grove{};
 
-    if (hasGrove && !readCurrencyPart(grove, buffer, Type::Grove)) {
+    if (hasGrove && !readCurrencyPart(grove, buffer, ResourceType::GroveMana)) {
         return Currency{};
     }
 

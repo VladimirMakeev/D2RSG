@@ -44,8 +44,11 @@ PlayerSubraceIdPair MapGenerator::createPlayer(RaceType race)
     player->setLord(getLordId(race));
 
     if (race != RaceType::Neutral) {
-        player->getBank().set(Currency::Type::Gold,
-                              mapGenOptions.mapTemplate->settings.startingGold);
+        const auto& settings{mapGenOptions.mapTemplate->settings};
+
+        Currency& bank{player->getBank()};
+        bank.set(ResourceType::Gold, settings.startingGold);
+        bank.set(map->getNativeResource(race), settings.startingNativeMana);
     }
 
     // Create fog, knownSpells and buildings.

@@ -83,6 +83,7 @@ enum class ResourceType
     DeathMana,    // L_ORANGE
     RunicMana,    // L_WHITE
     GroveMana,    // L_BLUE
+    Total,        // Utility use only
 };
 
 // Same as LmagItm.dbf

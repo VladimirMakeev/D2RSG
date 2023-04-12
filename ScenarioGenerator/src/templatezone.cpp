@@ -2046,7 +2046,7 @@ Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo
         const std::uint16_t goldValue{rand.pickValue(gold)};
 
         Currency cash;
-        cash.set(Currency::Type::Gold, goldValue);
+        cash.set(ResourceType::Gold, goldValue);
         ruin->setCash(cash);
     }
 

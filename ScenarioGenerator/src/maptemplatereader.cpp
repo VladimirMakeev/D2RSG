@@ -688,6 +688,7 @@ static void readSettings(MapTemplateSettings& settings, const sol::state& lua)
 
     settings.roads = readValue(table, "roads", 100, 0, 100);
     settings.startingGold = readValue(table, "startingGold", 0, 0, 9999);
+    settings.startingNativeMana = readValue(table, "startingNativeMana", 0, 0, 9999);
     settings.forest = readValue(table, "forest", 0, 0, 100);
 }
 
