@@ -31,6 +31,9 @@ namespace rsg {
 // Everything except name and description player can change
 struct MapTemplateSettings
 {
+    std::set<CMidgardID> forbiddenUnits;
+    std::set<CMidgardID> forbiddenItems;
+    std::set<CMidgardID> forbiddenSpells;
     std::vector<RaceType> races; // Races chosen by player before generation
     std::string name;
     std::string description;

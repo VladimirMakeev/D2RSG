@@ -1473,7 +1473,13 @@ const UnitInfo* TemplateZone::createStackLeader(std::size_t& unusedValue,
                 return static_cast<float>(info->getValue()) < minValue || info->getValue() > value;
             };
 
-            const UnitInfo* leaderInfo{pickLeader(rand, {filter, noForbiddenUnit})};
+            auto noForbiddenOnTemplate = [this](const UnitInfo* info) {
+                return contains(mapGenerator->mapGenOptions.mapTemplate->settings.forbiddenUnits,
+                                info->getUnitId());
+            };
+
+            const UnitInfo* leaderInfo{
+                pickLeader(rand, {filter, noForbiddenOnTemplate, noForbiddenUnit})};
             if (leaderInfo) {
                 // Accumulate unused value after picking a leader
                 unusedValue = value - leaderInfo->getValue();
@@ -1567,7 +1573,13 @@ void TemplateZone::createGroup(std::size_t& unusedValue,
             return false;
         };
 
-        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noForbiddenUnit});
+        auto noForbiddenOnTemplate = [this](const UnitInfo* info) {
+            return contains(mapGenerator->mapGenOptions.mapTemplate->settings.forbiddenUnits,
+                            info->getUnitId());
+        };
+
+        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noForbiddenOnTemplate,
+                                               noForbiddenUnit});
         if (info) {
             // We picked a unit, update unused value
             unusedValue = value - info->getValue();
@@ -1664,7 +1676,13 @@ void TemplateZone::tightenGroup(std::size_t& unusedValue,
             return false;
         };
 
-        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noForbiddenUnit});
+        auto noForbiddenOnTemplate = [this](const UnitInfo* info) {
+            return contains(mapGenerator->mapGenOptions.mapTemplate->settings.forbiddenUnits,
+                            info->getUnitId());
+        };
+
+        const UnitInfo* info = pickUnit(rand, {filter, noWrongValue, noForbiddenOnTemplate,
+                                               noForbiddenUnit});
         if (info) {
             // We picked a unit, update unused value
             unusedValue = value - info->getValue();
@@ -1911,6 +1929,11 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
             return info->getLevel() < level.min || info->getLevel() > level.max;
         };
 
+        auto noForbiddenOnTemplate = [this](const SpellInfo* info) {
+            return contains(mapGenerator->mapGenOptions.mapTemplate->settings.forbiddenSpells,
+                            info->getSpellId());
+        };
+
         while (currentValue <= desiredValue) {
             const int remainingValue = desiredValue - currentValue;
 
@@ -1918,8 +1941,8 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
                 return info->getValue() > remainingValue;
             };
 
-            auto spell{pickSpell(rand, {noWrongType, noWrongLevel, noWrongValue, noForbiddenSpell,
-                                        noDuplicates})};
+            auto spell{pickSpell(rand, {noWrongType, noWrongLevel, noWrongValue,
+                                        noForbiddenOnTemplate, noForbiddenSpell, noDuplicates})};
             if (!spell) {
                 // Could not pick anything, stop
                 break;
@@ -2140,6 +2163,11 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
             return types->find(info->getItemType()) == types->end();
         };
 
+        auto noForbiddenOnTemplate = [this](const ItemInfo* info) {
+            return contains(mapGenerator->mapGenOptions.mapTemplate->settings.forbiddenItems,
+                            info->getItemId());
+        };
+
         const auto& itemValue{loot.itemValue};
 
         int picked{};
@@ -2157,7 +2185,8 @@ std::vector<std::pair<CMidgardID, int>> TemplateZone::createLoot(const LootInfo&
                 return info->getValue() > static_cast<int>(remainingValue);
             };
 
-            auto item{pickItem(rand, {noWrongType, noWrongValue, noSpecialItem, noForbiddenItem})};
+            auto item{pickItem(rand, {noWrongType, noWrongValue, noSpecialItem,
+                                      noForbiddenOnTemplate, noForbiddenItem})};
             if (!item) {
                 // Could not pick anything, stop
                 break;

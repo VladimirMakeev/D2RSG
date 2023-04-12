@@ -30,6 +30,7 @@ namespace rsg {
 
 using OptionalTable = sol::optional<sol::table>;
 using OptionalTableArray = sol::optional<std::vector<sol::table>>;
+using StringSet = std::set<std::string>;
 
 static std::string readFile(const std::filesystem::path& file)
 {
@@ -189,6 +190,19 @@ static void readRandomValue(RandomValue<T>& value,
 
     if (value.min > value.max) {
         std::swap(value.min, value.max);
+    }
+}
+
+static void readStringSet(std::set<CMidgardID>& ids, const StringSet& stringSet)
+{
+    for (const auto& string : stringSet) {
+        const CMidgardID unitId(string.c_str());
+
+        if (unitId == invalidId || unitId == emptyId) {
+            continue;
+        }
+
+        ids.insert(unitId);
     }
 }
 
@@ -690,6 +704,21 @@ static void readSettings(MapTemplateSettings& settings, const sol::state& lua)
     settings.startingGold = readValue(table, "startingGold", 0, 0, 9999);
     settings.startingNativeMana = readValue(table, "startingNativeMana", 0, 0, 9999);
     settings.forest = readValue(table, "forest", 0, 0, 100);
+
+    auto units = table.get<sol::optional<StringSet>>("forbiddenUnits");
+    if (units.has_value()) {
+        readStringSet(settings.forbiddenUnits, units.value());
+    }
+
+    auto items = table.get<sol::optional<StringSet>>("forbiddenItems");
+    if (items.has_value()) {
+        readStringSet(settings.forbiddenItems, items.value());
+    }
+
+    auto spells = table.get<sol::optional<StringSet>>("forbiddenSpells");
+    if (spells.has_value()) {
+        readStringSet(settings.forbiddenSpells, spells.value());
+    }
 }
 
 MapTemplateSettings readTemplateSettings(const std::filesystem::path& templatePath, sol::state& lua)
