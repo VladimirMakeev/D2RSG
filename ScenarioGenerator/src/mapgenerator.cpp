@@ -581,7 +581,7 @@ void MapGenerator::createRoadObjects(const std::set<Position>& roads)
         for (const auto& direction : directions) {
             Position p{tile + direction};
 
-            if (map->isInTheMap(p) && isRoad(p)) {
+            if (map->isInTheMap(p) && !map->getTile(p).isWater() && isRoad(p)) {
                 index |= 1 << i;
             }
 

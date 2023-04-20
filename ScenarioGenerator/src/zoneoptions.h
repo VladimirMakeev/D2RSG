@@ -183,8 +183,9 @@ struct ZoneOptions
     TemplateZoneId id{0};
     TemplateZoneType type{TemplateZoneType::PlayerStart};
     RaceType playerRace{RaceType::Neutral};
-    MonsterStrength monsterStrength{MonsterStrength::ZoneNormal};
-    int size{1}; // Zone size
+    ZoneBorderType borderType{ZoneBorderType::Closed};
+    int gapChance{50}; // Chance border tile will become gap in case of SemiOpen borders
+    int size{1};       // Zone size
 };
 
 } // namespace rsg

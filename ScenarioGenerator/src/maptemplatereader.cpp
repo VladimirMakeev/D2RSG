@@ -118,6 +118,13 @@ void bindLuaApi(sol::state& lua)
         "Water", TemplateZoneType::Water
     );
 
+    lua.new_enum("Border",
+        "Open", ZoneBorderType::Open,
+        "SemiOpen", ZoneBorderType::SemiOpen,
+        "Closed", ZoneBorderType::Closed,
+        "Water", ZoneBorderType::Water
+    );
+
     lua.new_enum("Item",
         "Armor", ItemType::Armor,
         "Jewel", ItemType::Jewel,
@@ -557,6 +564,10 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     }
 
     options->size = readValue(zone, "size", 1, 1);
+    options->borderType = zone.get_or("border", ZoneBorderType::Closed);
+    if (options->borderType == ZoneBorderType::SemiOpen) {
+        options->gapChance = readValue(zone, "gapChance", 50, 0, 100);
+    }
 
     auto mines = zone.get<OptionalTable>("mines");
     if (mines.has_value()) {

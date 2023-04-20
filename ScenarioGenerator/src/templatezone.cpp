@@ -207,40 +207,66 @@ void TemplateZone::initFreeTiles()
 
 void TemplateZone::createBorder()
 {
+    std::size_t borderTiles{};
+    std::size_t openBorders{};
+    std::size_t closedBorders{};
+
     for (auto& tile : tileInfo) {
-        bool edge{};
+        bool border{};
 
-        mapGenerator->foreachNeighbor(tile, [this, &edge](const Position& position) {
-            if (edge) {
-                // Optimization, do it only once
-                return;
-            }
-
-            // Optimization
-            if (mapGenerator->getZoneId(position) == id) {
-                return;
-            }
-
-            // Fix missing position
-            if (mapGenerator->isPossible(position)) {
-                mapGenerator->setOccupied(position, TileType::Blocked);
-            }
-
-            // Uncomment to generate thick borders, looks too thick for 48 map
-            constexpr bool thickBorders{false};
-
-            if constexpr (thickBorders) {
-                // We are edge if at least one tile does not belong to zone.
-                // Mark all nearby tiles as blocked
-                mapGenerator->foreachNeighbor(position, [this](const Position& nearby) {
-                    if (mapGenerator->isPossible(nearby)) {
-                        mapGenerator->setOccupied(nearby, TileType::Blocked);
-                    }
-                });
-
-                edge = true;
-            }
+        mapGenerator->foreachNeighbor(tile, [this, &border, &borderTiles, &openBorders,
+                                             &closedBorders](const Position& position) {
+            border = border || mapGenerator->getZoneId(position) != id;
         });
+
+        if (border) {
+            ++borderTiles;
+
+            if (mapGenerator->isPossible(tile)) {
+                switch (borderType) {
+                case ZoneBorderType::Water: {
+                    Tile& mapTile = mapGenerator->map->getTile(tile);
+                    mapTile.setTerrainGround(TerrainType::Neutral, GroundType::Water);
+                    mapGenerator->setOccupied(tile, TileType::Free);
+                    ++openBorders;
+                    break;
+                }
+                case ZoneBorderType::Open:
+                    mapGenerator->setOccupied(tile, TileType::Free);
+                    ++openBorders;
+                    break;
+
+                case ZoneBorderType::Closed:
+                    mapGenerator->setOccupied(tile, TileType::Blocked);
+                    ++closedBorders;
+                    break;
+
+                case ZoneBorderType::SemiOpen: {
+                    const bool gap{mapGenerator->randomGenerator.chance(gapChance)};
+
+                    mapGenerator->setOccupied(tile, gap ? TileType::Free : TileType::Blocked);
+                    if (gap) {
+                        ++openBorders;
+                    } else {
+                        ++closedBorders;
+                    }
+
+                    break;
+                }
+                }
+            }
+        }
+    }
+
+    if (mapGenerator->isDebugMode()) {
+        const double bordersTotal{static_cast<double>(borderTiles)};
+        const float openPercent = static_cast<double>(openBorders) / bordersTotal * 100.0f;
+        const float closedPercent = static_cast<double>(closedBorders) / bordersTotal * 100.0f;
+
+        std::cout << "Zone id " << id << ", border tiles " << borderTiles << ", open "
+                  << openBorders << " (" << openPercent << " %)"
+                  << ", closed " << closedBorders << " (" << closedPercent << " %). Gap chance "
+                  << gapChance << " %\n";
     }
 }
 
@@ -3393,6 +3419,10 @@ bool TemplateZone::createRoad(const Position& source, const Position& destinatio
             }
 
             auto& tile{mapGenerator->map->getTile(p)};
+            if (tile.isWater()) {
+                return;
+            }
+
             const auto canMoveBetween{mapGenerator->map->canMoveBetween(currentNode, p)};
 
             const auto emptyPath{mapGenerator->isFree(p) && mapGenerator->isFree(currentNode)};

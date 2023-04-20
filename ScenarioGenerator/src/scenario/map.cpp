@@ -263,8 +263,11 @@ bool Map::checkForVisitableDir(const Position& source,
 
     // TODO: check objects at source & destination tiles and their entrances
     // Check if they are visitable or not
+    if (tile.visitable) {
+        return true;
+    }
 
-    return true;
+    return !tile.blocked;
 }
 
 int Map::addMountain(const Position& position, const Position& size, int image)

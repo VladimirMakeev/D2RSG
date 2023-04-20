@@ -245,6 +245,16 @@ enum class TemplateZoneType
     Water,
 };
 
+enum class ZoneBorderType
+{
+    Open,     // Zone has no impassable borders
+    SemiOpen, // Zone has some impassable borders which are not tight enough and have random
+              // entrances
+    Closed,   // Zone has impassable borders around it. Connection with another zone is needed to
+              // create an entrance
+    Water,    // Zone has water borders around it
+};
+
 // Internal generator use only
 enum class MonsterStrength
 {
