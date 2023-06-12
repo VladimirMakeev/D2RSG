@@ -169,7 +169,7 @@ public:
     std::map<RaceType, std::size_t> zonesPerRace;
     MapPtr map;
     RandomGenerator randomGenerator;
-    MapGenOptions& mapGenOptions;
+    MapGenOptions mapGenOptions;
     time_t randomSeed;
     CMidgardID neutralPlayerId;
     CMidgardID neutralSubraceId;
