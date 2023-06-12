@@ -20,8 +20,8 @@
 #pragma once
 
 #include "site.h"
+#include <unordered_map>
 #include <utility>
-#include <vector>
 
 namespace rsg {
 
@@ -44,7 +44,7 @@ public:
 private:
     void serializeSite(Serializer& serializer, const Map& scenario) const override;
 
-    std::vector<std::pair<CMidgardID, std::uint32_t /* count */>> items;
+    std::unordered_map<CMidgardID, std::uint32_t /* count */, CMidgardIDHash> items;
 };
 
 } // namespace rsg
