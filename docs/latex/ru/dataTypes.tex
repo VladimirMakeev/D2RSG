@@ -73,3 +73,13 @@
 \item \texttt{Spell.ChangeTerrain} - Смена типа поверхности, например 'Создание Рощи'
 \item \texttt{Spell.GiveWards} - Наложение даров (вардов), например 'Влиятельность' (Мотлин), 'Поспешность' (MNS)
 \end{itemize}
+
+\subsubsection{Типы границ зон}
+\label{borderTypes}
+Типы границ зон известные генератору:
+\begin{itemize}
+\item \texttt{Border.Open} - Зона не имеет закрытых границ
+\item \texttt{Border.SemiOpen} - Границы зоны содержат несколько непроходимых участков, разделенных проходами
+\item \texttt{Border.Cloded} - Зона окружена непроходимой границей, для доступа внутрь необходим \hyperref[connection]{\selectlanguage{Russian}Проход}
+\item \texttt{Border.Water} - Зона окружена водой
+\end{itemize}

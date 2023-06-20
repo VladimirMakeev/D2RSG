@@ -25,6 +25,8 @@
 \item \texttt{trainers} - список тренировочных лагерей. См. \hyperref[trainer]{\selectlanguage{Russian}Тренер}
 \item \texttt{stacks} - список групп нейтральных отрядов в зоне. См. \hyperref[neutralStacks]{\selectlanguage{Russian}Нейтральные отряды}
 \item \texttt{bags} - неохраняемые сундуки в зоне. См. \hyperref[bags]{\selectlanguage{Russian}Неохраняемые сундуки}
+\item \texttt{border} - тип границ зоны. По умолчанию зона имеет непроходимые границы. См. \hyperref[borderTypes]{\selectlanguage{Russian}Типы границ зон}
+\item \texttt{gapChance} - задает шанс пустого тайла для каждого тайла границы если в качестве типа границ зоны указан полу-открытый (\texttt{Border.SemiOpen}). Диапазон значений \texttt{[0 - 100]}. Значение 0 аналогично типу границ \texttt{Border.Open}, значение 100 - типу границ \texttt{Border.Close}
 \end{itemize}
 
 Для стартовых локаций игроков также возможно задание гарнизона, предметов в столице и заклинаний известных игроку со старта:
