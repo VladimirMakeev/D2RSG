@@ -35,7 +35,7 @@
 
 namespace rsg {
 
-std::pair<CMidgardID, CMidgardID> MapGenerator::createPlayer(RaceType race)
+PlayerSubraceIdPair MapGenerator::createPlayer(RaceType race)
 {
     auto playerId{createId(CMidgardID::Type::Player)};
 
@@ -74,7 +74,14 @@ std::pair<CMidgardID, CMidgardID> MapGenerator::createPlayer(RaceType race)
     subrace->setBanner(map->getSubRaceBanner(subraceType));
     insertObject(std::move(subrace));
 
-    return {playerId, subraceId};
+    PlayerSubraceIdPair pair{playerId, subraceId};
+
+    auto it{raceToPlayers.find(race)};
+    if (it == raceToPlayers.end()) {
+        raceToPlayers[race] = pair;
+    }
+
+    return pair;
 }
 
 MapPtr MapGenerator::generate()
@@ -624,6 +631,26 @@ void MapGenerator::createRoadObjects(const std::set<Position>& roads)
         // Store object in scenario map
         insertObject(std::move(road));
     }
+}
+
+CMidgardID MapGenerator::getPlayerId(RaceType race) const
+{
+    const auto it{raceToPlayers.find(race)};
+    if (it == raceToPlayers.end()) {
+        return emptyId;
+    }
+
+    return it->second.first;
+}
+
+CMidgardID MapGenerator::getSubraceId(RaceType race) const
+{
+    const auto it{raceToPlayers.find(race)};
+    if (it == raceToPlayers.end()) {
+        return emptyId;
+    }
+
+    return it->second.second;
 }
 
 void MapGenerator::registerZone(RaceType race)

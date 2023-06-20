@@ -183,9 +183,7 @@ void TemplateZone::initTowns()
     }
 
     if (!neutralCities.empty()) {
-        auto village = placeCity(pos - Position(2, 2), neutralCities[0],
-                                 mapGenerator->getNeutralPlayerId(),
-                                 mapGenerator->getNeutralSubraceId());
+        auto village = placeCity(pos - Position(2, 2), neutralCities[0]);
         // All roads lead to tile near central village entrance
         setPosition(village->getEntrance() + Position(1, 1));
 
@@ -1733,16 +1731,21 @@ void TemplateZone::createGroupUnits(Group& group, const GroupUnits& groupUnits)
     }
 }
 
-Village* TemplateZone::placeCity(const Position& position,
-                                 const CityInfo& cityInfo,
-                                 const CMidgardID& ownerId,
-                                 const CMidgardID& subraceId)
+Village* TemplateZone::placeCity(const Position& position, const CityInfo& cityInfo)
 {
     auto& rand{mapGenerator->randomGenerator};
 
     // Create city of specified tier, assign position, owner, subrace
     auto villageId{mapGenerator->createId(CMidgardID::Type::Fortification)};
     auto village{std::make_unique<Village>(villageId)};
+
+    CMidgardID ownerId{mapGenerator->getPlayerId(cityInfo.owner)};
+    CMidgardID subraceId{mapGenerator->getSubraceId(cityInfo.owner)};
+
+    if (ownerId == emptyId || subraceId == emptyId) {
+        ownerId = mapGenerator->getNeutralPlayerId();
+        subraceId = mapGenerator->getNeutralSubraceId();
+    }
 
     village->setOwner(ownerId);
     village->setSubrace(subraceId);
@@ -2483,9 +2486,6 @@ void TemplateZone::placeCities()
                         ? 0
                         : 1;
 
-    auto& cityOwnerId = mapGenerator->getNeutralPlayerId();
-    auto& citySubraceId = mapGenerator->getNeutralSubraceId();
-
     for (; i < neutralCities.size(); ++i) {
         MapElement mapElement{Position{4, 4}};
         Position position;
@@ -2503,7 +2503,7 @@ void TemplateZone::placeCities()
                     std::cout << "Create city at " << position << '\n';
                 }
 
-                auto city = placeCity(position, neutralCities[i], cityOwnerId, citySubraceId);
+                auto city = placeCity(position, neutralCities[i]);
                 decorations.push_back(std::make_unique<VillageDecoration>(city));
                 break;
             }
@@ -2741,6 +2741,14 @@ void TemplateZone::placeStacks()
             continue;
         }
 
+        CMidgardID ownerId{mapGenerator->getPlayerId(stackGroup.owner)};
+        CMidgardID subraceId{mapGenerator->getSubraceId(stackGroup.owner)};
+
+        if (ownerId == emptyId || subraceId == emptyId) {
+            ownerId = mapGenerator->getNeutralPlayerId();
+            subraceId = mapGenerator->getNeutralSubraceId();
+        }
+
         std::vector<Stack*> randomStacks(stackGroup.count);
         std::size_t stackIndex{};
         // Generate and place all random stacks, value is split evenly
@@ -2754,8 +2762,8 @@ void TemplateZone::placeStacks()
                 continue;
             }
 
-            stack->setOwner(mapGenerator->getNeutralPlayerId());
-            stack->setSubrace(mapGenerator->getNeutralSubraceId());
+            stack->setOwner(ownerId);
+            stack->setSubrace(subraceId);
 
             randomStacks[stackIndex] = stack.get();
             placeObject(std::move(stack), positions[positionIndex++]);

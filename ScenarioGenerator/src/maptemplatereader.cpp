@@ -291,6 +291,7 @@ static void readCity(CityInfo& city, const sol::table& table)
         readGroup(city.stack, stack.value());
     }
 
+    city.owner = table.get_or("owner", RaceType::Neutral);
     city.tier = readValue(table, "tier", 1, 1, 5);
 }
 
@@ -492,6 +493,7 @@ static void readStacks(StacksInfo& stacks, const std::vector<sol::table>& tables
 
         readGroup(info.stacks, table);
         info.count = readValue(table, "count", 0, 0);
+        info.owner = table.get_or("owner", RaceType::Neutral);
 
         stacks.stackGroups.push_back(info);
     }

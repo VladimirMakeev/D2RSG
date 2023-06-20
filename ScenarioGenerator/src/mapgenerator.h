@@ -30,6 +30,8 @@
 
 namespace rsg {
 
+using PlayerSubraceIdPair = std::pair<CMidgardID /* player id */, CMidgardID /* subrace id */>;
+
 struct MapTemplate;
 
 // Map generator options
@@ -86,7 +88,7 @@ public:
         map->paintTerrain(tiles, terrain, ground);
     }
 
-    std::pair<CMidgardID /* player id */, CMidgardID /* subrace id */> createPlayer(RaceType race);
+    PlayerSubraceIdPair createPlayer(RaceType race);
 
     MapPtr generate();
 
@@ -133,6 +135,12 @@ public:
         return map->getRaceType(raceId);
     }
 
+    // Returns player id for specified race
+    CMidgardID getPlayerId(RaceType race) const;
+
+    // Returns subrace id for specified race
+    CMidgardID getSubraceId(RaceType race) const;
+
     const CMidgardID& getNeutralPlayerId() const
     {
         return neutralPlayerId;
@@ -167,6 +175,7 @@ public:
     std::vector<TemplateZoneId> zoneColoring;
     ZonesMap zones;
     std::map<RaceType, std::size_t> zonesPerRace;
+    std::map<RaceType, PlayerSubraceIdPair> raceToPlayers;
     MapPtr map;
     RandomGenerator randomGenerator;
     MapGenOptions mapGenOptions;

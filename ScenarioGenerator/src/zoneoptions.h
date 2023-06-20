@@ -65,6 +65,8 @@ struct CityInfo
     GroupInfo garrison;
     // Stack that is visiting the city
     GroupInfo stack;
+    // Race that controls the city
+    RaceType owner{RaceType::Neutral};
     // City tier
     std::uint8_t tier{1};
 };
@@ -133,6 +135,8 @@ struct NeutralStacksInfo
     GroupInfo stacks;
     // Number of stacks to create
     std::uint32_t count{};
+    // Race that controls the stacks
+    RaceType owner{RaceType::Neutral};
 };
 
 struct StacksInfo

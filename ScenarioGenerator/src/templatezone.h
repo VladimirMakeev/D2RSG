@@ -225,10 +225,7 @@ struct TemplateZone : public ZoneOptions
 
     void createGroupUnits(Group& group, const GroupUnits& groupUnits);
 
-    Village* placeCity(const Position& position,
-                       const CityInfo& cityInfo,
-                       const CMidgardID& ownerId,
-                       const CMidgardID& subraceId);
+    Village* placeCity(const Position& position, const CityInfo& cityInfo);
 
     Site* placeMerchant(const Position& position, const MerchantInfo& merchantInfo);
     Site* placeMage(const Position& position, const MageInfo& mageInfo);
