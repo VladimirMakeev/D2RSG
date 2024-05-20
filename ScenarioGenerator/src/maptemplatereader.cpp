@@ -505,6 +505,57 @@ static void readMercenaries(std::vector<MercenaryInfo>& mercenaries,
     }
 }
 
+static void readResourceMarketStock(std::map<ResourceType, ResourceMarketStock>& stock,
+                                    const std::vector<sol::table>& resources)
+{
+    for (const auto& table : resources) {
+        const ResourceType resource = table.get<ResourceType>("resource");
+        if (contains(stock, resource)) {
+            // Ignore duplicates
+            continue;
+        }
+
+        ResourceMarketStock resourceStock{};
+        resourceStock.infinite = table.get_or("infinite", false);
+        if (!resourceStock.infinite) {
+            auto value = table.get<OptionalTable>("value");
+            if (value.has_value()) {
+                readRandomValue<std::uint32_t>(resourceStock.amount, value.value(), 0, 0);
+            }
+        }
+
+        stock[resource] = resourceStock;
+    }
+}
+
+static void readResourceMarket(ResourceMarketInfo& market, const sol::table& table)
+{
+    market.exchangeRates = readString(table, "exchangeRates", "");
+
+    auto stock = table.get<OptionalTableArray>("stock");
+    if (stock.has_value()) {
+        readResourceMarketStock(market.stock, stock.value());
+    }
+
+    auto guard = table.get<OptionalTable>("guard");
+    if (guard.has_value()) {
+        readGroup(market.guard, guard.value());
+    }
+}
+
+static void readResourceMarkets(std::vector<ResourceMarketInfo>& markets,
+                                const std::vector<sol::table>& tables)
+{
+    markets.reserve(tables.size());
+
+    for (const auto& table : tables) {
+        ResourceMarketInfo info{};
+        readResourceMarket(info, table);
+
+        markets.push_back(info);
+    }
+}
+
 static void readStacks(StacksInfo& stacks, const std::vector<sol::table>& tables)
 {
     stacks.stackGroups.reserve(tables.size());
@@ -612,6 +663,11 @@ static std::shared_ptr<ZoneOptions> createZoneOptions(const sol::table& zone)
     auto trainers = zone.get<OptionalTableArray>("trainers");
     if (trainers.has_value()) {
         readTrainers(options->trainers, trainers.value());
+    }
+
+    auto resourceMarkets = zone.get<OptionalTableArray>("resourceMarkets");
+    if (resourceMarkets.has_value()) {
+        readResourceMarkets(options->markets, resourceMarkets.value());
     }
 
     return options;

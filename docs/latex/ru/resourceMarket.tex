@@ -1,0 +1,25 @@
+\subsubsection{Рынок ресурсов}
+\label{resourcemarket}
+Описывает рынок, его обменный курс, запасы ресурсов и потенциальную охрану.
+
+Обязательных полей нет, пустая таблица описывает рынок с обменным курсом по-умолчанию, без ресурсов и охраны.
+
+Необязательные поля:
+\begin{itemize}
+\item \texttt{exchangeRates} - строка, содержащая скрипт обменного курса, специфичного для рынка.
+\item \texttt{stock} - список \hyperref[marketresource]{\selectlanguage{Russian}ресурсов рынка}.
+\item \texttt{guard} - отряд охраняющий вход на рынок. См. \hyperref[group]{\selectlanguage{Russian}Группа / Отряд}
+\end{itemize}
+
+Пример:\\
+Рынок с бесконечным запасом золота, 100 единицами маны жизни, 200 - 300 единиц маны преисподней и 500 - 550 единиц маны смерти
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/marketExample1.lua}
+\end{figure}
+
+Рынок с бесконечным запасом маны и специальным обменным курсом который позволяет игрокам менять золото на любой вид маны в соотношении 10 к 1
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/marketExample2.lua}
+\end{figure}

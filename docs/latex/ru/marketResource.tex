@@ -1,0 +1,27 @@
+\subsubsection{Ресурс рынка}
+\label{marketresource}
+Описывает один из ресурсов доступный для обмена на рынке.
+
+Обязательные поля:
+\begin{itemize}
+\item \texttt{resource} - тип ресурса. См. \hyperref[resourceTypes]{\selectlanguage{Russian}типы ресурсов}
+\end{itemize}
+
+Необязательные поля:
+\begin{itemize}
+\item \texttt{value} - количество ресурса, если его запасы конечны. См. \hyperref[value]{\selectlanguage{Russian}Ценность}.
+\item \texttt{infinite} - исчерпаемость ресурса. При значении \texttt{true} ресурс бесконечен, а поле \texttt{value} игнорируется.
+\end{itemize}
+
+Пример:\\
+Золото, бесконечный запас
+
+\begin{lstlisting}
+{ resource = Resource.Gold, infinite = true }
+\end{lstlisting}
+
+Мана жизни, количество от 200 до 300
+
+\begin{lstlisting}
+{ resource = Resource.LifeMana, value = { min = 200, max = 300 } }
+\end{lstlisting}

@@ -65,6 +65,7 @@
     <ClInclude Include="src\scenario\player.h" />
     <ClInclude Include="src\scenario\playerbuildings.h" />
     <ClInclude Include="src\scenario\questlog.h" />
+    <ClInclude Include="src\scenario\resourcemarket.h" />
     <ClInclude Include="src\scenario\road.h" />
     <ClInclude Include="src\scenario\ruin.h" />
     <ClInclude Include="src\scenario\scenarioinfo.h" />
@@ -131,6 +132,7 @@
     <ClCompile Include="src\scenario\player.cpp" />
     <ClCompile Include="src\scenario\playerbuildings.cpp" />
     <ClCompile Include="src\scenario\questlog.cpp" />
+    <ClCompile Include="src\scenario\resourcemarket.cpp" />
     <ClCompile Include="src\scenario\road.cpp" />
     <ClCompile Include="src\scenario\ruin.cpp" />
     <ClCompile Include="src\scenario\scenarioinfo.cpp" />

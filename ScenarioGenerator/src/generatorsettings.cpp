@@ -193,6 +193,8 @@ static void readScriptSettings(sol::state& lua)
     readObjectImages(generatorSettings.mages, settings, "mages", "g000si0000mage");
     readObjectImages(generatorSettings.trainers, settings, "trainers", "g000si0000trai");
     readObjectImages(generatorSettings.mercenaries, settings, "mercenaries", "g000si0000merc");
+    readObjectImages(generatorSettings.resourceMarkets, settings, "resourceMarkets",
+                     "g000si0000rmkt");
 }
 
 static void processFFFileRecords(const std::filesystem::path& ffFilePath,

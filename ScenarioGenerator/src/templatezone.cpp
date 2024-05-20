@@ -34,6 +34,7 @@
 #include "mercenary.h"
 #include "merchant.h"
 #include "player.h"
+#include "resourcemarket.h"
 #include "spellpicker.h"
 #include "subrace.h"
 #include "texts.h"
@@ -282,6 +283,7 @@ void TemplateZone::fill()
     placeMages();
     placeMercenaries();
     placeTrainers();
+    placeMarkets();
     placeRuins();
     placeMines();
     createRequiredObjects();
@@ -2062,6 +2064,38 @@ Site* TemplateZone::placeTrainer(const Position& position, const TrainerInfo& tr
     return trainerPtr;
 }
 
+Site* TemplateZone::placeMarket(const Position& position, const ResourceMarketInfo& marketInfo)
+{
+    auto& rand{mapGenerator->randomGenerator};
+
+    auto marketId{mapGenerator->createId(CMidgardID::Type::Site)};
+    auto market{std::make_unique<ResourceMarket>(marketId)};
+
+    const SiteText& text = *getRandomElement(getGameInfo()->getMarketTexts(), rand);
+    market->setTitle(text.name);
+    market->setDescription(text.description);
+    market->setImgIso(*getRandomElement(getGeneratorSettings().resourceMarkets.images, rand));
+
+    market->setExchangeRates(marketInfo.exchangeRates);
+    Currency stock{};
+
+    for (const auto& [resource, info] : marketInfo.stock) {
+        if (info.infinite) {
+            market->setInfiniteStock(resource, true);
+        } else {
+            stock.set(resource, static_cast<std::uint16_t>(rand.pickValue(info.amount)));
+        }
+    }
+
+    market->setStock(stock);
+
+    auto marketPtr{market.get()};
+    placeObject(std::move(market), position);
+    guardObject(*marketPtr, marketInfo.guard);
+
+    return marketPtr;
+}
+
 Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo)
 {
     auto& rand{mapGenerator->randomGenerator};
@@ -2670,6 +2704,33 @@ void TemplateZone::placeTrainers()
 
                 auto trainer = placeTrainer(position, trainerInfo);
                 decorations.push_back(std::make_unique<SiteDecoration>(trainer));
+                break;
+            }
+        }
+    }
+}
+
+void TemplateZone::placeMarkets()
+{
+    for (const auto& marketInfo : markets) {
+        MapElement mapElement{Position{3, 3}};
+        Position position;
+
+        const int minDistance{mapElement.getSize().x * 2};
+        while (true) {
+            if (!findPlaceForObject(mapElement, minDistance, position)) {
+                throw LackOfSpaceException(std::string("Failed to place resource market in zone ")
+                                           + std::to_string(id) + " due to lack of space");
+            }
+
+            if (tryToPlaceObjectAndConnectToPath(mapElement, position)
+                == ObjectPlacingResult::Success) {
+                if (mapGenerator->isDebugMode()) {
+                    std::cout << "Create resource market at " << position << '\n';
+                }
+
+                auto market = placeMarket(position, marketInfo);
+                decorations.push_back(std::make_unique<SiteDecoration>(market));
                 break;
             }
         }

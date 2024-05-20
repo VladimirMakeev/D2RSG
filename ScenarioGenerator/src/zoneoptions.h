@@ -156,6 +156,24 @@ struct TrainerInfo
     GroupInfo guard;
 };
 
+struct ResourceMarketStock
+{
+    // Amount of resource on the market
+    RandomValue<std::uint32_t> amount;
+    // Whether resource is infinite or not
+    bool infinite{};
+};
+
+struct ResourceMarketInfo
+{
+    // Stack that is guarding resource market
+    GroupInfo guard;
+    // Custom exchange rates, if specified
+    std::string exchangeRates;
+    // Market resources
+    std::map<ResourceType, ResourceMarketStock> stock;
+};
+
 // Connection between two zones in template
 struct ZoneConnection
 {
@@ -177,6 +195,7 @@ struct ZoneOptions
     std::vector<MageInfo> mages;                // Mage towers
     std::vector<MercenaryInfo> mercenaries;     // Mercenary camps
     std::vector<TrainerInfo> trainers;          // Trainers
+    std::vector<ResourceMarketInfo> markets;    // Resource markets
     StacksInfo stacks;                          // Neutral stacks
     BagInfo bags;                               // Bags with treasures
     CapitalInfo capital;                        // Capital, in case of starting zone

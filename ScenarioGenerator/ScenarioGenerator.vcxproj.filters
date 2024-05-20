@@ -255,6 +255,9 @@
     <ClInclude Include="src\blueprint.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="src\scenario\resourcemarket.h">
+      <Filter>Файлы заголовков\scenario</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\scenario\bag.cpp">
@@ -421,6 +424,9 @@
     </ClCompile>
     <ClCompile Include="src\blueprint.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenario\resourcemarket.cpp">
+      <Filter>Исходные файлы\scenario</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

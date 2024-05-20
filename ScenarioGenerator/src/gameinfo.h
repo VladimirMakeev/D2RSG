@@ -138,6 +138,8 @@ public:
     virtual const SiteTexts& getRuinTexts() const = 0;
     // Returns texts for trainers
     virtual const SiteTexts& getTrainerTexts() const = 0;
+    // Returns texts for resource markets
+    virtual const rsg::SiteTexts& getMarketTexts() const = 0;
 
 protected:
     GameInfo() = default;

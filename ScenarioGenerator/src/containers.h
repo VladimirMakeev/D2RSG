@@ -20,6 +20,7 @@
 #pragma once
 
 #include <algorithm>
+#include <map>
 #include <set>
 
 namespace rsg {
@@ -33,6 +34,12 @@ static inline bool contains(const Container& container, const Element& element)
 
 template <typename Element>
 static inline bool contains(const std::set<Element>& container, const Element& element)
+{
+    return container.find(element) != container.cend();
+}
+
+template <typename Element, typename Value>
+static inline bool contains(const std::map<Element, Value>& container, const Element& element)
 {
     return container.find(element) != container.cend();
 }

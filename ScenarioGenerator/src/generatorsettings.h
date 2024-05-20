@@ -79,6 +79,7 @@ struct GeneratorSettings
     ObjectImages mages;
     ObjectImages trainers;
     ObjectImages mercenaries;
+    ObjectImages resourceMarkets;
 
     // Maximum tree image index that is supported by all races. From IsoTerrn.ff
     std::uint8_t maxTreeImageIndex{};
