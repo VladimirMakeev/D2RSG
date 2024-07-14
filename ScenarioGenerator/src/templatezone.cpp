@@ -1797,6 +1797,7 @@ Village* TemplateZone::placeCity(const Position& position, const CityInfo& cityI
     village->setSubrace(subraceId);
     village->setTier(cityInfo.tier);
     village->setName(*getRandomElement(getGameInfo()->getCityNames(), rand));
+    village->setAiPriority(cityInfo.aiPriority);
 
     auto villagePtr{village.get()};
 
@@ -1899,6 +1900,7 @@ Site* TemplateZone::placeMerchant(const Position& position, const MerchantInfo& 
     merchant->setTitle(text.name);
     merchant->setDescription(text.description);
     merchant->setImgIso(*getRandomElement(getGeneratorSettings().merchants.images, rand));
+    merchant->setAiPriority(merchantInfo.aiPriority);
 
     // Create merchant items
     const auto items{createLoot(merchantInfo.items, true)};
@@ -1924,6 +1926,7 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
     mage->setTitle(text.name);
     mage->setDescription(text.description);
     mage->setImgIso(*getRandomElement(getGeneratorSettings().mages.images, rand));
+    mage->setAiPriority(mageInfo.aiPriority);
 
     // Generate random spells of specified types
     if (mageInfo.value) {
@@ -2004,6 +2007,7 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
     mercenary->setTitle(text.name);
     mercenary->setDescription(text.description);
     mercenary->setImgIso(*getRandomElement(getGeneratorSettings().mercenaries.images, rand));
+    mercenary->setAiPriority(mercInfo.aiPriority);
 
     // Generate random mercenary units of specified subraces
     if (mercInfo.value) {
@@ -2056,6 +2060,7 @@ Site* TemplateZone::placeTrainer(const Position& position, const TrainerInfo& tr
     trainer->setTitle(text.name);
     trainer->setDescription(text.description);
     trainer->setImgIso(*getRandomElement(getGeneratorSettings().trainers.images, rand));
+    trainer->setAiPriority(trainerInfo.aiPriority);
 
     auto trainerPtr{trainer.get()};
     placeObject(std::move(trainer), position);
@@ -2075,6 +2080,7 @@ Site* TemplateZone::placeMarket(const Position& position, const ResourceMarketIn
     market->setTitle(text.name);
     market->setDescription(text.description);
     market->setImgIso(*getRandomElement(getGeneratorSettings().resourceMarkets.images, rand));
+    market->setAiPriority(marketInfo.aiPriority);
 
     market->setExchangeRates(marketInfo.exchangeRates);
     Currency stock{};
@@ -2106,6 +2112,7 @@ Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo
     const SiteText& text = *getRandomElement(getGameInfo()->getRuinTexts(), rand);
     ruin->setTitle(text.name);
     ruin->setImage(*getRandomElement(getGeneratorSettings().ruins.images, rand));
+    ruin->setAiPriority(ruinInfo.aiPriority);
 
     const auto& guardValue{ruinInfo.guard.value};
     if (guardValue) {
@@ -2453,6 +2460,7 @@ void TemplateZone::placeCapital()
     assert(ownerId != emptyId);
     fort->setOwner(ownerId);
     fort->setName(*getRandomElement(getGameInfo()->getCityNames(), rand));
+    fort->setAiPriority(capital.aiPriority);
 
     auto ownerPlayer{mapGenerator->map->find<Player>(ownerId)};
     assert(ownerPlayer != nullptr);
@@ -2882,6 +2890,7 @@ void TemplateZone::placeStacks()
 
             stack->setOwner(ownerId);
             stack->setSubrace(subraceId);
+            stack->setAiPriority(stackGroup.aiPriority);
 
             randomStacks[stackIndex] = stack.get();
             placeObject(std::move(stack), positions[positionIndex++]);
@@ -3004,7 +3013,10 @@ void TemplateZone::placeBags()
                 }
 
                 // Do not create decorations near bags
-                placedBags.push_back(placeBag(position));
+                auto bag{placeBag(position)};
+                bag->setAiPriority(bags.aiPriority);
+
+                placedBags.push_back(std::move(bag));
                 break;
             }
         }

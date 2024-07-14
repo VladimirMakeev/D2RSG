@@ -55,6 +55,11 @@ public:
         resourceType = value;
     }
 
+    void setAiPriority(AiPriority priority)
+    {
+        aiPriority = priority;
+    }
+
 private:
     AiPriority aiPriority;
     ResourceType resourceType{ResourceType::Gold};

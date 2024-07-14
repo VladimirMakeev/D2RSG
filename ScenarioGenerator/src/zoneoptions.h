@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "aipriority.h"
 #include "enums.h"
 #include "randomgenerator.h"
 #include "rsgid.h"
@@ -67,6 +68,7 @@ struct CityInfo
     GroupInfo stack;
     // Race that controls the city
     RaceType owner{RaceType::Neutral};
+    AiPriority aiPriority;
     // City tier
     std::uint8_t tier{1};
 };
@@ -77,6 +79,7 @@ struct CapitalInfo
     GroupInfo garrison;
     // Spells the player knowns from the start
     std::set<CMidgardID> spells;
+    AiPriority aiPriority;
 };
 
 struct RuinInfo
@@ -86,6 +89,7 @@ struct RuinInfo
     // Item reward. If specified, first required item is picked
     LootInfo loot;
     RandomValue<std::uint16_t> gold{}; // Reward in gold
+    AiPriority aiPriority;
 };
 
 struct MerchantInfo
@@ -94,6 +98,7 @@ struct MerchantInfo
     GroupInfo guard;
     // Merchant items
     LootInfo items;
+    AiPriority aiPriority;
 };
 
 struct MageInfo
@@ -108,6 +113,7 @@ struct MageInfo
     RandomValue<std::uint32_t> value{};
     // Spell levels that merchant is allowed to sell.
     RandomValue<std::uint8_t> spellLevels{};
+    AiPriority aiPriority;
 };
 
 struct MercenaryUnitInfo
@@ -127,6 +133,7 @@ struct MercenaryInfo
     std::vector<MercenaryUnitInfo> requiredUnits;
     // Total value of units, excluding requiredUnits
     RandomValue<std::uint32_t> value{};
+    AiPriority aiPriority;
 };
 
 struct NeutralStacksInfo
@@ -137,6 +144,7 @@ struct NeutralStacksInfo
     std::uint32_t count{};
     // Race that controls the stacks
     RaceType owner{RaceType::Neutral};
+    AiPriority aiPriority;
 };
 
 struct StacksInfo
@@ -149,11 +157,13 @@ struct BagInfo
 {
     LootInfo loot;
     std::uint32_t count{};
+    AiPriority aiPriority;
 };
 
 struct TrainerInfo
 {
     GroupInfo guard;
+    AiPriority aiPriority;
 };
 
 struct ResourceMarketStock
@@ -172,6 +182,7 @@ struct ResourceMarketInfo
     std::string exchangeRates;
     // Market resources
     std::map<ResourceType, ResourceMarketStock> stock;
+    AiPriority aiPriority;
 };
 
 // Connection between two zones in template

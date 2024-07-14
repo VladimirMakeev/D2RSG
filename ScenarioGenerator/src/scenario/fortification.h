@@ -128,6 +128,11 @@ public:
         return inventory;
     }
 
+    void setAiPriority(AiPriority priority)
+    {
+        aiPriority = priority;
+    }
+
 protected:
     Fortification(const CMidgardID& fortificationId, const Position& size)
         : ScenarioObject(fortificationId)

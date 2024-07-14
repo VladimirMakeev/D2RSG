@@ -132,6 +132,11 @@ public:
         return inventory;
     }
 
+    void setAiPriority(AiPriority priority)
+    {
+        aiPriority = priority;
+    }
+
 private:
     Group group;
     Inventory inventory;

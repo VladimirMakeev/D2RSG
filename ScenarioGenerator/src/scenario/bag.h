@@ -55,6 +55,11 @@ public:
         image = value;
     }
 
+    void setAiPriority(AiPriority priority)
+    {
+        aiPriority = priority;
+    }
+
 private:
     Inventory inventory;
     AiPriority aiPriority;

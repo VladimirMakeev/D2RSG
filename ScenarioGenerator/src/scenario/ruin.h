@@ -107,6 +107,11 @@ public:
         return group;
     }
 
+    void setAiPriority(AiPriority priority)
+    {
+        aiPriority = priority;
+    }
+
 private:
     Group group;
     std::string title;

@@ -35,6 +35,10 @@ public:
 
     AiPriority() = default;
 
+    AiPriority(Value priority)
+        : aiPriority{priority}
+    { }
+
     Value getPriority() const
     {
         return aiPriority;

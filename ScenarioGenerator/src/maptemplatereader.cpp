@@ -213,6 +213,16 @@ static void readStringSet(std::set<CMidgardID>& ids, const StringSet& stringSet)
     }
 }
 
+static void readAiPriority(AiPriority& value, const sol::table& table)
+{
+    const int min{static_cast<int>(AiPriority::Value::Priority0)};
+    const int max{static_cast<int>(AiPriority::Value::Priority6)};
+    const int dflt{(max - min) / 2};
+
+    int priority{readValue(table, "aiPriority", dflt, min, max)};
+    value.setPriority(static_cast<AiPriority::Value>(priority));
+}
+
 static void readMines(ZoneOptions& options, const sol::table& mines)
 {
     auto gold = readValue(mines, "gold", 0, 0);
@@ -314,6 +324,7 @@ static void readCity(CityInfo& city, const sol::table& table)
 
     city.owner = table.get_or("owner", RaceType::Neutral);
     city.tier = readValue(table, "tier", 1, 1, 5);
+    readAiPriority(city.aiPriority, table);
 }
 
 static void readCities(std::vector<CityInfo>& cities, const std::vector<sol::table>& tables)
@@ -347,6 +358,8 @@ static void readCapital(CapitalInfo& capital, const sol::table& table)
             capital.spells.insert(spellId);
         }
     }
+
+    readAiPriority(capital.aiPriority, table);
 }
 
 static void readRuin(RuinInfo& ruin, const sol::table& table)
@@ -365,6 +378,8 @@ static void readRuin(RuinInfo& ruin, const sol::table& table)
     if (loot.has_value()) {
         readLoot(ruin.loot, loot.value());
     }
+
+    readAiPriority(ruin.aiPriority, table);
 }
 
 static void readRuins(std::vector<RuinInfo>& ruins, const std::vector<sol::table>& tables)
@@ -390,6 +405,8 @@ static void readMerchant(MerchantInfo& merchant, const sol::table& table)
     if (guard.has_value()) {
         readGroup(merchant.guard, guard.value());
     }
+
+    readAiPriority(merchant.aiPriority, table);
 }
 
 static void readMerchants(std::vector<MerchantInfo>& merchants,
@@ -439,6 +456,8 @@ static void readMage(MageInfo& mage, const sol::table& table)
             mage.requiredSpells.insert(spellId);
         }
     }
+
+    readAiPriority(mage.aiPriority, table);
 }
 
 static void readMages(std::vector<MageInfo>& mages, const std::vector<sol::table>& tables)
@@ -490,6 +509,8 @@ static void readMercenary(MercenaryInfo& mercenary, const sol::table& table)
     if (guard.has_value()) {
         readGroup(mercenary.guard, guard.value());
     }
+
+    readAiPriority(mercenary.aiPriority, table);
 }
 
 static void readMercenaries(std::vector<MercenaryInfo>& mercenaries,
@@ -541,6 +562,8 @@ static void readResourceMarket(ResourceMarketInfo& market, const sol::table& tab
     if (guard.has_value()) {
         readGroup(market.guard, guard.value());
     }
+
+    readAiPriority(market.aiPriority, table);
 }
 
 static void readResourceMarkets(std::vector<ResourceMarketInfo>& markets,
@@ -566,6 +589,7 @@ static void readStacks(StacksInfo& stacks, const std::vector<sol::table>& tables
         readGroup(info.stacks, table);
         info.count = readValue(table, "count", 0, 0);
         info.owner = table.get_or("owner", RaceType::Neutral);
+        readAiPriority(info.aiPriority, table);
 
         stacks.stackGroups.push_back(info);
     }
@@ -579,6 +603,7 @@ static void readBags(BagInfo& bagInfo, const sol::table& table)
     }
 
     bagInfo.count = readValue(table, "count", 0, 0);
+    readAiPriority(bagInfo.aiPriority, table);
 }
 
 static void readTrainers(std::vector<TrainerInfo>& trainers, const std::vector<sol::table>& tables)
@@ -592,6 +617,8 @@ static void readTrainers(std::vector<TrainerInfo>& trainers, const std::vector<s
         if (guard.has_value()) {
             readGroup(info.guard, guard.value());
         }
+
+        readAiPriority(info.aiPriority, table);
 
         trainers.push_back(info);
     }

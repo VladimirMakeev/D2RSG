@@ -67,6 +67,11 @@ public:
         imgIntf[8] = '\0';
     }
 
+    void setAiPriority(AiPriority priority)
+    {
+        aiPriority = priority;
+    }
+
 protected:
     Site(const CMidgardID& siteId)
         : ScenarioObject(siteId)
