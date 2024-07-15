@@ -197,12 +197,13 @@ struct TemplateZone : public ZoneOptions
     bool connectPath(const Position& source, bool onlyStraight);
 
     // Creates stack with loot from specified group information
-    std::unique_ptr<Stack> createStack(const GroupInfo& stackInfo);
+    std::unique_ptr<Stack> createStack(const GroupInfo& stackInfo, bool neutralOwner);
 
     // Creates stack with specified leader and soldier units
     std::unique_ptr<Stack> createStack(const UnitInfo& leaderInfo,
                                        std::size_t leaderPosition,
-                                       const GroupUnits& groupUnits);
+                                       const GroupUnits& groupUnits,
+                                       bool neutralOwner);
 
     // Picks stack leader using stack unit values
     const UnitInfo* createStackLeader(std::size_t& unusedValue,

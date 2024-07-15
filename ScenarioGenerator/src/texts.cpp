@@ -26,7 +26,7 @@ namespace rsg {
 
 static const char* emptyName = "Guard";
 
-const char* getUnitName(const UnitInfo& info, RandomGenerator& rand)
+const char* getUnitName(const UnitInfo& info, RandomGenerator& rand, bool neutralOwner)
 {
     if (!isLeader(info)) {
         // Only leader units have names
@@ -44,7 +44,7 @@ const char* getUnitName(const UnitInfo& info, RandomGenerator& rand)
     }
 
     const RaceInfo& race{*it->second.get()};
-    if (isRaceUnplayable(race.getRaceType())) {
+    if (neutralOwner || isRaceUnplayable(race.getRaceType())) {
         return getGameInfo()->getGlobalText(info.getNameId());
     }
 

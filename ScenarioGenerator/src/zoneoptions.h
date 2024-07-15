@@ -66,6 +66,8 @@ struct CityInfo
     GroupInfo garrison;
     // Stack that is visiting the city
     GroupInfo stack;
+    // Custom city name
+    std::string name;
     // Race that controls the city
     RaceType owner{RaceType::Neutral};
     AiPriority aiPriority;
@@ -79,6 +81,8 @@ struct CapitalInfo
     GroupInfo garrison;
     // Spells the player knowns from the start
     std::set<CMidgardID> spells;
+    // Custom capital name
+    std::string name;
     AiPriority aiPriority;
 };
 
@@ -88,6 +92,8 @@ struct RuinInfo
     GroupInfo guard;
     // Item reward. If specified, first required item is picked
     LootInfo loot;
+    // Custom ruin name
+    std::string name;
     RandomValue<std::uint16_t> gold{}; // Reward in gold
     AiPriority aiPriority;
 };
@@ -98,6 +104,9 @@ struct MerchantInfo
     GroupInfo guard;
     // Merchant items
     LootInfo items;
+    // Custom merchant name and description
+    std::string name;
+    std::string description;
     AiPriority aiPriority;
 };
 
@@ -109,6 +118,9 @@ struct MageInfo
     std::set<SpellType> spellTypes;
     // Spells that merchant must sell, regardless of spellTypes and value
     std::set<CMidgardID> requiredSpells;
+    // Custom mage name and description
+    std::string name;
+    std::string description;
     // Total value of merchant tradable spells, excluding requiredSpells
     RandomValue<std::uint32_t> value{};
     // Spell levels that merchant is allowed to sell.
@@ -131,6 +143,9 @@ struct MercenaryInfo
     std::set<SubRaceType> subraceTypes;
     // Units that must be generated
     std::vector<MercenaryUnitInfo> requiredUnits;
+    // Custom mercenary name and description
+    std::string name;
+    std::string description;
     // Total value of units, excluding requiredUnits
     RandomValue<std::uint32_t> value{};
     AiPriority aiPriority;
@@ -144,6 +159,8 @@ struct NeutralStacksInfo
     std::uint32_t count{};
     // Race that controls the stacks
     RaceType owner{RaceType::Neutral};
+    // Custom leader name
+    std::string name;
     AiPriority aiPriority;
 };
 
@@ -163,6 +180,9 @@ struct BagInfo
 struct TrainerInfo
 {
     GroupInfo guard;
+    // Custom trainer name and description
+    std::string name;
+    std::string description;
     AiPriority aiPriority;
 };
 
@@ -182,6 +202,9 @@ struct ResourceMarketInfo
     std::string exchangeRates;
     // Market resources
     std::map<ResourceType, ResourceMarketStock> stock;
+    // Custom name and description
+    std::string name;
+    std::string description;
     AiPriority aiPriority;
 };
 

@@ -951,7 +951,7 @@ bool TemplateZone::guardObject(const MapElement& mapElement, const GroupInfo& gu
         return false;
     }
 
-    auto stack{createStack(guardInfo)};
+    auto stack{createStack(guardInfo, true)};
     if (!stack) {
         // Allow no guard or other object in front of this object
         for (const auto& tile : tiles) {
@@ -1285,7 +1285,7 @@ bool TemplateZone::connectPath(const Position& source, bool onlyStraight)
     return false;
 }
 
-std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
+std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo, bool neutralOwner)
 {
     const auto& stackValue{stackInfo.value};
     if (!stackValue) {
@@ -1390,7 +1390,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
                   << unitsCreated << '\n';
     }
 
-    auto stack{createStack(*leaderInfo, leaderPosition, soldiers)};
+    auto stack{createStack(*leaderInfo, leaderPosition, soldiers, neutralOwner)};
 
     // Make sure we create leader with correct leadership value
     int leadershipRequired = leaderInfo->isBig() ? 2 : 1;
@@ -1438,7 +1438,8 @@ std::unique_ptr<Stack> TemplateZone::createStack(const GroupInfo& stackInfo)
 
 std::unique_ptr<Stack> TemplateZone::createStack(const UnitInfo& leaderInfo,
                                                  std::size_t leaderPosition,
-                                                 const GroupUnits& groupUnits)
+                                                 const GroupUnits& groupUnits,
+                                                 bool neutralOwner)
 {
     auto& rand{mapGenerator->randomGenerator};
 
@@ -1455,7 +1456,7 @@ std::unique_ptr<Stack> TemplateZone::createStack(const UnitInfo& leaderInfo,
 
     leader->setImplId(leaderInfo.getUnitId());
     leader->setHp(leaderInfo.getHp());
-    leader->setName(getUnitName(leaderInfo, rand));
+    leader->setName(getUnitName(leaderInfo, rand, neutralOwner));
 
     mapGenerator->insertObject(std::move(leader));
 
@@ -1796,7 +1797,13 @@ Village* TemplateZone::placeCity(const Position& position, const CityInfo& cityI
     village->setOwner(ownerId);
     village->setSubrace(subraceId);
     village->setTier(cityInfo.tier);
-    village->setName(*getRandomElement(getGameInfo()->getCityNames(), rand));
+
+    if (cityInfo.name.empty()) {
+        village->setName(*getRandomElement(getGameInfo()->getCityNames(), rand));
+    } else {
+        village->setName(cityInfo.name);
+    }
+
     village->setAiPriority(cityInfo.aiPriority);
 
     auto villagePtr{village.get()};
@@ -1873,8 +1880,9 @@ Village* TemplateZone::placeCity(const Position& position, const CityInfo& cityI
         }
     }
 
+    const bool neutralOwner{ownerId == mapGenerator->getNeutralPlayerId()};
     // Create visitor stack and its loot
-    auto stack{createStack(cityInfo.stack)};
+    auto stack{createStack(cityInfo.stack, neutralOwner)};
     if (stack) {
         // Make sure visitor stack is inside the city
         villagePtr->setStack(stack->getId());
@@ -1897,8 +1905,18 @@ Site* TemplateZone::placeMerchant(const Position& position, const MerchantInfo& 
     auto merchant{std::make_unique<Merchant>(merchantId)};
 
     const SiteText& text = *getRandomElement(getGameInfo()->getMerchantTexts(), rand);
-    merchant->setTitle(text.name);
-    merchant->setDescription(text.description);
+    if (merchantInfo.name.empty()) {
+        merchant->setTitle(text.name);
+    } else {
+        merchant->setTitle(merchantInfo.name);
+    }
+
+    if (merchantInfo.description.empty()) {
+        merchant->setDescription(text.description);
+    } else {
+        merchant->setDescription(merchantInfo.description);
+    }
+
     merchant->setImgIso(*getRandomElement(getGeneratorSettings().merchants.images, rand));
     merchant->setAiPriority(merchantInfo.aiPriority);
 
@@ -1923,8 +1941,19 @@ Site* TemplateZone::placeMage(const Position& position, const MageInfo& mageInfo
     auto mage{std::make_unique<Mage>(mageId)};
 
     const SiteText& text = *getRandomElement(getGameInfo()->getMageTexts(), rand);
-    mage->setTitle(text.name);
-    mage->setDescription(text.description);
+
+    if (mageInfo.name.empty()) {
+        mage->setTitle(text.name);
+    } else {
+        mage->setTitle(mageInfo.name);
+    }
+
+    if (mageInfo.description.empty()) {
+        mage->setDescription(text.description);
+    } else {
+        mage->setDescription(mageInfo.description);
+    }
+
     mage->setImgIso(*getRandomElement(getGeneratorSettings().mages.images, rand));
     mage->setAiPriority(mageInfo.aiPriority);
 
@@ -2004,8 +2033,19 @@ Site* TemplateZone::placeMercenary(const Position& position, const MercenaryInfo
     auto mercenary{std::make_unique<Mercenary>(mercenaryId)};
 
     const SiteText& text = *getRandomElement(getGameInfo()->getMercenaryTexts(), rand);
-    mercenary->setTitle(text.name);
-    mercenary->setDescription(text.description);
+
+    if (mercInfo.name.empty()) {
+        mercenary->setTitle(text.name);
+    } else {
+        mercenary->setTitle(mercInfo.name);
+    }
+
+    if (mercInfo.description.empty()) {
+        mercenary->setDescription(text.description);
+    } else {
+        mercenary->setDescription(mercInfo.description);
+    }
+
     mercenary->setImgIso(*getRandomElement(getGeneratorSettings().mercenaries.images, rand));
     mercenary->setAiPriority(mercInfo.aiPriority);
 
@@ -2057,8 +2097,19 @@ Site* TemplateZone::placeTrainer(const Position& position, const TrainerInfo& tr
     auto trainer{std::make_unique<Trainer>(trainerId)};
 
     const SiteText& text = *getRandomElement(getGameInfo()->getTrainerTexts(), rand);
-    trainer->setTitle(text.name);
-    trainer->setDescription(text.description);
+
+    if (trainerInfo.name.empty()) {
+        trainer->setTitle(text.name);
+    } else {
+        trainer->setTitle(trainerInfo.name);
+    }
+
+    if (trainerInfo.description.empty()) {
+        trainer->setDescription(text.description);
+    } else {
+        trainer->setDescription(trainerInfo.description);
+    }
+
     trainer->setImgIso(*getRandomElement(getGeneratorSettings().trainers.images, rand));
     trainer->setAiPriority(trainerInfo.aiPriority);
 
@@ -2077,8 +2128,19 @@ Site* TemplateZone::placeMarket(const Position& position, const ResourceMarketIn
     auto market{std::make_unique<ResourceMarket>(marketId)};
 
     const SiteText& text = *getRandomElement(getGameInfo()->getMarketTexts(), rand);
-    market->setTitle(text.name);
-    market->setDescription(text.description);
+
+    if (marketInfo.name.empty()) {
+        market->setTitle(text.name);
+    } else {
+        market->setTitle(marketInfo.name);
+    }
+
+    if (marketInfo.description.empty()) {
+        market->setDescription(text.description);
+    } else {
+        market->setDescription(marketInfo.description);
+    }
+
     market->setImgIso(*getRandomElement(getGeneratorSettings().resourceMarkets.images, rand));
     market->setAiPriority(marketInfo.aiPriority);
 
@@ -2110,7 +2172,12 @@ Ruin* TemplateZone::placeRuin(const Position& position, const RuinInfo& ruinInfo
     auto ruin{std::make_unique<Ruin>(ruinId)};
 
     const SiteText& text = *getRandomElement(getGameInfo()->getRuinTexts(), rand);
-    ruin->setTitle(text.name);
+    if (ruinInfo.name.empty()) {
+        ruin->setTitle(text.name);
+    } else {
+        ruin->setTitle(ruinInfo.name);
+    }
+
     ruin->setImage(*getRandomElement(getGeneratorSettings().ruins.images, rand));
     ruin->setAiPriority(ruinInfo.aiPriority);
 
@@ -2155,7 +2222,7 @@ Stack* TemplateZone::placeZoneGuard(const Position& position, const GroupInfo& g
         return nullptr;
     }
 
-    auto stack{createStack(guardInfo)};
+    auto stack{createStack(guardInfo, true)};
     if (!stack) {
         return nullptr;
     }
@@ -2459,7 +2526,13 @@ void TemplateZone::placeCapital()
 
     assert(ownerId != emptyId);
     fort->setOwner(ownerId);
-    fort->setName(*getRandomElement(getGameInfo()->getCityNames(), rand));
+
+    if (capital.name.empty()) {
+        fort->setName(*getRandomElement(getGameInfo()->getCityNames(), rand));
+    } else {
+        fort->setName(capital.name);
+    }
+
     fort->setAiPriority(capital.aiPriority);
 
     auto ownerPlayer{mapGenerator->map->find<Player>(ownerId)};
@@ -2520,7 +2593,7 @@ void TemplateZone::placeCapital()
     auto leader{std::make_unique<Unit>(leaderId)};
     leader->setImplId(leaderInfo->getUnitId());
     leader->setHp(leaderInfo->getHp());
-    leader->setName(getUnitName(*leaderInfo, rand));
+    leader->setName(getUnitName(*leaderInfo, rand, false));
     mapGenerator->insertObject(std::move(leader));
 
     // Create starting stack
@@ -2875,6 +2948,8 @@ void TemplateZone::placeStacks()
             subraceId = mapGenerator->getNeutralSubraceId();
         }
 
+        const bool neutralOwner{ownerId == mapGenerator->getNeutralPlayerId()};
+
         std::vector<Stack*> randomStacks(stackGroup.count);
         std::size_t stackIndex{};
         // Generate and place all random stacks, value is split evenly
@@ -2883,13 +2958,21 @@ void TemplateZone::placeStacks()
         randomStackInfo.subraceTypes = stackGroup.stacks.subraceTypes;
 
         for (; stackIndex < stackGroup.count; ++stackIndex) {
-            auto stack{createStack(randomStackInfo)};
+            auto stack{createStack(randomStackInfo, neutralOwner)};
             if (!stack) {
                 continue;
             }
 
             stack->setOwner(ownerId);
             stack->setSubrace(subraceId);
+
+            if (!stackGroup.name.empty()) {
+                Unit* leader{mapGenerator->map->find<Unit>(stack->getLeader())};
+                if (leader) {
+                    leader->setName(stackGroup.name);
+                }
+            }
+
             stack->setAiPriority(stackGroup.aiPriority);
 
             randomStacks[stackIndex] = stack.get();

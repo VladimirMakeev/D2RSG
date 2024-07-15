@@ -324,6 +324,7 @@ static void readCity(CityInfo& city, const sol::table& table)
 
     city.owner = table.get_or("owner", RaceType::Neutral);
     city.tier = readValue(table, "tier", 1, 1, 5);
+    city.name = readString(table, "name", "");
     readAiPriority(city.aiPriority, table);
 }
 
@@ -359,6 +360,7 @@ static void readCapital(CapitalInfo& capital, const sol::table& table)
         }
     }
 
+    capital.name = readString(table, "name", "");
     readAiPriority(capital.aiPriority, table);
 }
 
@@ -379,6 +381,7 @@ static void readRuin(RuinInfo& ruin, const sol::table& table)
         readLoot(ruin.loot, loot.value());
     }
 
+    ruin.name = readString(table, "name", "");
     readAiPriority(ruin.aiPriority, table);
 }
 
@@ -406,6 +409,8 @@ static void readMerchant(MerchantInfo& merchant, const sol::table& table)
         readGroup(merchant.guard, guard.value());
     }
 
+    merchant.name = readString(table, "name", "");
+    merchant.description = readString(table, "description", "");
     readAiPriority(merchant.aiPriority, table);
 }
 
@@ -457,6 +462,8 @@ static void readMage(MageInfo& mage, const sol::table& table)
         }
     }
 
+    mage.name = readString(table, "name", "");
+    mage.description = readString(table, "description", "");
     readAiPriority(mage.aiPriority, table);
 }
 
@@ -510,6 +517,8 @@ static void readMercenary(MercenaryInfo& mercenary, const sol::table& table)
         readGroup(mercenary.guard, guard.value());
     }
 
+    mercenary.name = readString(table, "name", "");
+    mercenary.description = readString(table, "description", "");
     readAiPriority(mercenary.aiPriority, table);
 }
 
@@ -563,6 +572,8 @@ static void readResourceMarket(ResourceMarketInfo& market, const sol::table& tab
         readGroup(market.guard, guard.value());
     }
 
+    market.name = readString(table, "name", "");
+    market.description = readString(table, "description", "");
     readAiPriority(market.aiPriority, table);
 }
 
@@ -589,6 +600,7 @@ static void readStacks(StacksInfo& stacks, const std::vector<sol::table>& tables
         readGroup(info.stacks, table);
         info.count = readValue(table, "count", 0, 0);
         info.owner = table.get_or("owner", RaceType::Neutral);
+        info.name = readString(table, "name", "");
         readAiPriority(info.aiPriority, table);
 
         stacks.stackGroups.push_back(info);
@@ -618,6 +630,8 @@ static void readTrainers(std::vector<TrainerInfo>& trainers, const std::vector<s
             readGroup(info.guard, guard.value());
         }
 
+        info.name = readString(table, "name", "");
+        info.description = readString(table, "description", "");
         readAiPriority(info.aiPriority, table);
 
         trainers.push_back(info);

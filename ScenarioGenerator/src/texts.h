@@ -24,6 +24,6 @@ namespace rsg {
 class UnitInfo;
 class RandomGenerator;
 
-const char* getUnitName(const UnitInfo& info, RandomGenerator& rand);
+const char* getUnitName(const UnitInfo& info, RandomGenerator& rand, bool neutralOwner);
 
 } // namespace rsg
