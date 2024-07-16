@@ -18,6 +18,7 @@
  */
 
 #include "mapgenerator.h"
+#include "diplomacy.h"
 #include "fog.h"
 #include "image.h"
 #include "knownspells.h"
@@ -103,6 +104,8 @@ MapPtr MapGenerator::generate()
     // Clear map so that all tiles are unguarded
     map->calculateGuardingCreaturePositions();
     fillZones();
+
+    setupDiplomacy();
 
     return std::move(map);
 }
@@ -227,6 +230,44 @@ void MapGenerator::fillZones()
     }
 
     createRoads();
+}
+
+void MapGenerator::setupDiplomacy()
+{
+    std::vector<RaceType> races;
+    map->visit(CMidgardID::Type::Player, [this, &races](const ScenarioObject* object) {
+        auto player{dynamic_cast<const Player*>(object)};
+        assert(player);
+
+        races.push_back(getRaceType(player->getRace()));
+    });
+
+    const auto& customRelations{mapGenOptions.mapTemplate->contents.diplomacy.relations};
+    const GameInfo* info{getGameInfo()};
+    Diplomacy* diplomacy{map->getDiplomacy()};
+
+    for (std::size_t i = 0; i < races.size(); ++i) {
+        const RaceInfo& raceA{info->getRaceInfo(races[i])};
+        const RaceType raceTypeA{raceA.getRaceType()};
+
+        for (std::size_t j = i + 1; j < races.size(); ++j) {
+            const RaceInfo& raceB{info->getRaceInfo(races[j])};
+            const RaceType raceTypeB{raceB.getRaceType()};
+
+            const auto sameRaces = [raceTypeA, raceTypeB](const auto& relation) {
+                return (relation.raceA == raceTypeA && relation.raceB == raceTypeB)
+                       || (relation.raceA == raceTypeB && relation.raceB == raceTypeA);
+            };
+
+            auto it{std::find_if(customRelations.cbegin(), customRelations.cend(), sameRaces)};
+            if (it != customRelations.cend()) {
+                diplomacy->add(it->raceA, it->raceB, it->relation, it->alliance, it->alwaysAtWar,
+                               it->permanentAlliance);
+            } else {
+                diplomacy->add(raceTypeA, raceTypeB, 0u);
+            }
+        }
+    }
 }
 
 void MapGenerator::createDirectConnections()

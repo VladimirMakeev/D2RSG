@@ -733,6 +733,57 @@ static ZoneConnection createZoneConnection(const sol::table& table,
     return connection;
 }
 
+static void readDiplomacyRelation(const sol::table& table, MapTemplateDiplomacy::Relation& relation)
+{
+    relation.raceA = table.get<RaceType>("raceA");
+    relation.raceB = table.get<RaceType>("raceB");
+    relation.relation = readValue<std::uint8_t>(table, "relation", 0u, 0u, 100u);
+    relation.alliance = readValue(table, "alliance", false);
+    relation.alwaysAtWar = readValue(table, "alwaysAtWar", false);
+    relation.permanentAlliance = readValue(table, "permanentAlliance", false);
+
+    if (relation.alliance && relation.alwaysAtWar) {
+        throw TemplateException("Invalid template diplomacy relation between "
+                                + std::to_string((int)relation.raceA) + " and "
+                                + std::to_string((int)relation.raceB)
+                                + ". Races can't be allies and always at war at the same time");
+    }
+
+    if (relation.permanentAlliance && !relation.alliance) {
+        throw TemplateException("Invalid template diplomacy relation between "
+                                + std::to_string((int)relation.raceA) + " and "
+                                + std::to_string((int)relation.raceB)
+                                + ". Races must be allies for permanent AI alliance");
+    }
+}
+
+static void readDiplomacy(const std::vector<sol::table>& tables, MapTemplateDiplomacy& diplomacy)
+{
+    diplomacy.relations.reserve(tables.size());
+
+    for (const auto& table : tables) {
+        MapTemplateDiplomacy::Relation relation{};
+        readDiplomacyRelation(table, relation);
+
+        diplomacy.relations.push_back(relation);
+    }
+
+    const auto& relations{diplomacy.relations};
+    const std::size_t total{relations.size()};
+    for (std::size_t i = 0u; i < total; ++i) {
+        for (std::size_t j = i + 1u; j < total; ++j) {
+            const auto& relationA = relations[i];
+            const auto& relationB = relations[j];
+
+            if (relationA == relationB) {
+                throw TemplateException("Duplicate diplomacy relations found. Races "
+                                        + std::to_string((int)relationA.raceA) + " and "
+                                        + std::to_string((int)relationA.raceB));
+            }
+        }
+    }
+}
+
 static void readContents(MapTemplate& mapTemplate, const sol::table& contentsTable)
 {
     MapTemplateContents& contents = mapTemplate.contents;
@@ -776,6 +827,11 @@ static void readContents(MapTemplate& mapTemplate, const sol::table& contentsTab
 
         zoneFrom->second->connections.push_back(zoneToId);
         zoneTo->second->connections.push_back(zoneFromId);
+    }
+
+    auto diplomacyTable = contentsTable.get<OptionalTableArray>("diplomacy");
+    if (diplomacyTable.has_value()) {
+        readDiplomacy(diplomacyTable.value(), contents.diplomacy);
     }
 }
 

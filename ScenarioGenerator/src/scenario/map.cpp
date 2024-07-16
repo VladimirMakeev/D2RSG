@@ -96,14 +96,9 @@ void Map::serialize(const std::filesystem::path& scenarioFilePath)
 
     const GameInfo* info{getGameInfo()};
 
-    // Populate scenario info and set diplomacy relations between races
+    // Populate scenario info
     for (std::size_t i = 0; i < races.size(); ++i) {
         scenarioInfo->addPlayer(i, races[i]);
-
-        for (std::size_t j = i + 1; j < races.size(); ++j) {
-            diplomacy->add(info->getRaceInfo(races[i]).getRaceId(),
-                           info->getRaceInfo(races[j]).getRaceId(), 0);
-        }
     }
 
     createMapBlocks();

@@ -164,6 +164,11 @@ public:
         return scenarioInfo;
     }
 
+    Diplomacy* getDiplomacy()
+    {
+        return diplomacy;
+    }
+
 private:
     std::size_t posToIndex(const Position& position) const
     {

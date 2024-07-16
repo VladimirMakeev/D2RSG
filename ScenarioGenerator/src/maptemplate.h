@@ -75,6 +75,28 @@ struct MapTemplateSettings
     }
 };
 
+// Describes template diplomacy relations
+struct MapTemplateDiplomacy
+{
+    struct Relation
+    {
+        bool operator==(const Relation& other) const
+        {
+            return (raceA == other.raceA && raceB == other.raceB)
+                   || (raceA == other.raceB && raceB == other.raceA);
+        }
+
+        RaceType raceA{RaceType::Neutral};
+        RaceType raceB{RaceType::Neutral};
+        std::uint8_t relation{};
+        bool alliance{};
+        bool alwaysAtWar{};
+        bool permanentAlliance{true};
+    };
+
+    std::vector<Relation> relations;
+};
+
 // Describes template contents.
 struct MapTemplateContents
 {
@@ -82,6 +104,7 @@ struct MapTemplateContents
 
     Zones zones;
     std::vector<ZoneConnection> connections;
+    MapTemplateDiplomacy diplomacy;
 };
 
 // Random scenario generator template

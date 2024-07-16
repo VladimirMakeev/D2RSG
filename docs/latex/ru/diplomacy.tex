@@ -1,0 +1,35 @@
+\subsubsection{Дипломатия}
+\label{diplomacy}
+Определяет дипломатические отношения между двумя расами.
+
+Обязательные поля:
+\begin{itemize}
+\item \texttt{raceA} - первая раса. См. \hyperref[raceTypes]{\selectlanguage{Russian}Раса}
+\item \texttt{raceB} - вторая раса. См. \hyperref[raceTypes]{\selectlanguage{Russian}Раса}
+\item \texttt{relation} - уровень отношений в диапазоне \texttt{[0 : 100]}. 0 - вражда, 100 - мир
+\end{itemize}
+Необязательные поля:
+\begin{itemize}
+\item \texttt{alliance} - \texttt{true} если расы находятся в союзе. Не может быть \texttt{true} когда \texttt{alwaysAtWar} также \texttt{true}. По умолчанию \texttt{false}
+\item \texttt{alwaysAtWar} - \texttt{true} если расы находятся в состоянии вечной вражды. Не может быть \texttt{true} когда \texttt{alliance} также \texttt{true}. По умолчанию \texttt{false}
+\item \texttt{permanentAlliance} - \texttt{true} если альянс считается постоянным для ИИ. Не может быть \texttt{true} когда \texttt{alliance} \texttt{false}. По умолчанию \texttt{false}
+\end{itemize}
+
+Примеры:\\
+Две расы находятся в состоянии вражды:
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/diplomacyExample1.lua}
+\end{figure}
+
+Две расы находятся в состоянии вражды, заключение союза невозможно:
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/diplomacyExample2.lua}
+\end{figure}
+
+Две расы находятся в союзе. ИИ не может расторгнуть союз:
+
+\begin{figure}[H]
+\lstinputlisting{docExamples/diplomacyExample3.lua}
+\end{figure}

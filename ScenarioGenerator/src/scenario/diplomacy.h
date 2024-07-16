@@ -24,6 +24,8 @@
 
 namespace rsg {
 
+enum class RaceType;
+
 class Diplomacy : public ScenarioObject
 {
 public:
@@ -40,13 +42,18 @@ public:
 
     void serialize(Serializer& serializer, const Map& scenario) const override;
 
-    void add(const CMidgardID& race1, const CMidgardID& race2, std::uint32_t relation);
+    void add(RaceType race1,
+             RaceType race2,
+             std::uint8_t relation,
+             bool alliance = false,
+             bool alwaysAtWar = false,
+             bool permanentAlliance = false);
 
 private:
     struct Entry
     {
-        CMidgardID race1;
-        CMidgardID race2;
+        RaceType race1;
+        RaceType race2;
         std::uint32_t relation;
     };
 

@@ -18,6 +18,7 @@
  */
 
 #include "diplomacy.h"
+#include "enums.h"
 #include "serializer.h"
 
 namespace rsg {
@@ -32,17 +33,30 @@ void Diplomacy::serialize(Serializer& serializer, const Map& scenario) const
     serializer.serialize(idString.data(), static_cast<std::uint32_t>(relations.size()));
 
     for (const auto& relation : relations) {
-        serializer.serialize("RACE_1", relation.race1.getTypeIndex());
-        serializer.serialize("RACE_2", relation.race2.getTypeIndex());
+        serializer.serialize("RACE_1", static_cast<std::uint32_t>(relation.race1));
+        serializer.serialize("RACE_2", static_cast<std::uint32_t>(relation.race2));
         serializer.serialize("RELATION", relation.relation);
     }
 
     serializer.leaveRecord();
 }
 
-void Diplomacy::add(const CMidgardID& race1, const CMidgardID& race2, std::uint32_t relation)
+void Diplomacy::add(RaceType race1,
+                    RaceType race2,
+                    std::uint8_t relation,
+                    bool alliance,
+                    bool alwaysAtWar,
+                    bool permanentAlliance)
 {
-    relations.push_back({race1, race2, relation});
+    std::uint32_t value{alliance ? 1u : 0u};
+    // Current relation
+    value |= (relation & 0x7fu) << 1u;
+    // Always at war
+    value |= (alwaysAtWar ? 1u : 0u) << 30u;
+    // AI can't break alliance
+    value |= (permanentAlliance ? 1u : 0u) << 31u;
+
+    relations.push_back({race1, race2, value});
 }
 
 } // namespace rsg

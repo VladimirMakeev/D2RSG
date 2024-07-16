@@ -96,6 +96,7 @@ public:
     void initTiles();
     void generateZones();
     void fillZones();
+    void setupDiplomacy();
     void createDirectConnections();
     void createObstacles();
 
